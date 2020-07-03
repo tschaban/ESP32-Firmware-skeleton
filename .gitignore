@@ -30,3 +30,16 @@
 *.exe
 *.out
 *.app
+
+# Folders
+.pio
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
+.idea
+.vscode
+.gitignore
+webservice/_config.php
+lib-external
+
