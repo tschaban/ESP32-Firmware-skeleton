@@ -1087,6 +1087,8 @@ void ESPDataAccess::get(uint8_t id, ADC &data) {
       data.i2c.id = root["i2c"]["id"];
       data.i2c.inputId = root["i2c"]["inputId"];
       data.i2c.address = root["i2c"]["address"];
+      data.i2c.gain = root["i2c"]["gain"];
+      data.i2c.samplesPerSecond = root["i2c"]["samplesPerSecond"];
 #endif
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
       data.battery.minVoltage = root["battery"]["minVoltage"];
@@ -1154,6 +1156,8 @@ void ESPDataAccess::save(uint8_t id, ADC *data) {
     i2c["id"] = data->i2c.id;
     i2c["inputId"] = data->i2c.inputId;
     i2c["address"] = data->i2c.address;
+    i2c["gain"] = data->i2c.gain;
+    i2c["samplesPerSecond"] = data->i2c.samplesPerSecond;
 #endif
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
     battery["minVoltage"] = data->battery.minVoltage;
@@ -1193,6 +1197,8 @@ void ESPDataAccess::createADCConfigurationFile() {
   data.i2c.id = ESP_HARDWARE_ITEM_NOT_EXIST;
   data.i2c.inputId = ESP_HARDWARE_ITEM_NOT_EXIST;
   data.i2c.address = ESP_HARDWARE_ITEM_NOT_EXIST;
+  data.i2c.gain = ESP_CONFIG_HARDWARE_ADS1115_DEFAULT_GAIN;
+  data.i2c.samplesPerSecond = ESP_CONFIG_HARDWARE_ADS1115_DEFAULT_SAMPLES;
 #endif
   data.interval = ESP_CONFIG_HARDWARE_ADC_DEFAULT_INTERVAL;
   data.maxVCC = ESP_CONFIG_HARDWARE_ADC_DEFAULT_MAX_VCC;

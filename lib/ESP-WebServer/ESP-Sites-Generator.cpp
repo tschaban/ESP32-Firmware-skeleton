@@ -738,14 +738,118 @@ void ESPSitesGenerator::siteADC(String &page, uint8_t id) {
                    configuration.i2c.inputId == ESP_HARDWARE_ITEM_NOT_EXIST
                        ? " selected=\"selected\""
                        : "");
+
+      char _ain[6];
       for (uint8_t i = 0; i < ESP_CONFIG_HARDWARE_ADS1115_MAX_INPUTS; i++) {
         page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
-        page.replace("{{item.label}}", String(i));
+        sprintf(_ain, "AIN%d", i);
+        page.replace("{{item.label}}", _ain);
         page.replace("{{item.value}}", String(i));
         page.replace("{{item.selected}}", configuration.i2c.inputId == i
                                               ? " selected=\"selected\""
                                               : "");
       }
+
+      page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
+
+      /* Item: Number of samples per second */
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
+      page.replace("{{item.label}}", L_ADS1115_NO_OF_SAMPLES_PER_SECOND);
+      page.replace("{{item.name}}", "samplesPerSecond");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", String(128));
+      page.replace("{{item.value}}", String(ADS1115_REG_CONFIG_DR_128SPS));
+      page.replace("{{item.selected}}", configuration.i2c.samplesPerSecond ==
+                                                ADS1115_REG_CONFIG_DR_128SPS
+                                            ? " selected=\"selected\""
+                                            : "");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", String(250));
+      page.replace("{{item.value}}", String(ADS1115_REG_CONFIG_DR_250SPS));
+      page.replace("{{item.selected}}", configuration.i2c.samplesPerSecond ==
+                                                ADS1115_REG_CONFIG_DR_250SPS
+                                            ? " selected=\"selected\""
+                                            : "");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", String(490));
+      page.replace("{{item.value}}", String(ADS1115_REG_CONFIG_DR_490SPS));
+      page.replace("{{item.selected}}", configuration.i2c.samplesPerSecond ==
+                                                ADS1115_REG_CONFIG_DR_490SPS
+                                            ? " selected=\"selected\""
+                                            : "");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", String(920));
+      page.replace("{{item.value}}", String(ADS1115_REG_CONFIG_DR_920SPS));
+      page.replace("{{item.selected}}", configuration.i2c.samplesPerSecond ==
+                                                ADS1115_REG_CONFIG_DR_920SPS
+                                            ? " selected=\"selected\""
+                                            : "");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", String(1600));
+      page.replace("{{item.value}}", String(ADS1115_REG_CONFIG_DR_1600SPS));
+      page.replace("{{item.selected}}", configuration.i2c.samplesPerSecond ==
+                                                ADS1115_REG_CONFIG_DR_1600SPS
+                                            ? " selected=\"selected\""
+                                            : "");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", String(2400));
+      page.replace("{{item.value}}", String(ADS1115_REG_CONFIG_DR_2400SPS));
+      page.replace("{{item.selected}}", configuration.i2c.samplesPerSecond ==
+                                                ADS1115_REG_CONFIG_DR_2400SPS
+                                            ? " selected=\"selected\""
+                                            : "");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", String(3330));
+      page.replace("{{item.value}}", String(ADS1115_REG_CONFIG_DR_3300SPS));
+      page.replace("{{item.selected}}", configuration.i2c.samplesPerSecond ==
+                                                ADS1115_REG_CONFIG_DR_3300SPS
+                                            ? " selected=\"selected\""
+                                            : "");
+
+      page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
+
+      /* Item: Gain */
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
+
+      page.replace("{{item.label}}", L_ADS1115_GAIN);
+      page.replace("{{item.name}}", "gain");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", "2/3 +/-6.144V");
+      page.replace("{{item.value}}", String(GAIN_TWOTHIRDS));
+      page.replace("{{item.selected}}", configuration.i2c.gain == GAIN_TWOTHIRDS
+                                            ? " selected=\"selected\""
+                                            : "");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", "1 +/-4.096V");
+      page.replace("{{item.value}}", String(GAIN_ONE));
+      page.replace("{{item.selected}}", configuration.i2c.gain == GAIN_ONE
+                                            ? " selected=\"selected\""
+                                            : "");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", "2 +/-2.048V");
+      page.replace("{{item.value}}", String(GAIN_TWO));
+      page.replace("{{item.selected}}", configuration.i2c.gain == GAIN_TWO
+                                            ? " selected=\"selected\""
+                                            : "");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", "4 +/-1.024V");
+      page.replace("{{item.value}}", String(GAIN_FOUR));
+      page.replace("{{item.selected}}", configuration.i2c.gain == GAIN_FOUR
+                                            ? " selected=\"selected\""
+                                            : "");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", "8 +/-0.512V");
+      page.replace("{{item.value}}", String(GAIN_EIGHT));
+      page.replace("{{item.selected}}", configuration.i2c.gain == GAIN_EIGHT
+                                            ? " selected=\"selected\""
+                                            : "");
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", "16 +/-0.256V");
+      page.replace("{{item.value}}", String(GAIN_SIXTEEN));
+      page.replace("{{item.selected}}", configuration.i2c.gain == GAIN_SIXTEEN
+                                            ? " selected=\"selected\""
+                                            : "");
+
       page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
     }
   }
@@ -769,10 +873,17 @@ void ESPSitesGenerator::siteADC(String &page, uint8_t id) {
 
   openSection(page, L_ADC_INPUT_PARAMETERS, "");
 
-  sprintf(_number, "%-.2f", (float)configuration.maxVCC);
+  sprintf(_number, "%-.4f", (float)configuration.maxVCC);
   addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "vcc", L_MEASURED_VOLTAGE,
-                   _number, ESP_FORM_ITEM_SKIP_PROPERTY, "0", "24", "0.01",
-                   "V");
+                   _number, ESP_FORM_ITEM_SKIP_PROPERTY, "0", "24", "0.0001",
+                   configuration.i2c.address != ESP_HARDWARE_ITEM_NOT_EXIST &&
+                           configuration.i2c.id != ESP_HARDWARE_ITEM_NOT_EXIST
+                       ? L_ADS1115_SET_BY_GAIN
+                       : "V",
+                   configuration.i2c.address != ESP_HARDWARE_ITEM_NOT_EXIST &&
+                           configuration.i2c.id != ESP_HARDWARE_ITEM_NOT_EXIST
+                       ? true
+                       : false);
 
   sprintf(_number, "%d", (uint32_t)configuration.resolution);
   addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "resolution",
@@ -818,15 +929,15 @@ void ESPSitesGenerator::siteADC(String &page, uint8_t id) {
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
   openSection(page, L_BATTERY_METER, "");
 
-  sprintf(_number, "%-.3f", configuration.battery.minVoltage);
+  sprintf(_number, "%-.4f", configuration.battery.minVoltage);
   addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "batteryMin",
                    L_BATTERY_MIN_LEVEL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
-                   "0", "200", "0.001", "V");
+                   "0", "200", "0.0001", "V");
 
-  sprintf(_number, "%-.3f", configuration.battery.maxVoltage);
+  sprintf(_number, "%-.4f", configuration.battery.maxVoltage);
   addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "batteryMax",
                    L_BATTERY_MAX_LEVEL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
-                   "0", "200", "0.001", "V");
+                   "0", "200", "0.0001", "V");
 
   closeSection(page);
 

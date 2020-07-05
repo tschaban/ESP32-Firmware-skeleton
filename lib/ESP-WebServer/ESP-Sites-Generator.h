@@ -25,6 +25,10 @@
 #include <Wire.h>
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_ADS1115
+#include <Adafruit_ADS1115.h>
+#endif
+
 class ESPSitesGenerator {
 
 private:

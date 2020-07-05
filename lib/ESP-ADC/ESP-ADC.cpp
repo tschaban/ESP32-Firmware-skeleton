@@ -22,6 +22,9 @@ void ESPADC::begin(ESPDataAccess *_Data, uint8_t id) {
          << F("- I2C BUS: ") << configuration.i2c.id << endl
          << F("- ADS1115 Address: ") << configuration.i2c.address << endl
          << F("- ADS1115 ADC ID: ") << configuration.i2c.inputId << endl
+         << F("- ADS1115 Gain: ") << configuration.i2c.gain << endl
+         << F("- ADS1115 Samples/Sec: ") << configuration.i2c.samplesPerSecond << endl
+
 #endif
          << F("- Interval: ") << configuration.interval << endl
          << F("- No of Samples: ") << configuration.numberOfSamples << endl
@@ -50,6 +53,7 @@ void ESPADC::begin(ESPDataAccess *_Data, uint8_t id) {
       WirePort = WirePort1;
     }
     ADS1115Input.begin(WirePort, configuration.i2c.address);
+    ADS1115Input.setGain((adsGain_t)configuration.i2c.gain);
     readFromGPIO = false;
     _initialized = true;
   }

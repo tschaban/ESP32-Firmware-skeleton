@@ -1,4 +1,4 @@
-#include "main.h"
+#include <main.h>
 
 void setup() {
 
@@ -95,7 +95,7 @@ void setup() {
          << endl
          << F("#                            STARTING DEVICE                    "
               "       #");
-  if (Device.getMode() !3 = ESP_MODE_NORMAL) {
+  if (Device.getMode() != ESP_MODE_NORMAL) {
     Serial << endl
            << F("#                           CONFIGURATION MODE                "
                 "         #");

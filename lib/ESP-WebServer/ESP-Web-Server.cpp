@@ -11,15 +11,16 @@ void ESPWebServer::begin(ESPDataAccess *_Data, ESPDevice *_Device, ESPLED *_LED,
 }
 
 #elif defined(ESP_CONFIG_HARDWARE_LED) && !defined(ESP_CONFIG_HARDWARE_I2C)
-void ESPWebServer::begin(ESPDataAccess *_Data, ESPDevice *_Device, ESPLED *_LED) {
+void ESPWebServer::begin(ESPDataAccess *_Data, ESPDevice *_Device,
+                         ESPLED *_LED) {
   SystemLED = _LED;
   Site.begin(_Device, _Data);
   begin(_Data, _Device);
 }
 
 #elif !defined(ESP_CONFIG_HARDWARE_LED) && defined(ESP_CONFIG_HARDWARE_I2C)
-void ESPWebServer::begin(ESPDataAccess *_Data, ESPDevice *_Device, TwoWire *_WirePort0,
-                         TwoWire *_WirePort1) {
+void ESPWebServer::begin(ESPDataAccess *_Data, ESPDevice *_Device,
+                         TwoWire *_WirePort0, TwoWire *_WirePort1) {
   Site.begin(_Device, _Data, _WirePort0, _WirePort1);
   begin(_Data, _Device);
 }
@@ -652,11 +653,37 @@ void ESPWebServer::get(ADC &data) {
                          ? Server.arg("input").toInt()
                          : ESP_HARDWARE_ITEM_NOT_EXIST;
 
-  /* GPIO is set to None if I2C (ADS1115) is selected */
+  data.i2c.gain = Server.arg("gain").length() > 0
+                      ? Server.arg("gain").toInt()
+                      : ESP_CONFIG_HARDWARE_ADS1115_DEFAULT_GAIN;
+
+  /* Data validation */
   if (data.i2c.id != ESP_HARDWARE_ITEM_NOT_EXIST &&
-      data.gpio != ESP_HARDWARE_ITEM_NOT_EXIST) {
-    data.gpio = ESP_HARDWARE_ITEM_NOT_EXIST;
+      data.i2c.address != ESP_HARDWARE_ITEM_NOT_EXIST) {
+
+    if (data.gpio != ESP_HARDWARE_ITEM_NOT_EXIST) {
+      data.gpio = ESP_HARDWARE_ITEM_NOT_EXIST;
+    }
+
+    data.maxVCC =
+        data.i2c.gain == GAIN_TWOTHIRDS
+            ? 6.144
+            : (data.i2c.gain == GAIN_ONE
+                   ? 4.096
+                   : (data.i2c.gain == GAIN_TWO
+                          ? 2.048
+                          : (data.i2c.gain == GAIN_FOUR
+                                 ? 1.024
+                                 : (data.i2c.gain == GAIN_EIGHT
+                                        ? 0.512
+                                        : (data.i2c.gain == GAIN_SIXTEEN
+                                               ? 0.256
+                                               : 6.144)))));
   }
+
+  data.i2c.samplesPerSecond = Server.arg("samplesPerSecond").length() > 0
+                                  ? Server.arg("samplesPerSecond").toInt()
+                                  : ESP_CONFIG_HARDWARE_ADS1115_DEFAULT_SAMPLES;
 
 #endif // ESP_CONFIG_HARDWARE_I2C
 

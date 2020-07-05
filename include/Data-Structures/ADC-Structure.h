@@ -30,6 +30,8 @@ struct ADC_I2C {
   uint8_t id;
   uint8_t inputId;
   uint8_t address;
+  uint16_t gain;
+  uint16_t samplesPerSecond;
 };
 #endif // ESP_CONFIG_HARDWARE_I2C
 

@@ -74,11 +74,7 @@ void ESPLED::set(uint8_t state) {
 }
 
 void ESPLED::toggle() {
-  if (_initialized) {
-    digitalRead(LEDConfiguration.gpio) == HIGH
-        ? digitalWrite(LEDConfiguration.gpio, LOW)
-        : digitalWrite(LEDConfiguration.gpio, HIGH);
-  }
+  digitalRead(LEDConfiguration.gpio) == HIGH ? set(LOW) : set(HIGH);
 }
 
 #endif // ESP_CONFIG_HARDWARE_LED
