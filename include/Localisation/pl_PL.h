@@ -92,11 +92,16 @@
 #define L_NUMBER_OF_ADCS "Ilość wejść ADC"
 #define L_NUMBER_OF_I2C "Ilość magistral I2C"
 #define L_NUMBER_OF_UART "Ilość magistral UART"
+#define L_NUMBER_OF_BINARY_SENSORS "Ilość czujników binarnych"
 
 #define L_DO_MEASURE_ADC "Pomiary z wejścia analogowego"
 #define L_DEVICE_CONTROLLING "Sterowanie urządzeniem"
 #define L_DEVICE_CONTROLLING_INFO                                              \
   "Włączanie / Wyłączanie mechanizmów sterowania urządzeniem"
+
+
+
+
 
 #ifdef ESP_CONFIG_HARDWARE_GATE
 #define L_CONTROLLED_GATES "Kontrolowane bramy/drzwi"

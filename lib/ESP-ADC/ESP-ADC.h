@@ -41,10 +41,6 @@ public:
   ADC configuration;
   ADC_DATA data;
 
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-  float batteryPercentage = 0;
-#endif
-
   /* Constructor */
   ESPADC();
 

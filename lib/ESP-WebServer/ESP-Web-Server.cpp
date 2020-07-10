@@ -496,6 +496,12 @@ void ESPWebServer::get(DEVICE &data) {
                       : ESP_CONFIG_HARDWARE_ADC_DEFAULT_NUMBER;
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+  data.noOfBinarySensors = Server.arg("binarySensor").length() > 0
+                      ? Server.arg("binarySensor").toInt()
+                      : ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_NUMBER;
+#endif
+
 #ifdef ESP_CONFIG_HARDWARE_I2C
   data.noOfI2Cs = Server.arg("i2c").length() > 0
                       ? Server.arg("i2c").toInt()

@@ -23,7 +23,9 @@ struct DEVICE {
 #ifdef ESP_CONFIG_HARDWARE_ADC
   uint8_t noOfADCs;
 #endif
-
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+  uint8_t noOfBinarySensors;
+#endif
 
 };
 

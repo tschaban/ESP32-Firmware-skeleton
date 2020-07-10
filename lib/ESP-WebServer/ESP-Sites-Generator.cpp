@@ -419,6 +419,14 @@ void ESPSitesGenerator::siteDevice(String &page) {
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_ADC_MAX_NUMBER,
                         configuration.noOfADCs, "adc", L_NUMBER_OF_ADCS);
 #endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+  addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_SENSOR_BINARY_MAX_NUMBER,
+                        configuration.noOfBinarySensors, "binarySensor", L_NUMBER_OF_BINARY_SENSORS);
+
+#endif
+
+
   closeSection(page);
 
   openSection(page, L_BUSES, "");
@@ -752,7 +760,7 @@ void ESPSitesGenerator::siteADC(String &page, uint8_t id) {
 
       page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
 
-      /* Item: Number of samples per second */
+      /* Item: Number of samples per m.second */
       page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
       page.replace("{{item.label}}", L_ADS1115_NO_OF_SAMPLES_PER_SECOND);
       page.replace("{{item.name}}", "samplesPerSecond");
@@ -862,7 +870,7 @@ void ESPSitesGenerator::siteADC(String &page, uint8_t id) {
   sprintf(_number, "%d", configuration.interval);
   addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "interval",
                    L_MEASURMENTS_INTERVAL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
-                   "1", "86400", "1", L_SECONDS);
+                   "20", "3600000", "1", L_MILISECONDS);
 
   sprintf(_number, "%d", configuration.numberOfSamples);
   addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "samples",

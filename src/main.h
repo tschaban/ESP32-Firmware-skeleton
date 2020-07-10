@@ -22,6 +22,10 @@ ESPDataAccess Data;
 ESPDevice Device;
 ESPWiFi Network;
 
+#ifdef ESP_CONFIG_HARDWARE_NEXTION
+#include "nextion.cpp"
+#endif
+
 #ifdef ESP_CONFIG_HARDWARE_LED
 #include "led.cpp"
 #endif
@@ -38,8 +42,10 @@ ESPWiFi Network;
 #include "adc.cpp"
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+#include "binarySensor.cpp"
+#endif
+
 #include "httpServer.cpp"
-
-
 
 #endif // _ESP_main_h

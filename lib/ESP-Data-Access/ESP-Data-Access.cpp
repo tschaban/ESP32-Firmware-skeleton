@@ -127,6 +127,11 @@ void ESPDataAccess::get(DEVICE &data) {
           root["noOfUARTs"] | ESP_CONFIG_HARDWARE_UART_DEFAULT_NUMBER;
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+      data.noOfBinarySensors = root["noOfBinarySensors"] |
+                               ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_NUMBER;
+#endif
+
 #ifdef DEBUG
       Serial << endl
              << "INFO: JSON: Buffer size: " << ESP_CONFIG_FILE_BUFFER_DEVICE
@@ -186,6 +191,9 @@ void ESPDataAccess::save(DEVICE *data) {
 #ifdef ESP_CONFIG_HARDWARE_UART
     root["noOfUARTs"] = data->noOfUARTs;
 #endif
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+    root["noOfBinarySensors"] = data->noOfBinarySensors;
+#endif
 
     root.printTo(configFile);
 
@@ -232,6 +240,9 @@ void ESPDataAccess::createDeviceConfigurationFile() {
 #endif
 #ifdef ESP_CONFIG_HARDWARE_UART
   data.noOfUARTs = ESP_CONFIG_HARDWARE_UART_DEFAULT_NUMBER;
+#endif
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+  data.noOfBinarySensors = ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_NUMBER;
 #endif
 
   save(&data);

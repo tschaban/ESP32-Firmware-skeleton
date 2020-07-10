@@ -93,7 +93,7 @@ void ESPADC::listener() {
       startTime = time;
     }
 
-    if (time - startTime >= configuration.interval * 1000) {
+    if (time - startTime >= configuration.interval) {
 
       if (counterOfSamplings < configuration.numberOfSamples) {
 
@@ -126,18 +126,18 @@ void ESPADC::listener() {
 
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
         if (data.voltageCalculated >= configuration.battery.maxVoltage) {
-          batteryPercentage = 100;
+          data.batteryPercent = 100;
         } else if (data.voltageCalculated <= configuration.battery.minVoltage) {
-          batteryPercentage = 0;
+          data.batteryPercent = 0;
         } else if (configuration.battery.maxVoltage -
                        configuration.battery.minVoltage >
                    0) {
-          batteryPercentage =
+          data.batteryPercent =
               (data.voltageCalculated - configuration.battery.minVoltage) *
               100 / (configuration.battery.maxVoltage -
                      configuration.battery.minVoltage);
         } else {
-          batteryPercentage = 0;
+          data.batteryPercent = 0;
         }
 #endif
 
@@ -156,7 +156,7 @@ void ESPADC::listener() {
                << F(" - Voltage = ") << data.voltage << endl
                << F(" - VoltageCalculated = ") << data.voltageCalculated << endl
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-               << F(" - Battery level = ") << batteryPercentage << endl
+               << F(" - Battery level = ") << data.batteryPercent << endl
 #endif
                << F(" - Sampling time = ")
                << millis() - startTime - configuration.interval * 1000

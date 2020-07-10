@@ -11,6 +11,9 @@ struct ADC_DATA {
   float percent;
   double voltage;
   double voltageCalculated;
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+  float batteryPercent;
+#endif
 };
 
 struct ADC_VOLTAGE_DIVIDER {

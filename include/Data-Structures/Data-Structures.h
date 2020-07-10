@@ -30,4 +30,8 @@
 #include <ADC-Structure.h>
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+#include <Sensor-BINARY-Structure.h>
+#endif
+
 #endif

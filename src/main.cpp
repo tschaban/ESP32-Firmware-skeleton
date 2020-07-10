@@ -83,6 +83,16 @@ void setup() {
 #ifdef ESP_CONFIG_HARDWARE_ADC
     initializeADC();
 #endif
+
+/* Nextion */
+#ifdef ESP_CONFIG_HARDWARE_NEXTION
+    initializeNextion();
+#endif
+
+/* Sensor: Binary Input */
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+    initializeSensorBinary();
+#endif
   }
 
 #ifdef DEBUG
@@ -118,6 +128,10 @@ void loop() {
 
 #ifdef ESP_CONFIG_HARDWARE_ADC
         eventsListnerADC();
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+        eventsListnerSensorBinary();
 #endif
       }
       /* Code only for: Normal and Configuration mode, and connected to WiFi */

@@ -26,11 +26,18 @@ void eventsListnerADC(void) {
   for (uint8_t i = 0; i < Device.configuration.noOfADCs; i++) {
     ADCInput[i].listener();
     if (ADCInput[i].isReady()) {
+      char _number[10];
+      sprintf(_number, "%-.4f", ADCInput[i].data.voltageCalculated);
+
 #ifdef DEBUG
       Serial << endl
              << "INFO: Data from ADC(" << i + 1
-             << "): in buffer. Ready for processing";
+             << "): in buffer. Ready for processing." << endl << "INFO: Publishing: " << _number << endl;
 #endif
+
+
+      p0_t0.setText(_number);
+
       // HERE CODE FOR ADC
     }
   }
