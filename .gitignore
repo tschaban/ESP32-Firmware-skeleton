@@ -39,6 +39,7 @@
 .gcc-flags.json
 .idea
 .vscode
-.gitignore
-#lib-external
+lib-external
 
+#Files
+.gitignore
