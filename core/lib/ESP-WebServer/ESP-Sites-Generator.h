@@ -15,9 +15,9 @@
 #endif
 
 #if FIRMWARE_LANGUAGE == 0
-#include <pl_PL.h>
+#include <ESP-pl_PL.h>
 #else
-#include <en_EN.h>
+#include <ESP-en_EN.h>
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_I2C

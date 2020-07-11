@@ -1,7 +1,7 @@
 #ifndef _ESP_main_h
 #define _ESP_main_h
 
-#include "arduino.h"
+#include <arduino.h>
 
 #ifdef DEBUG
 #include <Streaming.h>
@@ -13,9 +13,9 @@
 #include <ESP-WiFi.h>
 
 #if FIRMWARE_LANGUAGE == 0
-#include <pl_PL.h>
+#include <ESP-pl_PL.h>
 #else
-#include <en_EN.h>
+#include <ESP-en_EN.h>
 #endif
 
 ESPDataAccess Data;
@@ -23,29 +23,29 @@ ESPDevice Device;
 ESPWiFi Network;
 
 #ifdef ESP_CONFIG_HARDWARE_NEXTION
-#include "nextion.cpp"
+#include <ESP-Main-Nextion.cpp>
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_LED
-#include "led.cpp"
+#include <ESP-Main-LED.cpp>
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SWITCH
-#include "switch.cpp"
+#include <ESP-Main-Switch.cpp>
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_I2C
-#include "i2c.cpp"
+#include <ESP-Main-I2C.cpp>
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_ADC
-#include "adc.cpp"
+#include <ESP-Main-ADC.cpp>
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
-#include "binarySensor.cpp"
+#include <ESP-Main-BinarySensor.cpp>
 #endif
 
-#include "httpServer.cpp"
+#include <ESP-Main-HTTPServer.cpp>
 
 #endif // _ESP_main_h
