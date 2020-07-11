@@ -6,4 +6,5 @@ Supports
 * x ADS1115s
 * 2 x I2C
 * 3 x UART
+* 4 x Binary Sensor
 * HTTP Configuration panel
