@@ -22,7 +22,7 @@ public:
   ESPSensorBinary();
 
   /* Init switch */
-  void begin(uint8_t id);
+  void begin(ESPDataAccess *_Data, uint8_t id);
 
   void get(uint32_t &noOfImpulses, uint32_t &duration);
   boolean listener(void);
@@ -31,8 +31,10 @@ public:
 private:
   uint8_t _id;
   uint32_t counterStarted = 0;
-
   uint32_t _previousDuration = 0; // Used in case of time rollout
+  ESPDataAccess *Data;
+  boolean _initialized = false;
+  boolean _ret = false;
   
 };
 

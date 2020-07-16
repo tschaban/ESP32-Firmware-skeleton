@@ -1226,3 +1226,127 @@ void ESPDataAccess::createADCConfigurationFile() {
   }
 }
 #endif // ESP_CONFIG_HARDWARE_ADC
+
+
+/******** Binary Sensor *************************/
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+void ESPDataAccess::get(uint8_t id, BINARY_SENSOR &data) {
+  char fileName[26];
+  sprintf(fileName, ESP_CONFIG_HARDWARE_SENSOR_BINARY_FILE_NAME, id);
+
+#ifdef DEBUG
+  Serial << endl << endl << "INFO: Opening file: " << fileName << " ... ";
+#endif
+
+  File configFile = LITTLEFS.open(fileName, "r");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: JSON: ";
+#endif
+
+    size_t size = configFile.size();
+    std::unique_ptr<char[]> buf(new char[size]);
+    configFile.readBytes(buf.get(), size);
+    StaticJsonBuffer<ESP_CONFIG_HARDWARE_SENSOR_BINARY_FILE_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.parseObject(buf.get());
+    if (root.success()) {
+#ifdef DEBUG
+      root.printTo(Serial);
+#endif
+
+      data.gpio = root["gpio"];
+      data.interval = root["interval"];
+      data.bouncing = root["bouncing"];
+
+#ifdef DEBUG
+      Serial << endl
+             << "INFO: JSON: Buffer size: "
+             << ESP_CONFIG_HARDWARE_SENSOR_BINARY_FILE_BUFFER
+             << ", actual JSON size: " << jsonBuffer.size();
+      if (ESP_CONFIG_HARDWARE_SENSOR_BINARY_FILE_BUFFER <
+          jsonBuffer.size() + 10) {
+        Serial << endl << "WARN: Too small buffer size";
+      }
+#endif
+    }
+#ifdef DEBUG
+    else {
+      Serial << "ERROR: JSON not pharsed";
+    }
+#endif
+    configFile.close();
+  }
+
+#ifdef DEBUG
+  else {
+    Serial << endl
+           << "ERROR: Configuration file: " << fileName << " not opened";
+  }
+#endif
+}
+
+void ESPDataAccess::save(uint8_t id, BINARY_SENSOR *data) {
+  char fileName[26];
+  sprintf(fileName, ESP_CONFIG_HARDWARE_SENSOR_BINARY_FILE_NAME, id);
+
+#ifdef DEBUG
+  Serial << endl << endl << "INFO: Opening file: " << fileName << " ... ";
+#endif
+
+  File configFile = LITTLEFS.open(fileName, "w");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: Writing JSON: ";
+#endif
+
+    StaticJsonBuffer<ESP_CONFIG_HARDWARE_SENSOR_BINARY_FILE_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.createObject();
+    root["gpio"] = data->gpio;
+    root["interval"] = data->interval;
+    root["bouncing"] = data->bouncing;
+    root.printTo(configFile);
+#ifdef DEBUG
+    root.printTo(Serial);
+#endif
+    configFile.close();
+
+#ifdef DEBUG
+    Serial << endl
+           << "INFO: Data saved" << endl
+           << "INFO: JSON: Buffer size: "
+           << ESP_CONFIG_HARDWARE_SENSOR_BINARY_FILE_BUFFER
+           << ", actual JSON size: " << jsonBuffer.size();
+    if (ESP_CONFIG_HARDWARE_SENSOR_BINARY_FILE_BUFFER <
+        jsonBuffer.size() + 10) {
+      Serial << endl << "WARN: Too small buffer size";
+    }
+#endif
+  }
+#ifdef DEBUG
+  else {
+    Serial << endl << F("ERROR: failed to open file: ") << fileName;
+  }
+#endif
+}
+
+void ESPDataAccess::createBinarySensorConfigurationFile() {
+#ifdef DEBUG
+  Serial << endl << F("INFO: Creating Binary sensor configuration files");
+#endif
+  BINARY_SENSOR data;
+  data.gpio = ESP_HARDWARE_ITEM_NOT_EXIST;
+  data.bouncing = ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_BOUNCING;
+  data.interval = ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_INTERVAL;
+  for (uint8_t i = 0; i < ESP_CONFIG_HARDWARE_SENSOR_BINARY_MAX_NUMBER; i++) {
+    save(i, &data);
+  }
+}
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+  void get(uint8_t id, DS18B20_SENSOR &data) {}
+  void save(uint8_t id, DS18B20_SENSOR *data) {}
+  void createDS18B20SensorConfigurationFile() {}
+#endif

@@ -98,6 +98,14 @@ void ESPSitesGenerator::generateTwoColumnsLayout(String &page,
   }
 #endif // ESP_CONFIG_HARDWARE_ADC
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+  if (Device->configuration.noOfBinarySensors > 0) {
+    addMenuHeaderItem(page, L_BINARY_SENSOR);
+    addMenuSubItem(page, L_SENSOR, Device->configuration.noOfBinarySensors,
+                   ESP_CONFIG_SITE_BINARY_SENSOR);
+  }
+#endif // ESP_CONFIG_HARDWARE_SENSOR_BINARY
+
   addMenuItem(page, L_FIRMWARE_UPGRADE, ESP_CONFIG_SITE_UPGRADE);
   addMenuItem(page, L_RESET_DEVICE, ESP_CONFIG_SITE_RESET);
   addMenuItem(page, L_FINISH_CONFIGURATION, ESP_CONFIG_SITE_EXIT);
@@ -422,10 +430,10 @@ void ESPSitesGenerator::siteDevice(String &page) {
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_SENSOR_BINARY_MAX_NUMBER,
-                        configuration.noOfBinarySensors, "binarySensor", L_NUMBER_OF_BINARY_SENSORS);
+                        configuration.noOfBinarySensors, "binarySensor",
+                        L_NUMBER_OF_BINARY_SENSORS);
 
 #endif
-
 
   closeSection(page);
 
@@ -951,4 +959,33 @@ void ESPSitesGenerator::siteADC(String &page, uint8_t id) {
 
 #endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
 }
-#endif
+
+#endif // ESP_CONFIG_HARDWARE_ADC
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+void ESPSitesGenerator::siteBinarySensor(String &page, uint8_t id) {
+  BINARY_SENSOR configuration;
+  Data->get(id, configuration);
+  char _number[13];
+
+  openSection(page, L_BINARY_SENSOR, "");
+
+  /* Item: GPIO */
+  addListOfGPIOs(page, "gpio", configuration.gpio, "GPIO");
+
+  /* Item: Interval */
+  sprintf(_number, "%d", configuration.interval);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "interval",
+                   L_MEASURMENTS_INTERVAL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
+                   "20", "3600000", "1", L_MILISECONDS);
+
+  /* Item: Bouncing */
+  sprintf(_number, "%d", configuration.bouncing);
+
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "bouncing", L_SENSITIVENESS,
+                   _number, ESP_FORM_ITEM_SKIP_PROPERTY, "0", "999", "1",
+                   L_MILISECONDS);
+
+  closeSection(page);
+}
+#endif // ESP_CONFIG_HARDWARE_SENSOR_BINARY

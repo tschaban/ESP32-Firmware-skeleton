@@ -127,6 +127,13 @@ String ESPWebServer::generateSite(SITE_PARAMETERS *siteConfig, String &page) {
     break;
   }
 #endif // ESP_CONFIG_HARDWARE_ADC
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+  case ESP_CONFIG_SITE_BINARY_SENSOR: {
+    Site.siteBinarySensor(page, siteConfig->deviceID);
+    break;
+  }
+#endif // ESP_CONFIG_HARDWARE_SENSOR_BINARY
+
   }
 
   if (siteConfig->form) {
@@ -250,6 +257,14 @@ void ESPWebServer::generate(boolean upload) {
 #ifdef ESP_CONFIG_HARDWARE_ADC
       case ESP_CONFIG_SITE_ADC: {
         ADC configuration;
+        get(configuration);
+        Data->save(siteConfig.deviceID, &configuration);
+        break;
+      }
+#endif
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+      case ESP_CONFIG_SITE_BINARY_SENSOR: {
+        BINARY_SENSOR configuration;
         get(configuration);
         Data->save(siteConfig.deviceID, &configuration);
         break;
@@ -497,9 +512,10 @@ void ESPWebServer::get(DEVICE &data) {
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
-  data.noOfBinarySensors = Server.arg("binarySensor").length() > 0
-                      ? Server.arg("binarySensor").toInt()
-                      : ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_NUMBER;
+  data.noOfBinarySensors =
+      Server.arg("binarySensor").length() > 0
+          ? Server.arg("binarySensor").toInt()
+          : ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_NUMBER;
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_I2C
@@ -694,15 +710,30 @@ void ESPWebServer::get(ADC &data) {
 #endif // ESP_CONFIG_HARDWARE_I2C
 
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-  data.battery.maxVoltage =
+  data.battery.minVoltage =
       Server.arg("batteryMin").length() > 0
           ? Server.arg("batteryMin").toFloat()
           : ESP_CONFIG_HARDWARE_ADC_DEFAULT_BATTERY_MAX_VOLTAGE;
 
-  data.battery.minVoltage =
+  data.battery.maxVoltage =
       Server.arg("batteryMax").length() > 0
           ? Server.arg("batteryMax").toFloat()
           : ESP_CONFIG_HARDWARE_ADC_DEFAULT_BATTERY_MIN_VOLTAGE;
 #endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+}
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+void ESPWebServer::get(BINARY_SENSOR &data) {
+  data.gpio = Server.arg("gpio").length() > 0 ? Server.arg("gpio").toInt()
+                                              : ESP_HARDWARE_ITEM_NOT_EXIST;
+
+  data.interval = Server.arg("interval").length() > 0
+                      ? Server.arg("interval").toInt()
+                      : ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_INTERVAL;
+
+  data.bouncing = Server.arg("bouncing").length() > 0
+                      ? Server.arg("bouncing").toInt()
+                      : ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_BOUNCING;                      
 }
 #endif

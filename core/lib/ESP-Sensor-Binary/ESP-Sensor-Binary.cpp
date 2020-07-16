@@ -21,31 +21,38 @@ void handleImpuls0() {
 
 ESPSensorBinary::ESPSensorBinary(){};
 
-void ESPSensorBinary::begin(uint8_t id) {
-
-  configuration.gpio = 0;
-  configuration.bouncing = 10;
-  configuration.interval = 10000;
+void ESPSensorBinary::begin(ESPDataAccess *_Data, uint8_t id) {
+  Data = _Data;
+  Data->get(id, configuration);
   _id = id;
 
-  pinMode(configuration.gpio, INPUT);
-  switch (_id) {
-  case 0: {
-    attachInterrupt(digitalPinToInterrupt(configuration.gpio), handleImpuls0,
-                    RISING);
-    bouncing0 = configuration.bouncing;
-    break;
-  }
-  case 1: {
-  }
-  case 2: {
-  }
-  case 3: {
-  }
+  if (configuration.gpio != ESP_HARDWARE_ITEM_NOT_EXIST) {
+
+    pinMode(configuration.gpio, INPUT);
+    switch (_id) {
+    case 0: {
+      attachInterrupt(digitalPinToInterrupt(configuration.gpio), handleImpuls0,
+                      RISING);
+      bouncing0 = configuration.bouncing;
+      break;
+    }
+    case 1: {
+    }
+    case 2: {
+    }
+    case 3: {
+    }
+    }
+
+    _initialized = true;
   }
 
 #ifdef DEBUG
-  Serial << endl << F("INFO: Binary sensor initialized and working");
+  if (_initialized) {
+    Serial << endl << F("INFO: Binary sensor initialized and working");
+  } else {
+    Serial << endl << F("WARN: Binary sensor NOT initialized");
+  }
 #endif
 }
 
@@ -79,15 +86,19 @@ void ESPSensorBinary::get(uint32_t &noOfImpulses, uint32_t &duration) {
 }
 
 boolean ESPSensorBinary::listener(void) {
-  if (counterStarted == 0) {
-    counterStarted = millis();
+  if (_initialized) {
+    if (counterStarted == 0) {
+      counterStarted = millis();
+    }
+    if (millis() - counterStarted >= configuration.interval) {
+      _ret = true;
+    } else {
+      _ret = false;
+    }
+  } else { // Not initialized
+    _ret = false;
   }
-
-  if (millis() - counterStarted >= configuration.interval) {
-    return true;
-  } else {
-    return false;
-  }
+  return _ret;
 }
 
 #endif // ESP_CONFIG_HARDWARE_SENSOR_BINARY

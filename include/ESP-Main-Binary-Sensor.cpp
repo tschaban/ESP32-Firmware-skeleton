@@ -2,21 +2,21 @@
 
 #include <ESP-Sensor-Binary.h>
 ESPSensorBinary BinarySensor[ESP_CONFIG_HARDWARE_SENSOR_BINARY_MAX_NUMBER];
-void initializeSensorBinary(void);
-void eventsListnerSensorBinary(void);
+void initializeBinarySensor(void);
+void eventsListnerBinarySensor(void);
 
 /***** Body ******/
 
-void initializeSensorBinary(void) {
+void initializeBinarySensor(void) {
   for (uint8_t i = 0; i < Device.configuration.noOfBinarySensors; i++) {
-    BinarySensor[i].begin(i);
+    BinarySensor[i].begin(&Data,i);
 #ifdef DEBUG
     Serial << endl << "INFO: Binary Sesnor(" << i + 1 << ") initialized";
 #endif
   }
 };
 
-void eventsListnerSensorBinary(void) {
+void eventsListnerBinarySensor(void) {
 
   /* Listens for switch events */
   for (uint8_t i = 0; i < Device.configuration.noOfBinarySensors; i++) {
@@ -26,7 +26,7 @@ void eventsListnerSensorBinary(void) {
 
       char _number[10];
       sprintf(_number, "%d", impulses);
-      p0_t0.setText(_number);
+      p0_t2.setText(_number);
 
       // HERE CODE FOR BINARY SESNOR
     }

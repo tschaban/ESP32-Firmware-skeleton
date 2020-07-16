@@ -5,8 +5,6 @@
 
 #include <Configuration.h>
 #include <Data-Structures.h>
-//#include <ESP8266WiFi.h>
-//#include <IPAddress.h>
 #include <ArduinoJson.h>
 #include <LITTLEFS.h>
 
@@ -75,6 +73,19 @@ public:
   void get(uint8_t, ADC &data);
   void save(uint8_t, ADC *);
   void createADCConfigurationFile();
+#endif
+
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+  void get(uint8_t, BINARY_SENSOR &data);
+  void save(uint8_t, BINARY_SENSOR *);
+  void createBinarySensorConfigurationFile();
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+  void get(uint8_t, DS18B20_SENSOR &data);
+  void save(uint8_t, DS18B20_SENSOR *);
+  void createDS18B20SensorConfigurationFile();
 #endif
 
 };

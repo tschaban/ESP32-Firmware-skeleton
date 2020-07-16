@@ -27,16 +27,19 @@ void eventsListnerADC(void) {
     ADCInput[i].listener();
     if (ADCInput[i].isReady()) {
       char _number[10];
-      sprintf(_number, "%-.4f", ADCInput[i].data.voltageCalculated);
-
+      if (i == 0) {
+        sprintf(_number, "%-.4f", ADCInput[i].data.voltageCalculated);
+        p0_t0.setText(_number);
+      } else if (i == 1) {
+        sprintf(_number, "%-.4f", ADCInput[i].data.voltageCalculated);
+        p0_t1.setText(_number);
+      }
 #ifdef DEBUG
       Serial << endl
              << "INFO: Data from ADC(" << i + 1
-             << "): in buffer. Ready for processing." << endl << "INFO: Publishing: " << _number << endl;
+             << "): in buffer. Ready for processing." << endl
+             << "INFO: Publishing: " << _number << endl;
 #endif
-
-
-      p0_t0.setText(_number);
 
       // HERE CODE FOR ADC
     }

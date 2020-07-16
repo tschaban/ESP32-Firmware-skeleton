@@ -17,27 +17,30 @@ void ESPADC::begin(ESPDataAccess *_Data, uint8_t id) {
   Serial << endl << endl << F("------------ AC VCC Input ------------");
   Serial << endl
          << F("- Initialized") << endl
-         << F("- GPIO: ") << configuration.gpio << endl
+         << F("- GPIO: ") << configuration.gpio
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
+         << endl
          << F("- I2C BUS: ") << configuration.i2c.id << endl
          << F("- ADS1115 Address: ") << configuration.i2c.address << endl
          << F("- ADS1115 ADC ID: ") << configuration.i2c.inputId << endl
          << F("- ADS1115 Gain: ") << configuration.i2c.gain << endl
-         << F("- ADS1115 Samples/Sec: ") << configuration.i2c.samplesPerSecond << endl
+         << F("- ADS1115 Samples/Sec: ") << configuration.i2c.samplesPerSecond
 
 #endif
+         << endl
          << F("- Interval: ") << configuration.interval << endl
          << F("- No of Samples: ") << configuration.numberOfSamples << endl
          << F("- ADC Input max V: ") << configuration.maxVCC << endl
          << F("- ADC Input Resolution: ") << configuration.resolution << endl
          << F("- R[A]: ") << configuration.divider.Ra << endl
-         << F("- R[B]: ") << configuration.divider.Rb << endl
+         << F("- R[B]: ") << configuration.divider.Rb
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+         << endl
          << F("- Battery min voltage: ") << configuration.battery.minVoltage
          << endl
          << F("- Battery max voltage: ") << configuration.battery.maxVoltage
-         << endl
 #endif
+         << endl
          << F("-------------------------------------");
 
 #endif
@@ -159,7 +162,7 @@ void ESPADC::listener() {
                << F(" - Battery level = ") << data.batteryPercent << endl
 #endif
                << F(" - Sampling time = ")
-               << millis() - startTime - configuration.interval * 1000
+               << millis() - startTime - configuration.interval
                << F("msec.");
 #endif
 

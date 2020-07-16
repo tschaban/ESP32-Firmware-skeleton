@@ -31,7 +31,11 @@
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
-#include <Sensor-BINARY-Structure.h>
+#include <BINARY-Sensor-Structure.h>
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+#include <DS18B20-Sensor-Structure.h>
 #endif
 
 #endif

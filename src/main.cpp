@@ -91,7 +91,12 @@ void setup() {
 
 /* Sensor: Binary Input */
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
-    initializeSensorBinary();
+    initializeBinarySensor();
+#endif
+
+/* Sensor: DS18B20 */
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+    initializeDS18B20Sensor();
 #endif
   }
 
@@ -131,7 +136,11 @@ void loop() {
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
-        eventsListnerSensorBinary();
+        eventsListnerBinarySensor();
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+        eventsListnerDS18B20Sensor();
 #endif
       }
       /* Code only for: Normal and Configuration mode, and connected to WiFi */

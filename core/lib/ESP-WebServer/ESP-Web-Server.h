@@ -86,6 +86,10 @@ private:
 #ifdef ESP_CONFIG_HARDWARE_ADC
   void get(ADC &data);
 #endif
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+  void get(BINARY_SENSOR &data);
+#endif
+
 
 #if defined(ESP_CONFIG_HARDWARE_LED) || defined(ESP_CONFIG_HARDWARE_I2C)
   void begin(ESPDataAccess *, ESPDevice *);

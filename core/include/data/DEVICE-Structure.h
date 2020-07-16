@@ -5,7 +5,6 @@
 
 #include <Configuration.h>
 
-
 struct DEVICE {
   char name[33];
 #ifdef ESP_CONFIG_HARDWARE_I2C
@@ -26,7 +25,9 @@ struct DEVICE {
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
   uint8_t noOfBinarySensors;
 #endif
-
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+  uint8_t noOfDS18B20s;
+#endif
 };
 
 #endif

@@ -247,6 +247,10 @@
 #define L_BATTERY_MAX_LEVEL "Maksymalny poziom baterii"
 #endif
 
+
+#define L_BINARY_SENSOR "Czujnik binarny / impulsów"
+
+
 /* Form: upgrade and post upgrade */
 #define L_SELECT_FIRMWARE "Wybierz Firmware"
 #define L_UPGRADE_INFO                                                             \

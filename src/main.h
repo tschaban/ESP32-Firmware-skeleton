@@ -43,8 +43,13 @@ ESPWiFi Network;
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
-#include <ESP-Main-BinarySensor.cpp>
+#include <ESP-Main-Binary-Sensor.cpp>
 #endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+#include <ESP-Main-DS18B20-Sensor.cpp>
+#endif
+
 
 #include <ESP-Main-HTTPServer.cpp>
 

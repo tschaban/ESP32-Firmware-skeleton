@@ -144,6 +144,11 @@ public:
 #ifdef ESP_CONFIG_HARDWARE_ADC
   void siteADC(String &page, uint8_t id);
 #endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+  void siteBinarySensor(String &page, uint8_t id);
+#endif
+
 };
 
 #endif
