@@ -17,7 +17,7 @@ void initializeDS18B20Sensor(void) {
 #endif
 
   for (uint8_t i = 0; i < Device.configuration.noOfDS18B20s; i++) {
-
+    DS18B20Sensor[i].begin(&Data, i);
 #ifdef DEBUG
     Serial << endl << "INFO: DS18B20(" << i + 1 << ") initialized";
 #endif
@@ -25,18 +25,14 @@ void initializeDS18B20Sensor(void) {
 };
 
 void eventsListnerDS18B20Sensor(void) {
-
+  char _number[10];
   /* Listens for switch events */
   for (uint8_t i = 0; i < Device.configuration.noOfDS18B20s; i++) {
     DS18B20Sensor[i].listener();
     if (DS18B20Sensor[i].isReady()) {
 
-#ifdef DEBUG
-      Serial << endl
-             << "INFO: Data from DS18B20(" << i + 1
-             << "): in buffer. Ready for processing.";
-      ;
-#endif
+      sprintf(_number, "%-.3f", DS18B20Sensor[i].getLatestTemperature());
+      p0_t3.setText(_number);
 
       // HERE CODE FOR DS18B20
     }

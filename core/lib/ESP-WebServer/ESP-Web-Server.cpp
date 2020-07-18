@@ -133,7 +133,12 @@ String ESPWebServer::generateSite(SITE_PARAMETERS *siteConfig, String &page) {
     break;
   }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_BINARY
-
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+  case ESP_CONFIG_SITE_DS18B20_SENSOR: {
+    Site.siteDS18B20Sensor(page, siteConfig->deviceID);
+    break;
+  }
+#endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
   }
 
   if (siteConfig->form) {
@@ -265,6 +270,14 @@ void ESPWebServer::generate(boolean upload) {
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
       case ESP_CONFIG_SITE_BINARY_SENSOR: {
         BINARY_SENSOR configuration;
+        get(configuration);
+        Data->save(siteConfig.deviceID, &configuration);
+        break;
+      }
+#endif
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+      case ESP_CONFIG_SITE_DS18B20_SENSOR: {
+        DS18B20_SENSOR configuration;
         get(configuration);
         Data->save(siteConfig.deviceID, &configuration);
         break;
@@ -511,13 +524,6 @@ void ESPWebServer::get(DEVICE &data) {
                       : ESP_CONFIG_HARDWARE_ADC_DEFAULT_NUMBER;
 #endif
 
-#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
-  data.noOfBinarySensors =
-      Server.arg("binarySensor").length() > 0
-          ? Server.arg("binarySensor").toInt()
-          : ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_NUMBER;
-#endif
-
 #ifdef ESP_CONFIG_HARDWARE_I2C
   data.noOfI2Cs = Server.arg("i2c").length() > 0
                       ? Server.arg("i2c").toInt()
@@ -528,6 +534,19 @@ void ESPWebServer::get(DEVICE &data) {
   data.noOfUARTs = Server.arg("uart").length() > 0
                        ? Server.arg("uart").toInt()
                        : ESP_CONFIG_HARDWARE_UART_DEFAULT_NUMBER;
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+  data.noOfBinarySensors =
+      Server.arg("binarySensor").length() > 0
+          ? Server.arg("binarySensor").toInt()
+          : ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_NUMBER;
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+  data.noOfDS18B20s = Server.arg("ds18b20Sensor").length() > 0
+                          ? Server.arg("ds18b20Sensor").toInt()
+                          : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_NUMBER;
 #endif
 }
 
@@ -734,6 +753,34 @@ void ESPWebServer::get(BINARY_SENSOR &data) {
 
   data.bouncing = Server.arg("bouncing").length() > 0
                       ? Server.arg("bouncing").toInt()
-                      : ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_BOUNCING;                      
+                      : ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_BOUNCING;
 }
 #endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+void ESPWebServer::get(DS18B20_SENSOR &data) {
+  ESPDS18B20Sensor _Sensor;
+  data.gpio = Server.arg("gpio").length() > 0 ? Server.arg("gpio").toInt()
+                                              : ESP_HARDWARE_ITEM_NOT_EXIST;
+
+  data.interval = Server.arg("interval").length() > 0
+                      ? Server.arg("interval").toInt()
+                      : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_INTERVAL;
+
+  data.unit = Server.arg("unit").length() > 0
+                  ? Server.arg("unit").toInt()
+                  : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_UNIT;
+
+  data.correction = Server.arg("correction").length() > 0
+                        ? Server.arg("correction").toFloat()
+                        : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_CORRECTION;
+
+  if (Server.arg("address").length() > 0) {
+    char address[17];
+    Server.arg("address").toCharArray(address, 17);
+    _Sensor.addressToInt(address, data.address);
+  } else {
+    _Sensor.addressNULL(data.address);
+  }
+}
+#endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20

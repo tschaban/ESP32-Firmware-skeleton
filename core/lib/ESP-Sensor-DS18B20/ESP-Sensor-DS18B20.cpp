@@ -7,31 +7,38 @@ ESPDS18B20Sensor::ESPDS18B20Sensor(){};
 void ESPDS18B20Sensor::begin(ESPDataAccess *_Data, uint8_t id) {
   Data = _Data;
   Data->get(id, configuration);
-
-  configuration.gpio = 14;
-  configuration.interval = 10000;
-
   WireBUS.begin(configuration.gpio);
   Sensor.setOneWire(&WireBUS);
-  _initialized = false;
+  Sensor.begin();
+  _initialized = true;
 }
 
 float ESPDS18B20Sensor::getTemperature() {
-  float temperature = -127;
+  float temperature = DEVICE_DISCONNECTED_C;
   if (_initialized) {
-    // OneWire wireProtocol(configuration.gpio);
-    // DallasTemperature sensor(&wireProtocol);
-    Sensor.begin();
+// OneWire wireProtocol(configuration.gpio);
+// DallasTemperature sensor(&wireProtocol);
+#ifdef DEBUG
+    Serial << endl << "INFO: Reading temperature from DS18B20 ... ";
+#endif
+
+    Sensor.requestTemperaturesByAddress(configuration.address);
 
     do {
-      Sensor.requestTemperatures();
+      //   Sensor.requestTemperaturesByAddress(configuration.address);
       temperature = configuration.unit ==
                             ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS
-                        ? Sensor.getTempCByIndex(0)
-                        : Sensor.getTempFByIndex(0);
+                        ? Sensor.getTempC(configuration.address)
+                        : Sensor.getTempF(configuration.address);
     } while (temperature == 85.0 || temperature == (-127.0));
+    temperature = temperature + configuration.correction;
   }
-  return temperature + configuration.correction;
+
+#ifdef DEBUG
+  Serial  << temperature;
+#endif
+
+  return temperature;
 }
 
 float ESPDS18B20Sensor::getLatestTemperature() {
@@ -56,7 +63,7 @@ void ESPDS18B20Sensor::listener() {
       startTime = time;
     }
 
-    if (time - startTime >= configuration.interval * 1000) {
+    if (time - startTime >= configuration.interval) {
       float newTemperature = getTemperature();
       currentTemperature = newTemperature;
       ready = true;
@@ -65,15 +72,14 @@ void ESPDS18B20Sensor::listener() {
   }
 }
 
-void ESPDS18B20Sensor::scan(uint8_t gpio, DS18B20Addresses &addresses) {
-
+uint8_t ESPDS18B20Sensor::scan(uint8_t gpio, DS18B20Addresses &addresses) {
+  uint8_t _found = 0;
 #ifdef DEBUG
   Serial << endl << "INFO: Scanning for DS18B20 sensors on GPIO: " << gpio;
   Serial << endl << " - Wire Bus initialized";
   Sensor.setOneWire(&WireBUS);
 #endif
   WireBUS.begin(gpio);
-  WireBUS.reset();
   Sensor.begin();
   numberOfDevicesOnBus = Sensor.getDS18Count();
 #ifdef DEBUG
@@ -103,6 +109,7 @@ void ESPDS18B20Sensor::scan(uint8_t gpio, DS18B20Addresses &addresses) {
                                         sizeof(addresses[i - 1])) != 0))) {
 
           memcpy(addresses[i], _address, sizeof(_address[0]) * 8);
+          _found++;
         } else {
           break;
         }
@@ -111,17 +118,53 @@ void ESPDS18B20Sensor::scan(uint8_t gpio, DS18B20Addresses &addresses) {
       }
 #ifdef DEBUG
       Serial << endl
-             << " - Found sensor: " << _HEX(addresses[i][0]) << ":"
-             << addresses[i][1] << ":" << addresses[i][2] << ":"
-             << addresses[i][3] << ":" << addresses[i][4] << ":"
-             << addresses[i][5] << ":" << addresses[i][6] << ":"
-             << addresses[i][7];
+             << " - Found sensor: " << addresses[i][0] << ":" << addresses[i][1]
+             << ":" << addresses[i][2] << ":" << addresses[i][3] << ":"
+             << addresses[i][4] << ":" << addresses[i][5] << ":"
+             << addresses[i][6] << ":" << addresses[i][7];
 
       Sensor.requestTemperatures();
       Serial << endl << " - Temperature : " << Sensor.getTempC(addresses[i]);
 
 #endif
     }
+  }
+  return _found;
+}
+
+void ESPDS18B20Sensor::addressToChar(DeviceAddress &address,
+                                     char *addressString) {
+  sprintf(addressString, "%02X%02X%02X%02X%02X%02X%02X%02X", address[0],
+          address[1], address[2], address[3], address[4], address[5],
+          address[6], address[7]);
+}
+
+void ESPDS18B20Sensor::addressToInt(char *addressString,
+                                    DeviceAddress &address) {
+
+  int x;
+  for (uint8_t i = 0; i < ESP_CONFIG_HARDWARE_SENSOR_DS18B20_ADDRESS_LENGTH;
+       i++) {
+    x = 0;
+    for (uint8_t index = 0; index < 2; index++) {
+      char c = *addressString;
+      if (c >= '0' && c <= '9') {
+        x *= 16;
+        x += c - '0';
+      } else if (c >= 'A' && c <= 'F') {
+        x *= 16;
+        x += (c - 'A') + 10;
+      }
+      addressString++;
+    }
+    address[i] = x;
+  }
+}
+
+void ESPDS18B20Sensor::addressNULL(DeviceAddress &address) {
+  for (uint8_t i = 0; i < ESP_CONFIG_HARDWARE_SENSOR_DS18B20_ADDRESS_LENGTH;
+       i++) {
+    address[i] = 0;
   }
 }
 

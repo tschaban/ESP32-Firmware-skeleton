@@ -36,15 +36,8 @@ public:
   void begin(ESPDataAccess *_Data, uint8_t id);
 
   uint8_t numberOfDevicesOnBus = 0;
-  void scan(uint8_t gpio, DS18B20Addresses &addresses);
+  uint8_t scan(uint8_t gpio, DS18B20Addresses &addresses);
 
-  /* Get current temp in Celsius (default) possible options:
-     - UNIT_CELCIUS
-    - UNIT_FAHRENHEIT
-  */
-
-  // @TODO I think reading temp should be made in the listener, issue to solve
-  // how to get temperature but publish only changes
   float getTemperature();
 
   float getLatestTemperature();
@@ -54,6 +47,10 @@ public:
   /* Method has to be added to the loop in order to listen for sensor value
    * changes */
   void listener();
+
+  void addressToChar(DeviceAddress &address, char *addressString);
+  void addressToInt(char *addressString, DeviceAddress &address);
+  void addressNULL(DeviceAddress &address);
 };
 
 #endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20

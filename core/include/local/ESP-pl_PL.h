@@ -48,7 +48,7 @@
 //#define L_PRO_VERSION "Wersja PRO"
 #define L_CONNECTED "Podłączony"
 #define L_DISCONNECTED "Odłączony"
-
+#define L_ADDRESS "Adres"
 /* Forms commons */
 #define L_NUMBER_OF_CHARS "znaków"
 #define L_ENABLED "włączone"
@@ -93,7 +93,7 @@
 #define L_NUMBER_OF_I2C "Ilość magistral I2C"
 #define L_NUMBER_OF_UART "Ilość magistral UART"
 #define L_NUMBER_OF_BINARY_SENSORS "Ilość czujników binarnych"
-
+#define L_NUMBER_OF_DS18B20_SENSORS "Ilość czujników DS18B20"
 #define L_DO_MEASURE_ADC "Pomiary z wejścia analogowego"
 #define L_DEVICE_CONTROLLING "Sterowanie urządzeniem"
 #define L_DEVICE_CONTROLLING_INFO                                              \
@@ -250,6 +250,8 @@
 
 #define L_BINARY_SENSOR "Czujnik binarny / impulsów"
 
+#define L_DS18B20_SENSOR "Czujnik DS18B20"
+
 
 /* Form: upgrade and post upgrade */
 #define L_SELECT_FIRMWARE "Wybierz Firmware"
@@ -311,7 +313,6 @@
 
 /* I2C */
 #ifdef ESP_CONFIG_HARDWARE_I2C
-#define L_ADDRESS "Adres"
 #define L_FREQUENCY "Częstotliwość"
 #endif
 
@@ -333,15 +334,12 @@
 
 
 /* Generic Sensors */
-#ifdef ESP_CONFIG_TEMPERATURE
+#ifdef ESP_CONFIG_FUNCTIONALITY_TEMPERATURE
 #define L_TEMPERATURE "Temperatura"
-#define L_IDX_TEMPERATURE "IDX Temperatura"
-#ifndef L_CORRECTIONS
-#define L_CORRECTIONS "Korekty"
-#endif
-#ifndef L_UNITS
-#define L_UNITS "Jednostki"
-#endif
+#define L_TEMPERATURE_CORRECTIONS "Korekta temperatury"
+#define L_UNIT "Jednostka"
+#define L_TEMPERATURE_C "Celsjusz"
+#define L_TEMPERATURE_F "Fahrenheit"
 #endif
 
 #ifdef ESP_CONFIG_HUMIDITY

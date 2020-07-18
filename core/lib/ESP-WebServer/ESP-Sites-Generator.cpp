@@ -106,6 +106,14 @@ void ESPSitesGenerator::generateTwoColumnsLayout(String &page,
   }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_BINARY
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+  if (Device->configuration.noOfDS18B20s > 0) {
+    addMenuHeaderItem(page, L_DS18B20_SENSOR);
+    addMenuSubItem(page, L_SENSOR, Device->configuration.noOfDS18B20s,
+                   ESP_CONFIG_SITE_DS18B20_SENSOR);
+  }
+#endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+
   addMenuItem(page, L_FIRMWARE_UPGRADE, ESP_CONFIG_SITE_UPGRADE);
   addMenuItem(page, L_RESET_DEVICE, ESP_CONFIG_SITE_RESET);
   addMenuItem(page, L_FINISH_CONFIGURATION, ESP_CONFIG_SITE_EXIT);
@@ -432,6 +440,13 @@ void ESPSitesGenerator::siteDevice(String &page) {
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_SENSOR_BINARY_MAX_NUMBER,
                         configuration.noOfBinarySensors, "binarySensor",
                         L_NUMBER_OF_BINARY_SENSORS);
+
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+  addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_SENSOR_DS18B20_MAX_NUMBER,
+                        configuration.noOfDS18B20s, "ds18b20Sensor",
+                        L_NUMBER_OF_DS18B20_SENSORS);
 
 #endif
 
@@ -989,3 +1004,83 @@ void ESPSitesGenerator::siteBinarySensor(String &page, uint8_t id) {
   closeSection(page);
 }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_BINARY
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+void ESPSitesGenerator::siteDS18B20Sensor(String &page, uint8_t id) {
+
+  ESPDS18B20Sensor _Sensor;
+  DS18B20Addresses _addresses;
+  uint8_t numberOfFoundSensors;
+  DS18B20_SENSOR configuration;
+  Data->get(id, configuration);
+  char _number[13];
+
+  openSection(page, L_DS18B20_SENSOR, "");
+
+  /* Item: GPIO */
+  addListOfGPIOs(page, "gpio", configuration.gpio, "GPIO");
+
+  numberOfFoundSensors = _Sensor.scan(configuration.gpio, _addresses);
+
+  if (numberOfFoundSensors > 0) {
+
+    page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
+    page.replace("{{item.label}}", L_ADDRESS);
+    page.replace("{{item.name}}", "address");
+
+    char _scannedAddressText[17];
+    char _configAddressText[17];
+    for (uint8_t i = 0; i < numberOfFoundSensors; i++) {
+      _Sensor.addressToChar(_addresses[i], _scannedAddressText);
+      _Sensor.addressToChar(configuration.address, _configAddressText);
+      page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+      page.replace("{{item.label}}", _scannedAddressText);
+      page.replace("{{item.value}}", _scannedAddressText);
+      page.replace("{{item.selected}}",
+                   memcmp(_addresses[i], configuration.address,
+                          sizeof(_addresses[i])) == 0
+                       ? " selected=\"selected\""
+                       : "");
+    }
+    page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
+  }
+
+  /* Item: Interval */
+  sprintf(_number, "%d", configuration.interval);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "interval",
+                   L_MEASURMENTS_INTERVAL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
+                   "20", "3600000", "1", L_MILISECONDS);
+
+  /* Item: Unit */
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
+  page.replace("{{item.label}}", L_UNIT);
+  page.replace("{{item.name}}", "unit");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", L_TEMPERATURE_C);
+  page.replace("{{item.value}}",
+               String(ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS));
+  page.replace("{{item.selected}}",
+               configuration.unit ==
+                       ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", L_TEMPERATURE_F);
+  page.replace("{{item.value}}",
+               String(ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_FARENHIAT));
+  page.replace("{{item.selected}}",
+               configuration.unit ==
+                       ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_FARENHIAT
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
+
+  /* Item: Correction */
+  sprintf(_number, "%-.3f", configuration.correction);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "correction",
+                   L_TEMPERATURE_CORRECTIONS, _number,
+                   ESP_FORM_ITEM_SKIP_PROPERTY, "-99.999", "99.999", "0.001");
+
+  closeSection(page);
+}
+#endif

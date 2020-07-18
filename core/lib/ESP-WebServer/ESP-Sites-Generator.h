@@ -29,6 +29,10 @@
 #include <Adafruit_ADS1115.h>
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+#include <ESP-Sensor-DS18B20.h>
+#endif
+
 class ESPSitesGenerator {
 
 private:
@@ -147,6 +151,10 @@ public:
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
   void siteBinarySensor(String &page, uint8_t id);
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+  void siteDS18B20Sensor(String &page, uint8_t id);
 #endif
 
 };

@@ -10,7 +10,6 @@ typedef DeviceAddress DS18B20Addresses[ESP_CONFIG_HARDWARE_SENSOR_DS18B20_MAX_NU
 
 struct DS18B20_SENSOR {
   uint8_t gpio;
-  uint8_t model;
   DeviceAddress address;
   float correction;
   uint32_t interval;
