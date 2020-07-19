@@ -10,7 +10,19 @@ void ESPDS18B20Sensor::begin(ESPDataAccess *_Data, uint8_t id) {
   WireBUS.begin(configuration.gpio);
   Sensor.setOneWire(&WireBUS);
   Sensor.begin();
-  _initialized = true;
+
+  if (Sensor.isConnected(configuration.address)) {
+    _initialized = true;
+  } else {
+    _initialized = false;
+#ifdef DEBUG
+    char addressTxt[17];
+    addressToChar(configuration.address, addressTxt);
+    Serial << endl
+           << "WARN: Sensor DS18B20[" << addressTxt
+           << "] not found. Not initialized";
+#endif
+  }
 }
 
 float ESPDS18B20Sensor::getCurrentTemperature() {
@@ -23,19 +35,24 @@ float ESPDS18B20Sensor::getCurrentTemperature() {
            << "INFO: Reading temperature from DS18B20[" << addressTxt << "] ";
 #endif
 
-    Sensor.requestTemperaturesByAddress(configuration.address);
+    if (Sensor.isConnected(configuration.address)) {
 
-    do {
-      //   Sensor.requestTemperaturesByAddress(configuration.address);
-      temperature = configuration.unit ==
-                            ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS
-                        ? Sensor.getTempC(configuration.address)
-                        : Sensor.getTempF(configuration.address);
-    } while (temperature == 85.0 || temperature == (-127.0));
-    temperature = temperature + configuration.correction;
+      Sensor.requestTemperaturesByAddress(configuration.address);
+
+      do {
+        //   Sensor.requestTemperaturesByAddress(configuration.address);
+        temperature = configuration.unit ==
+                              ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS
+                          ? Sensor.getTempC(configuration.address)
+                          : Sensor.getTempF(configuration.address);
+      } while (temperature == 85.0 || temperature == (-127.0));
+      temperature = temperature + configuration.correction;
+    }
   }
-
 #ifdef DEBUG
+  else {
+    Serial << ": NOT CONNECTED: ";
+  }
   Serial << ": " << temperature;
 #endif
   currentTemperature = temperature;
@@ -55,7 +72,7 @@ boolean ESPDS18B20Sensor::listener() {
       startTime = time;
     }
     if (time - startTime >= configuration.interval) {
-      float newTemperature = getCurrentTemperature();
+      getCurrentTemperature();
       ready = true;
       startTime = 0; // It's set to 0 to allow other code to execude, just after
                      // reading the data
