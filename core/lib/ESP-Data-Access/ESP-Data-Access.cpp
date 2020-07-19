@@ -253,7 +253,8 @@ void ESPDataAccess::createDeviceConfigurationFile() {
   data.noOfBinarySensors = ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_NUMBER;
 #endif
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
-  data.noOfDS18B20s = ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_NUMBER;
+      data.noOfDS18B20s = 
+                          ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_NUMBER;
 #endif
 
   save(&data);

@@ -28,11 +28,13 @@ void eventsListnerDS18B20Sensor(void) {
   char _number[10];
   /* Listens for switch events */
   for (uint8_t i = 0; i < Device.configuration.noOfDS18B20s; i++) {
-    DS18B20Sensor[i].listener();
-    if (DS18B20Sensor[i].isReady()) {
-
-      sprintf(_number, "%-.3f", DS18B20Sensor[i].getLatestTemperature());
-      p0_t3.setText(_number);
+    if (DS18B20Sensor[i].listener()) {
+      sprintf(_number, "%-.3f", DS18B20Sensor[i].getTemperature());
+      if (i == 0) {
+        p0_t3.setText(_number);
+      } else if (i == 1) {
+        p0_t4.setText(_number);
+      }
 
       // HERE CODE FOR DS18B20
     }

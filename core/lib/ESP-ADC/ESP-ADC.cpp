@@ -78,17 +78,8 @@ void ESPADC::begin(ESPDataAccess *_Data, TwoWire *_WirePort0,
 }
 #endif
 
-boolean ESPADC::isReady() {
-  if (ready) {
-    ready = false;
-    return true;
-  } else {
-    return false;
-  }
-}
-
-void ESPADC::listener() {
-
+boolean ESPADC::listener() {
+  ready = false;
   if (_initialized) {
     unsigned long time = millis();
 
@@ -162,17 +153,18 @@ void ESPADC::listener() {
                << F(" - Battery level = ") << data.batteryPercent << endl
 #endif
                << F(" - Sampling time = ")
-               << millis() - startTime - configuration.interval
-               << F("msec.");
+               << millis() - startTime - configuration.interval << F("msec.");
 #endif
 
         counterOfSamplings = 0;
         temporaryAnalogData = 0;
         ready = true;
-        startTime = 0;
+        startTime = 0; // It's set to 0 to allow other code to execude, just
+                       // after reading the data
       }
     }
   }
+  return ready;
 }
 
 #endif // ESP_CONFIG_HARDWARE_ADC

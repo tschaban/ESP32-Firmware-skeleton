@@ -25,7 +25,7 @@ private:
   boolean _initialized = false;
   unsigned long startTime = 0;
 
-  float currentTemperature = -127;
+  float currentTemperature = DEVICE_DISCONNECTED_C;
 
 public:
   /* Constructor: entry parameter is GPIO number where Sensor is connected to */
@@ -35,21 +35,23 @@ public:
 
   void begin(ESPDataAccess *_Data, uint8_t id);
 
-  uint8_t numberOfDevicesOnBus = 0;
   uint8_t scan(uint8_t gpio, DS18B20Addresses &addresses);
 
+  /* Read and returns current temperature from the sensor */
+  float getCurrentTemperature();
+
+  /* Return temperature stored in the buffer, it's the latest */
   float getTemperature();
-
-  float getLatestTemperature();
-
-  boolean isReady();
 
   /* Method has to be added to the loop in order to listen for sensor value
    * changes */
-  void listener();
+  boolean listener();
 
+  /* Converts DeviceAddress to Char */
   void addressToChar(DeviceAddress &address, char *addressString);
+  /* Converts Char to DeviceAddress */
   void addressToInt(char *addressString, DeviceAddress &address);
+  /* Returns {0,0,0,0,0,0,0,0} Device address */
   void addressNULL(DeviceAddress &address);
 };
 

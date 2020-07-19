@@ -758,8 +758,8 @@ void ESPWebServer::get(BINARY_SENSOR &data) {
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
-void ESPWebServer::get(DS18B20_SENSOR &data) {
-  ESPDS18B20Sensor _Sensor;
+void ESPWebServer::get(DS18B20_SENSOR &data) { 
+   ESPDS18B20Sensor _Sensor; 
   data.gpio = Server.arg("gpio").length() > 0 ? Server.arg("gpio").toInt()
                                               : ESP_HARDWARE_ITEM_NOT_EXIST;
 

@@ -24,8 +24,7 @@ void eventsListnerADC(void) {
 
   /* Listens for switch events */
   for (uint8_t i = 0; i < Device.configuration.noOfADCs; i++) {
-    ADCInput[i].listener();
-    if (ADCInput[i].isReady()) {
+    if (ADCInput[i].listener()) {
       char _number[10];
       if (i == 0) {
         sprintf(_number, "%-.4f", ADCInput[i].data.voltageCalculated);

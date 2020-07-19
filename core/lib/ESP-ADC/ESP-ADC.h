@@ -55,11 +55,9 @@ public:
   /* Returns values from Analog Input */
   ADC_DATA get();
 
-  /* Returns true if there is a new value available from analog input */
-  boolean isReady();
-
-  /* Main method that takes care for analog reads based on config parameters */
-  void listener();
+  /* Main method that takes care for analog reads based on config parameters.
+   * Returns true if there is a new value available from analog input  */
+  boolean listener();
 };
 
 #endif // ESP_CONFIG_HARDWARE_ADC

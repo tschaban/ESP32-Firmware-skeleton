@@ -13,13 +13,14 @@ void ESPDS18B20Sensor::begin(ESPDataAccess *_Data, uint8_t id) {
   _initialized = true;
 }
 
-float ESPDS18B20Sensor::getTemperature() {
+float ESPDS18B20Sensor::getCurrentTemperature() {
   float temperature = DEVICE_DISCONNECTED_C;
   if (_initialized) {
-// OneWire wireProtocol(configuration.gpio);
-// DallasTemperature sensor(&wireProtocol);
 #ifdef DEBUG
-    Serial << endl << "INFO: Reading temperature from DS18B20 ... ";
+    char addressTxt[17];
+    addressToChar(configuration.address, addressTxt);
+    Serial << endl
+           << "INFO: Reading temperature from DS18B20[" << addressTxt << "] ";
 #endif
 
     Sensor.requestTemperaturesByAddress(configuration.address);
@@ -35,45 +36,37 @@ float ESPDS18B20Sensor::getTemperature() {
   }
 
 #ifdef DEBUG
-  Serial  << temperature;
+  Serial << ": " << temperature;
 #endif
-
+  currentTemperature = temperature;
   return temperature;
 }
 
-float ESPDS18B20Sensor::getLatestTemperature() {
+float ESPDS18B20Sensor::getTemperature() {
   ready = false;
   return currentTemperature;
 }
 
-boolean ESPDS18B20Sensor::isReady() {
-  if (ready) {
-    ready = false;
-    return true;
-  } else {
-    return false;
-  }
-}
-
-void ESPDS18B20Sensor::listener() {
+boolean ESPDS18B20Sensor::listener() {
+  ready = false;
   if (_initialized) {
     unsigned long time = millis();
-
     if (startTime == 0) { // starting timer. used for switch sensitiveness
       startTime = time;
     }
-
     if (time - startTime >= configuration.interval) {
-      float newTemperature = getTemperature();
-      currentTemperature = newTemperature;
+      float newTemperature = getCurrentTemperature();
       ready = true;
-      startTime = 0;
+      startTime = 0; // It's set to 0 to allow other code to execude, just after
+                     // reading the data
     }
   }
+  return ready;
 }
 
 uint8_t ESPDS18B20Sensor::scan(uint8_t gpio, DS18B20Addresses &addresses) {
   uint8_t _found = 0;
+  uint8_t numberOfDevicesOnBus = 0;
 #ifdef DEBUG
   Serial << endl << "INFO: Scanning for DS18B20 sensors on GPIO: " << gpio;
   Serial << endl << " - Wire Bus initialized";

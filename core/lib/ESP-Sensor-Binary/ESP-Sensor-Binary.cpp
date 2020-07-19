@@ -77,7 +77,7 @@ void ESPSensorBinary::get(uint32_t &noOfImpulses, uint32_t &duration) {
   }
 
   _previousDuration = duration;
-  counterStarted = millis();
+  counterStarted = 0; // It's set to 0 to allow other code to execude, just after reading the data
 #ifdef DEBUG
   Serial << endl
          << F("INFO: Binary sensor: Impulses: ") << noOfImpulses
