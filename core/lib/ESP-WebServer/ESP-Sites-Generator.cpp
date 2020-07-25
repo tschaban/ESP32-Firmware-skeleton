@@ -450,6 +450,13 @@ void ESPSitesGenerator::siteDevice(String &page) {
 
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+  addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_SENSOR_NTC_MAX_NUMBER,
+                        configuration.noOfNTCs, "NTCSensor",
+                        L_NUMBER_OF_NTC_SENSORS);
+
+#endif
+
   closeSection(page);
 
   openSection(page, L_BUSES, "");
@@ -1083,4 +1090,101 @@ void ESPSitesGenerator::siteDS18B20Sensor(String &page, uint8_t id) {
 
   closeSection(page);
 }
-#endif
+#endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+void ESPSitesGenerator::siteNTCSensor(String &page, uint8_t id) {
+  NTC_SENSOR configuration;
+  Data->get(id, configuration);
+  char _number[17];
+
+  openSection(page, L_NTC_SENSOR, "");
+
+  /* Item: ADC */
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
+  page.replace("{{item.label}}", L_ANALOG_INPUT);
+  page.replace("{{item.name}}", "adc");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", L_NONE);
+  page.replace("{{item.value}}", String(ESP_HARDWARE_ITEM_NOT_EXIST));
+  page.replace("{{item.selected}}",
+               configuration.adcInput == ESP_HARDWARE_ITEM_NOT_EXIST
+                   ? " selected=\"selected\""
+                   : "");
+  for (uint8_t i = 0; i < Device->configuration.noOfADCs; i++) {
+    page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+    page.replace("{{item.label}}", String(i + 1));
+    page.replace("{{item.value}}", String(i));
+    page.replace("{{item.selected}}",
+                 configuration.adcInput == i ? " selected=\"selected\"" : "");
+  }
+  page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
+
+  /* Item: Vcc */
+  sprintf(_number, "%-.4f", configuration.vcc);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "vcc", L_NTC_VCC, _number,
+                   ESP_FORM_ITEM_SKIP_PROPERTY, "0", "10", "0.0001", "V");
+
+  /* Item: R */
+  sprintf(_number, "%d", configuration.resistor);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "resistor", L_NTC_RESISTOR,
+                   _number, ESP_FORM_ITEM_SKIP_PROPERTY, "0", "9999999", "1",
+                   "Om");
+
+  /* Item: Interval */
+  sprintf(_number, "%d", configuration.interval);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "interval",
+                   L_MEASURMENTS_INTERVAL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
+                   "20", "3600000", "1", L_MILISECONDS);
+
+  /* Item: Unit */
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
+  page.replace("{{item.label}}", L_UNIT);
+  page.replace("{{item.name}}", "unit");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", L_TEMPERATURE_C);
+  page.replace("{{item.value}}",
+               String(ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS));
+  page.replace("{{item.selected}}",
+               configuration.unit ==
+                       ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", L_TEMPERATURE_F);
+  page.replace("{{item.value}}",
+               String(ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_FARENHIAT));
+  page.replace("{{item.selected}}",
+               configuration.unit ==
+                       ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_FARENHIAT
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
+
+  /* Item: Correction */
+  sprintf(_number, "%-.3f", configuration.correction);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "correction",
+                   L_TEMPERATURE_CORRECTIONS, _number,
+                   ESP_FORM_ITEM_SKIP_PROPERTY, "-99.999", "99.999", "0.001");
+  closeSection(page);
+
+  openSection(page, L_NTC_COEFFICIENTS, "");
+
+  /* Item: A */
+  sprintf(_number, "%-.14f", configuration.coefficients.A);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "A", "A", _number,
+                   ESP_FORM_ITEM_SKIP_PROPERTY, "0", "1", "0.00000000000001");
+
+  /* Item: B */
+  sprintf(_number, "%-.14f", configuration.coefficients.A);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "B", "B", _number,
+                   ESP_FORM_ITEM_SKIP_PROPERTY, "0", "1", "0.00000000000001");
+
+  /* Item: C */
+  sprintf(_number, "%-.14f", configuration.coefficients.A);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "C", "C", _number,
+                   ESP_FORM_ITEM_SKIP_PROPERTY, "0", "1", "0.00000000000001");
+
+  closeSection(page);
+}
+#endif // ESP_CONFIG_HARDWARE_SENSOR_NTC

@@ -253,8 +253,7 @@ void ESPDataAccess::createDeviceConfigurationFile() {
   data.noOfBinarySensors = ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_NUMBER;
 #endif
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
-      data.noOfDS18B20s = 
-                          ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_NUMBER;
+  data.noOfDS18B20s = ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_NUMBER;
 #endif
 
   save(&data);
@@ -1483,4 +1482,141 @@ void ESPDataAccess::createDS18B20SensorConfigurationFile() {
     save(i, &data);
   }
 }
+#endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+void ESPDataAccess::get(uint8_t id, NTC_SENSOR &data) {
+  char fileName[23];
+  sprintf(fileName, ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_NAME, id);
+
+#ifdef DEBUG
+  Serial << endl << endl << "INFO: Opening file: " << fileName << " ... ";
 #endif
+
+  File configFile = LITTLEFS.open(fileName, "r");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: JSON: ";
+#endif
+
+    size_t size = configFile.size();
+    std::unique_ptr<char[]> buf(new char[size]);
+    configFile.readBytes(buf.get(), size);
+    StaticJsonBuffer<ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.parseObject(buf.get());
+    if (root.success()) {
+#ifdef DEBUG
+      root.printTo(Serial);
+#endif
+
+      data.coefficients.A = root["coefficients"]["A"];
+      data.coefficients.B = root["coefficients"]["B"];
+      data.coefficients.C = root["coefficients"]["C"];
+      data.interval = root["interval"];
+      data.correction = root["correction"];
+      data.unit = root["unit"];
+      data.resistor = root["resistor"];
+      data.vcc = root["vcc"];
+      data.adcInput = root["adcInput"];
+
+
+#ifdef DEBUG
+      Serial << endl
+             << "INFO: JSON: Buffer size: "
+             << ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER
+             << ", actual JSON size: " << jsonBuffer.size();
+      if (ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER <
+          jsonBuffer.size() + 10) {
+        Serial << endl << "WARN: Too small buffer size";
+      }
+#endif
+    }
+#ifdef DEBUG
+    else {
+      Serial << "ERROR: JSON not pharsed";
+    }
+#endif
+    configFile.close();
+  }
+
+#ifdef DEBUG
+  else {
+    Serial << endl
+           << "ERROR: Configuration file: " << fileName << " not opened";
+  }
+#endif
+}
+
+
+void ESPDataAccess::save(uint8_t id, NTC_SENSOR *data) {
+ char fileName[23];
+  sprintf(fileName, ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_NAME, id);
+
+#ifdef DEBUG
+  Serial << endl << endl << "INFO: Opening file: " << fileName << " ... ";
+#endif
+
+  File configFile = LITTLEFS.open(fileName, "w");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: Writing JSON: ";
+#endif
+
+    StaticJsonBuffer<ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.createObject();
+    JsonObject &coefficient = root.createNestedObject("coefficient");
+    root["resistor"] = data->resistor;
+    root["interval"] = data->interval;
+    root["correction"] = data->correction;
+    root["unit"] = data->unit;
+    root["vcc"] = data->vcc;
+    root["adcInput"] = data->adcInput;
+    coefficient["A"] = data->coefficients.A;
+    coefficient["B"] = data->coefficients.B;
+    coefficient["C"] = data->coefficients.C;
+    root.printTo(configFile);
+#ifdef DEBUG
+    root.printTo(Serial);
+#endif
+    configFile.close();
+
+#ifdef DEBUG
+    Serial << endl
+           << "INFO: Data saved" << endl
+           << "INFO: JSON: Buffer size: "
+           << ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER
+           << ", actual JSON size: " << jsonBuffer.size();
+    if (ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER <
+        jsonBuffer.size() + 10) {
+      Serial << endl << "WARN: Too small buffer size";
+    }
+#endif
+  }
+#ifdef DEBUG
+  else {
+    Serial << endl << F("ERROR: failed to open file: ") << fileName;
+  }
+#endif
+}
+
+void ESPDataAccess::createNTCSensorConfigurationFile() {
+#ifdef DEBUG
+  Serial << endl << F("INFO: Creating NTC sensor configuration files");
+#endif
+  NTC_SENSOR data;
+  data.adcInput = ESP_HARDWARE_ITEM_NOT_EXIST;
+  data.resistor = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_RESISTOR;
+  data.interval = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_INTERVAL;
+  data.correction = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_CORRECTION;
+  data.unit = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_UNIT;
+  data.vcc = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_VCC;
+  data.coefficients.A = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_A;
+  data.coefficients.B = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_B;
+  data.coefficients.C = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_C;
+  for (uint8_t i = 0; i < ESP_CONFIG_HARDWARE_SENSOR_NTC_MAX_NUMBER; i++) {
+    save(i, &data);
+  }
+}
+#endif // ESP_CONFIG_HARDWARE_SENSOR_NTC

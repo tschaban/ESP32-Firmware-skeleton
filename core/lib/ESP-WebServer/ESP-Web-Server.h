@@ -94,6 +94,10 @@ private:
   void get(DS18B20_SENSOR &data);
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+  void get(NTC_SENSOR &data);
+#endif
+
 #if defined(ESP_CONFIG_HARDWARE_LED) || defined(ESP_CONFIG_HARDWARE_I2C)
   void begin(ESPDataAccess *, ESPDevice *);
 #endif

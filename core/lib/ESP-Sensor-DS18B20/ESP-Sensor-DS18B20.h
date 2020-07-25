@@ -24,6 +24,7 @@ private:
   boolean ready = false;
   boolean _initialized = false;
   unsigned long startTime = 0;
+  unsigned long readTimeOut = 0;
 
   float currentTemperature = DEVICE_DISCONNECTED_C;
 

@@ -98,6 +98,11 @@ void setup() {
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
     initializeDS18B20Sensor();
 #endif
+
+/* Sensor: NTC */
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+    initializeNTCSensor();
+#endif
   }
 
 #ifdef DEBUG
@@ -141,6 +146,10 @@ void loop() {
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
         eventsListnerDS18B20Sensor();
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+        eventsListnerNTCSensor();
 #endif
       }
       /* Code only for: Normal and Configuration mode, and connected to WiFi */

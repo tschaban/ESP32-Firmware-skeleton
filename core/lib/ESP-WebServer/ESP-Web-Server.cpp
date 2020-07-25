@@ -139,6 +139,12 @@ String ESPWebServer::generateSite(SITE_PARAMETERS *siteConfig, String &page) {
     break;
   }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+  case ESP_CONFIG_SITE_NTC_SENSOR: {
+    Site.siteNTCSensor(page, siteConfig->deviceID);
+    break;
+  }
+#endif // ESP_CONFIG_HARDWARE_SENSOR_NTC
   }
 
   if (siteConfig->form) {
@@ -278,6 +284,14 @@ void ESPWebServer::generate(boolean upload) {
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
       case ESP_CONFIG_SITE_DS18B20_SENSOR: {
         DS18B20_SENSOR configuration;
+        get(configuration);
+        Data->save(siteConfig.deviceID, &configuration);
+        break;
+      }
+#endif
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+      case ESP_CONFIG_SITE_NTC_SENSOR: {
+        NTC_SENSOR configuration;
         get(configuration);
         Data->save(siteConfig.deviceID, &configuration);
         break;
@@ -543,10 +557,16 @@ void ESPWebServer::get(DEVICE &data) {
           : ESP_CONFIG_HARDWARE_SENSOR_BINARY_DEFAULT_NUMBER;
 #endif
 
-#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
   data.noOfDS18B20s = Server.arg("ds18b20Sensor").length() > 0
                           ? Server.arg("ds18b20Sensor").toInt()
                           : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_NUMBER;
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+  data.noOfDS18B20s = Server.arg("NTCSensor").length() > 0
+                          ? Server.arg("NTCSensor").toInt()
+                          : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_NUMBER;
 #endif
 }
 
@@ -758,8 +778,8 @@ void ESPWebServer::get(BINARY_SENSOR &data) {
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
-void ESPWebServer::get(DS18B20_SENSOR &data) { 
-   ESPDS18B20Sensor _Sensor; 
+void ESPWebServer::get(DS18B20_SENSOR &data) {
+  ESPDS18B20Sensor _Sensor;
   data.gpio = Server.arg("gpio").length() > 0 ? Server.arg("gpio").toInt()
                                               : ESP_HARDWARE_ITEM_NOT_EXIST;
 
@@ -784,3 +804,39 @@ void ESPWebServer::get(DS18B20_SENSOR &data) {
   }
 }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+void ESPWebServer::get(NTC_SENSOR &data) {
+  data.resistor = Server.arg("resistor").length() > 0
+                      ? Server.arg("resistor").toFloat()
+                      : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_RESISTOR;
+
+  data.resistor = Server.arg("vcc").length() > 0
+                      ? Server.arg("vcc").toFloat()
+                      : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_VCC;
+
+  data.coefficients.A = Server.arg("A").length() > 0
+                            ? Server.arg("A").toFloat()
+                            : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_A;
+
+  data.coefficients.B = Server.arg("B").length() > 0
+                            ? Server.arg("B").toFloat()
+                            : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_B;
+
+  data.coefficients.C = Server.arg("C").length() > 0
+                            ? Server.arg("C").toFloat()
+                            : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_C;
+
+  data.interval = Server.arg("interval").length() > 0
+                      ? Server.arg("interval").toInt()
+                      : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_INTERVAL;
+
+  data.unit = Server.arg("unit").length() > 0
+                  ? Server.arg("unit").toInt()
+                  : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_UNIT;
+
+  data.correction = Server.arg("correction").length() > 0
+                        ? Server.arg("correction").toFloat()
+                        : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_CORRECTION;
+}
+#endif // ESP_CONFIG_HARDWARE_SENSOR_NTC

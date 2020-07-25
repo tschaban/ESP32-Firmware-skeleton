@@ -157,6 +157,9 @@ public:
   void siteDS18B20Sensor(String &page, uint8_t id);
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+  void siteNTCSensor(String &page, uint8_t id);
+#endif
 };
 
 #endif

@@ -35,16 +35,23 @@ float ESPDS18B20Sensor::getCurrentTemperature() {
            << "INFO: Reading temperature from DS18B20[" << addressTxt << "] ";
 #endif
 
+    if (readTimeOut == 0) {
+      readTimeOut = millis();
+    }
+
     if (Sensor.isConnected(configuration.address)) {
 
       Sensor.requestTemperaturesByAddress(configuration.address);
 
       do {
-        //   Sensor.requestTemperaturesByAddress(configuration.address);
         temperature = configuration.unit ==
                               ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS
                           ? Sensor.getTempC(configuration.address)
                           : Sensor.getTempF(configuration.address);
+        if (millis() - readTimeOut >
+            ESP_CONFIG_HARDWARE_SENSOR_DS18B20_READ_TIMEOUT) {
+          break;
+        }
       } while (temperature == 85.0 || temperature == (-127.0));
       temperature = temperature + configuration.correction;
     }
@@ -53,9 +60,11 @@ float ESPDS18B20Sensor::getCurrentTemperature() {
   else {
     Serial << ": NOT CONNECTED: ";
   }
-  Serial << ": " << temperature;
+  Serial << ": " << temperature
+         << ", read duration: " << (millis() - readTimeOut) << "msec.";
 #endif
   currentTemperature = temperature;
+  readTimeOut = 0;
   return temperature;
 }
 

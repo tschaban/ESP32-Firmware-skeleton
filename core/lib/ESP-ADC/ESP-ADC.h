@@ -58,6 +58,8 @@ public:
   /* Main method that takes care for analog reads based on config parameters.
    * Returns true if there is a new value available from analog input  */
   boolean listener();
+
+  void setInterval(uint32_t interval);
 };
 
 #endif // ESP_CONFIG_HARDWARE_ADC

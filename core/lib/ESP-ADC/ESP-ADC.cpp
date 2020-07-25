@@ -69,6 +69,10 @@ void ESPADC::begin(ESPDataAccess *_Data, uint8_t id) {
   }
 }
 
+void ESPADC::setInterval(uint32_t interval) {
+  configuration.interval = interval;
+}
+
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
 void ESPADC::begin(ESPDataAccess *_Data, TwoWire *_WirePort0,
                    TwoWire *_WirePort1, uint8_t id) {

@@ -28,6 +28,12 @@ struct DEVICE {
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
   uint8_t noOfDS18B20s;
 #endif
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+  uint8_t noOfNTCs;
+#endif
+
+
+
 };
 
 #endif

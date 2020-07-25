@@ -88,5 +88,11 @@ public:
   void createDS18B20SensorConfigurationFile();
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+  void get(uint8_t, NTC_SENSOR &data);
+  void save(uint8_t, NTC_SENSOR *);
+  void createNTCSensorConfigurationFile();
+#endif 
+
 };
 #endif

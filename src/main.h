@@ -50,6 +50,9 @@ ESPWiFi Network;
 #include <ESP-Main-DS18B20-Sensor.cpp>
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+#include <ESP-Main-NTC-Sensor.cpp>
+#endif
 
 #include <ESP-Main-HTTPServer.cpp>
 

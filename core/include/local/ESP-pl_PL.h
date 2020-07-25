@@ -94,6 +94,7 @@
 #define L_NUMBER_OF_UART "Ilość magistral UART"
 #define L_NUMBER_OF_BINARY_SENSORS "Ilość czujników binarnych"
 #define L_NUMBER_OF_DS18B20_SENSORS "Ilość czujników DS18B20"
+#define L_NUMBER_OF_NTC_SENSORS "Ilość termistorów NTC"
 #define L_DO_MEASURE_ADC "Pomiary z wejścia analogowego"
 #define L_DEVICE_CONTROLLING "Sterowanie urządzeniem"
 #define L_DEVICE_CONTROLLING_INFO                                              \
@@ -252,6 +253,10 @@
 
 #define L_DS18B20_SENSOR "Czujnik DS18B20"
 
+#define L_NTC_SENSOR "Termistor NTC"
+#define L_NTC_COEFFICIENTS "Współczynniki Steinhart–Hart'a"
+#define L_NTC_VCC "Napięcie zasilania"
+#define L_NTC_RESISTOR "Rezystor"
 
 /* Form: upgrade and post upgrade */
 #define L_SELECT_FIRMWARE "Wybierz Firmware"

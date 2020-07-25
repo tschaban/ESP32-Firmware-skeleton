@@ -38,4 +38,8 @@
 #include <DS18B20-Sensor-Structure.h>
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+#include <NTC-Sensor-Structure.h>
+#endif
+
 #endif

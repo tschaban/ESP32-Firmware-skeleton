@@ -27,8 +27,8 @@ void eventsListnerADC(void) {
     if (ADCInput[i].listener()) {
       char _number[10];
       if (i == 0) {
-        sprintf(_number, "%-.4f", ADCInput[i].data.voltageCalculated);
-        p0_t0.setText(_number);
+
+
       } else if (i == 1) {
         sprintf(_number, "%-.4f", ADCInput[i].data.voltageCalculated);
         p0_t1.setText(_number);
