@@ -81,7 +81,7 @@ void setup() {
 
 /* Initializing ADC */
 #ifdef ESP_CONFIG_HARDWARE_ADC
-    initializeADC();
+ //   initializeADC();
 #endif
 
 /* Nextion */
@@ -102,6 +102,11 @@ void setup() {
 /* Sensor: NTC */
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
     initializeNTCSensor();
+#endif
+
+/* Batterymeter */
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+    initializeBatterymeter();
 #endif
   }
 
@@ -137,7 +142,7 @@ void loop() {
 /* Code only for: Normal mode, and connected to WiFi */
 
 #ifdef ESP_CONFIG_HARDWARE_ADC
-        eventsListnerADC();
+  //      eventsListnerADC();
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
@@ -150,6 +155,9 @@ void loop() {
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
         eventsListnerNTCSensor();
+#endif
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+    eventsListnerBatterymeter();
 #endif
       }
       /* Code only for: Normal and Configuration mode, and connected to WiFi */

@@ -95,6 +95,7 @@
 #define L_NUMBER_OF_BINARY_SENSORS "Ilość czujników binarnych"
 #define L_NUMBER_OF_DS18B20_SENSORS "Ilość czujników DS18B20"
 #define L_NUMBER_OF_NTC_SENSORS "Ilość termistorów NTC"
+#define L_NUMBER_OF_BATTERYMETERS "Ilość miernków baterii"
 #define L_DO_MEASURE_ADC "Pomiary z wejścia analogowego"
 #define L_DEVICE_CONTROLLING "Sterowanie urządzeniem"
 #define L_DEVICE_CONTROLLING_INFO                                              \
@@ -242,7 +243,8 @@
 #define L_VOLTAGE_DIVIDER "Dzielnik napięcia"
 #define L_ADC_MQTT_TOPIC "Temat MQTT dla informacji z ADC"
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-#define L_BATTERY_METER "Pomiar naładowania baterii"
+#define L_BATTERY_METERS "Mierniki poziomów baterii"
+#define L_BATTERY_METER "Miernik baterii"
 #define L_BATTERY_MQTT_TOPIC "Temat MQTT Stanu baterii"
 #define L_BATTERY_MIN_LEVEL "Minimalny poziom baterii"
 #define L_BATTERY_MAX_LEVEL "Maksymalny poziom baterii"
@@ -257,6 +259,7 @@
 #define L_NTC_COEFFICIENTS "Współczynniki Steinhart–Hart'a"
 #define L_NTC_VCC "Napięcie zasilania"
 #define L_NTC_RESISTOR "Rezystor"
+#define L_NTC_TERMISTOR "Termistor"
 
 /* Form: upgrade and post upgrade */
 #define L_SELECT_FIRMWARE "Wybierz Firmware"

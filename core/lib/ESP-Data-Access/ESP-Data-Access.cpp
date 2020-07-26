@@ -73,6 +73,34 @@ void ESPDataAccess::createDefaultConfiguration(void) {
 #endif
   createADCConfigurationFile();
 #endif // ESP_CONFIG_HARDWARE_ADC
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
+#ifdef DEBUG
+  Serial << endl << "INFO: Creating Binary sensor configuration";
+#endif
+  createBinarySensorConfigurationFile();
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+#ifdef DEBUG
+  Serial << endl << "INFO: Creating DS18B20 sensor configuration";
+#endif
+  createDS18B20SensorConfigurationFile();
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+#ifdef DEBUG
+  Serial << endl << "INFO: Creating NTC termistor configuration";
+#endif
+  createNTCSensorConfigurationFile();
+#endif
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+#ifdef DEBUG
+  Serial << endl << "INFO: Creating Batterymeter configuration";
+#endif
+  createBatterymeterConfigurationFile();
+#endif
 }
 
 boolean ESPDataAccess::fileExist(const char *path) {
@@ -135,6 +163,16 @@ void ESPDataAccess::get(DEVICE &data) {
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
       data.noOfDS18B20s = root["noOfDS18B20s"] |
                           ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_NUMBER;
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+      data.noOfNTCs =
+          root["noOfNTCs"] | ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_NUMBER;
+#endif
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+      data.noOfBatterymeters = root["noOfBatterymeters"] |
+                               ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_NUMBER;
 #endif
 
 #ifdef DEBUG
@@ -203,6 +241,14 @@ void ESPDataAccess::save(DEVICE *data) {
     root["noOfDS18B20s"] = data->noOfDS18B20s;
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+    root["noOfNTCs"] = data->noOfNTCs;
+#endif
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+    root["noOfBatterymeters"] = data->noOfBatterymeters;
+#endif
+
     root.printTo(configFile);
 
 #ifdef DEBUG
@@ -254,6 +300,14 @@ void ESPDataAccess::createDeviceConfigurationFile() {
 #endif
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
   data.noOfDS18B20s = ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_NUMBER;
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+  data.noOfNTCs = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_NUMBER;
+#endif
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+  data.noOfBatterymeters = ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_NUMBER;
 #endif
 
   save(&data);
@@ -1112,10 +1166,6 @@ void ESPDataAccess::get(uint8_t id, ADC &data) {
       data.i2c.gain = root["i2c"]["gain"];
       data.i2c.samplesPerSecond = root["i2c"]["samplesPerSecond"];
 #endif
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-      data.battery.minVoltage = root["battery"]["minVoltage"];
-      data.battery.maxVoltage = root["battery"]["maxVoltage"];
-#endif
 
 #ifdef DEBUG
       Serial << endl
@@ -1161,9 +1211,6 @@ void ESPDataAccess::save(uint8_t id, ADC *data) {
     StaticJsonBuffer<ESP_CONFIG_HARDWARE_ADC_FILE_BUFFER> jsonBuffer;
     JsonObject &root = jsonBuffer.createObject();
     JsonObject &divider = root.createNestedObject("divider");
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-    JsonObject &battery = root.createNestedObject("battery");
-#endif
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
     JsonObject &i2c = root.createNestedObject("i2c");
 #endif
@@ -1181,11 +1228,6 @@ void ESPDataAccess::save(uint8_t id, ADC *data) {
     i2c["gain"] = data->i2c.gain;
     i2c["samplesPerSecond"] = data->i2c.samplesPerSecond;
 #endif
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-    battery["minVoltage"] = data->battery.minVoltage;
-    battery["maxVoltage"] = data->battery.maxVoltage;
-#endif
-
     root.printTo(configFile);
 #ifdef DEBUG
     root.printTo(Serial);
@@ -1228,10 +1270,6 @@ void ESPDataAccess::createADCConfigurationFile() {
   data.resolution = ESP_CONFIG_HARDWARE_ADC_DEFAULT_RESOLUTION;
   data.divider.Ra = ESP_CONFIG_HARDWARE_ADC_DEFAULT_DIVIDER_RESISTOR;
   data.divider.Rb = ESP_CONFIG_HARDWARE_ADC_DEFAULT_DIVIDER_RESISTOR;
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-  data.battery.maxVoltage = ESP_CONFIG_HARDWARE_ADC_DEFAULT_BATTERY_MAX_VOLTAGE;
-  data.battery.minVoltage = ESP_CONFIG_HARDWARE_ADC_DEFAULT_BATTERY_MIN_VOLTAGE;
-#endif
   for (uint8_t i = 0; i < ESP_CONFIG_HARDWARE_ADC_MAX_NUMBER; i++) {
     save(i, &data);
   }
@@ -1520,14 +1558,12 @@ void ESPDataAccess::get(uint8_t id, NTC_SENSOR &data) {
       data.vcc = root["vcc"];
       data.adcInput = root["adcInput"];
 
-
 #ifdef DEBUG
       Serial << endl
              << "INFO: JSON: Buffer size: "
              << ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER
              << ", actual JSON size: " << jsonBuffer.size();
-      if (ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER <
-          jsonBuffer.size() + 10) {
+      if (ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER < jsonBuffer.size() + 10) {
         Serial << endl << "WARN: Too small buffer size";
       }
 #endif
@@ -1548,9 +1584,8 @@ void ESPDataAccess::get(uint8_t id, NTC_SENSOR &data) {
 #endif
 }
 
-
 void ESPDataAccess::save(uint8_t id, NTC_SENSOR *data) {
- char fileName[23];
+  char fileName[23];
   sprintf(fileName, ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_NAME, id);
 
 #ifdef DEBUG
@@ -1588,8 +1623,7 @@ void ESPDataAccess::save(uint8_t id, NTC_SENSOR *data) {
            << "INFO: JSON: Buffer size: "
            << ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER
            << ", actual JSON size: " << jsonBuffer.size();
-    if (ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER <
-        jsonBuffer.size() + 10) {
+    if (ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER < jsonBuffer.size() + 10) {
       Serial << endl << "WARN: Too small buffer size";
     }
 #endif
@@ -1620,3 +1654,122 @@ void ESPDataAccess::createNTCSensorConfigurationFile() {
   }
 }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_NTC
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+void ESPDataAccess::get(uint8_t id, BATTERYMETER &data) {
+  char fileName[25];
+  sprintf(fileName, ESP_CONFIG_HARDWARE_BATTERYMETER_FILE_NAME, id);
+
+#ifdef DEBUG
+  Serial << endl << endl << "INFO: Opening file: " << fileName << " ... ";
+#endif
+
+  File configFile = LITTLEFS.open(fileName, "r");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: JSON: ";
+#endif
+
+    size_t size = configFile.size();
+    std::unique_ptr<char[]> buf(new char[size]);
+    configFile.readBytes(buf.get(), size);
+    StaticJsonBuffer<ESP_CONFIG_HARDWARE_BATTERYMETER_FILE_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.parseObject(buf.get());
+    if (root.success()) {
+#ifdef DEBUG
+      root.printTo(Serial);
+#endif
+
+      data.voltage.min = root["voltage"]["min"];
+      data.voltage.max = root["voltage"]["max"];
+      data.interval = root["interval"];
+      data.adcInput = root["adcInput"];
+
+#ifdef DEBUG
+      Serial << endl
+             << "INFO: JSON: Buffer size: "
+             << ESP_CONFIG_HARDWARE_BATTERYMETER_FILE_BUFFER
+             << ", actual JSON size: " << jsonBuffer.size();
+      if (ESP_CONFIG_HARDWARE_BATTERYMETER_FILE_BUFFER <
+          jsonBuffer.size() + 10) {
+        Serial << endl << "WARN: Too small buffer size";
+      }
+#endif
+    }
+#ifdef DEBUG
+    else {
+      Serial << "ERROR: JSON not pharsed";
+    }
+#endif
+    configFile.close();
+  }
+
+#ifdef DEBUG
+  else {
+    Serial << endl
+           << "ERROR: Configuration file: " << fileName << " not opened";
+  }
+#endif
+}
+
+void ESPDataAccess::save(uint8_t id, BATTERYMETER *data) {
+  char fileName[25];
+  sprintf(fileName, ESP_CONFIG_HARDWARE_BATTERYMETER_FILE_NAME, id);
+
+#ifdef DEBUG
+  Serial << endl << endl << "INFO: Opening file: " << fileName << " ... ";
+#endif
+
+  File configFile = LITTLEFS.open(fileName, "w");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: Writing JSON: ";
+#endif
+
+    StaticJsonBuffer<ESP_CONFIG_HARDWARE_BATTERYMETER_FILE_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.createObject();
+    JsonObject &voltage = root.createNestedObject("voltage");
+    root["interval"] = data->interval;
+    root["adcInput"] = data->adcInput;
+    voltage["min"] = data->voltage.min;
+    voltage["max"] = data->voltage.max;
+    root.printTo(configFile);
+#ifdef DEBUG
+    root.printTo(Serial);
+#endif
+    configFile.close();
+
+#ifdef DEBUG
+    Serial << endl
+           << "INFO: Data saved" << endl
+           << "INFO: JSON: Buffer size: "
+           << ESP_CONFIG_HARDWARE_BATTERYMETER_FILE_BUFFER
+           << ", actual JSON size: " << jsonBuffer.size();
+    if (ESP_CONFIG_HARDWARE_BATTERYMETER_FILE_BUFFER < jsonBuffer.size() + 10) {
+      Serial << endl << "WARN: Too small buffer size";
+    }
+#endif
+  }
+#ifdef DEBUG
+  else {
+    Serial << endl << F("ERROR: failed to open file: ") << fileName;
+  }
+#endif
+}
+
+void ESPDataAccess::createBatterymeterConfigurationFile() {
+#ifdef DEBUG
+  Serial << endl << F("INFO: Creating NTC sensor configuration files");
+#endif
+  BATTERYMETER data;
+  data.adcInput = ESP_HARDWARE_ITEM_NOT_EXIST;
+  data.interval = ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_INTERVAL;
+  data.voltage.min = ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_MIN_VOLTAGE;
+  data.voltage.max = ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_MAX_VOLTAGE;
+  for (uint8_t i = 0; i < ESP_CONFIG_HARDWARE_BATTERYMETER_MAX_NUMBER; i++) {
+    save(i, &data);
+  }
+}
+#endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER

@@ -94,5 +94,11 @@ public:
   void createNTCSensorConfigurationFile();
 #endif 
 
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+  void get(uint8_t, BATTERYMETER &data);
+  void save(uint8_t, BATTERYMETER *);
+  void createBatterymeterConfigurationFile();
+#endif
+
 };
 #endif

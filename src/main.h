@@ -54,6 +54,11 @@ ESPWiFi Network;
 #include <ESP-Main-NTC-Sensor.cpp>
 #endif
 
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+#include <ESP-Main-Batterymeter.cpp>
+
+#endif
+
 #include <ESP-Main-HTTPServer.cpp>
 
 #endif // _ESP_main_h

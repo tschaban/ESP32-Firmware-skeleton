@@ -15,20 +15,16 @@ void initializeNTCSensor(void) {
 #else
     NTCSensor[i].begin(&Data, i);
 #endif
-
-#ifdef DEBUG
-    Serial << endl << "INFO: NTC(" << i + 1 << ") initialized";
-#endif
   }
 };
 
 void eventsListnerNTCSensor(void) {
-  char _number[10];
+  char _number[20];
   /* Listens for switch events */
   for (uint8_t i = 0; i < Device.configuration.noOfNTCs; i++) {
     if (NTCSensor[i].listener()) {
-      sprintf(_number, "%-.3f", NTCSensor[i].temperature);
-      p0_t5.setText(_number);
+      sprintf(_number, "NTC:%-.2fC", NTCSensor[i].temperature);
+      p0_t2.setText(_number);
 
       // HERE CODE FOR NTC
     }

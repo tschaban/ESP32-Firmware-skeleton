@@ -11,9 +11,6 @@ struct ADC_DATA {
   float percent;
   double voltage;
   double voltageCalculated;
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-  float batteryPercent;
-#endif
 };
 
 struct ADC_VOLTAGE_DIVIDER {
@@ -21,12 +18,6 @@ struct ADC_VOLTAGE_DIVIDER {
   uint32_t Rb;
 };
 
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-struct ADC_BATTERY_METER {
-  float maxVoltage;
-  float minVoltage;
-};
-#endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
 
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
 struct ADC_I2C {
@@ -48,9 +39,6 @@ struct ADC {
   double maxVCC;
   uint16_t resolution;
   ADC_VOLTAGE_DIVIDER divider;
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-  ADC_BATTERY_METER battery;
-#endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
 };
 
 #endif // ESP_CONFIG_HARDWARE_ADC

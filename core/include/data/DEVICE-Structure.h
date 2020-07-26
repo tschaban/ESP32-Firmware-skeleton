@@ -31,9 +31,9 @@ struct DEVICE {
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
   uint8_t noOfNTCs;
 #endif
-
-
-
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+  uint8_t noOfBatterymeters;
+#endif
 };
 
 #endif

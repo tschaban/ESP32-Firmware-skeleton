@@ -98,6 +98,16 @@ void ESPSitesGenerator::generateTwoColumnsLayout(String &page,
   }
 #endif // ESP_CONFIG_HARDWARE_ADC
 
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+  if (Device->configuration.noOfADCs > 0 &&
+      Device->configuration.noOfBatterymeters > 0) {
+    addMenuHeaderItem(page, L_BATTERY_METERS);
+    addMenuSubItem(page, L_BATTERY_METER,
+                   Device->configuration.noOfBatterymeters,
+                   ESP_CONFIG_SITE_BATTERYMETER);
+  }
+#endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
   if (Device->configuration.noOfBinarySensors > 0) {
     addMenuHeaderItem(page, L_BINARY_SENSOR);
@@ -111,6 +121,14 @@ void ESPSitesGenerator::generateTwoColumnsLayout(String &page,
     addMenuHeaderItem(page, L_DS18B20_SENSOR);
     addMenuSubItem(page, L_SENSOR, Device->configuration.noOfDS18B20s,
                    ESP_CONFIG_SITE_DS18B20_SENSOR);
+  }
+#endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
+  if (Device->configuration.noOfNTCs > 0) {
+    addMenuHeaderItem(page, L_NTC_SENSOR);
+    addMenuSubItem(page, L_NTC_TERMISTOR, Device->configuration.noOfNTCs,
+                   ESP_CONFIG_SITE_NTC_SENSOR);
   }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
 
@@ -454,6 +472,13 @@ void ESPSitesGenerator::siteDevice(String &page) {
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_SENSOR_NTC_MAX_NUMBER,
                         configuration.noOfNTCs, "NTCSensor",
                         L_NUMBER_OF_NTC_SENSORS);
+
+#endif
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+  addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_BATTERYMETER_MAX_NUMBER,
+                        configuration.noOfBatterymeters, "batterymeter",
+                        L_NUMBER_OF_BATTERYMETERS);
 
 #endif
 
@@ -963,23 +988,6 @@ void ESPSitesGenerator::siteADC(String &page, uint8_t id) {
                    L_REFRESHED_AFTER_SAVE, true);
 
   closeSection(page);
-
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-  openSection(page, L_BATTERY_METER, "");
-
-  sprintf(_number, "%-.4f", configuration.battery.minVoltage);
-  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "batteryMin",
-                   L_BATTERY_MIN_LEVEL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
-                   "0", "200", "0.0001", "V");
-
-  sprintf(_number, "%-.4f", configuration.battery.maxVoltage);
-  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "batteryMax",
-                   L_BATTERY_MAX_LEVEL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
-                   "0", "200", "0.0001", "V");
-
-  closeSection(page);
-
-#endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
 }
 
 #endif // ESP_CONFIG_HARDWARE_ADC
@@ -1188,3 +1196,51 @@ void ESPSitesGenerator::siteNTCSensor(String &page, uint8_t id) {
   closeSection(page);
 }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_NTC
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+void ESPSitesGenerator::siteBatterymeter(String &page, uint8_t id) {
+  BATTERYMETER configuration;
+  Data->get(id, configuration);
+  char _number[17];
+
+  openSection(page, L_BATTERY_METER, "");
+
+  /* Item: ADC */
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
+  page.replace("{{item.label}}", L_ANALOG_INPUT);
+  page.replace("{{item.name}}", "adc");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", L_NONE);
+  page.replace("{{item.value}}", String(ESP_HARDWARE_ITEM_NOT_EXIST));
+  page.replace("{{item.selected}}",
+               configuration.adcInput == ESP_HARDWARE_ITEM_NOT_EXIST
+                   ? " selected=\"selected\""
+                   : "");
+  for (uint8_t i = 0; i < Device->configuration.noOfADCs; i++) {
+    page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+    page.replace("{{item.label}}", String(i + 1));
+    page.replace("{{item.value}}", String(i));
+    page.replace("{{item.selected}}",
+                 configuration.adcInput == i ? " selected=\"selected\"" : "");
+  }
+  page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
+
+  /* Item: Interval */
+  sprintf(_number, "%d", configuration.interval);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "interval",
+                   L_MEASURMENTS_INTERVAL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
+                   "20", "3600000", "1", L_MILISECONDS);
+
+  /* Item: Min V */
+  sprintf(_number, "%-.4f", configuration.voltage.min);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "vMin",L_BATTERY_MIN_LEVEL,
+                   _number, ESP_FORM_ITEM_SKIP_PROPERTY, "0", "200", "0.0001","V");
+
+  /* Item: Max V */
+  sprintf(_number, "%-.4f", configuration.voltage.max);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "vMax",L_BATTERY_MAX_LEVEL,
+                   _number, ESP_FORM_ITEM_SKIP_PROPERTY, "0", "200", "0.0001","V");
+
+  closeSection(page);
+}
+#endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER

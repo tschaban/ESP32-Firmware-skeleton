@@ -42,4 +42,8 @@
 #include <NTC-Sensor-Structure.h>
 #endif
 
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+#include <BATTERYMETER-Structure.h>
+#endif
+
 #endif

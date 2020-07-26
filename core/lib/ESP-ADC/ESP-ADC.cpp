@@ -34,12 +34,6 @@ void ESPADC::begin(ESPDataAccess *_Data, uint8_t id) {
          << F("- ADC Input Resolution: ") << configuration.resolution << endl
          << F("- R[A]: ") << configuration.divider.Ra << endl
          << F("- R[B]: ") << configuration.divider.Rb
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-         << endl
-         << F("- Battery min voltage: ") << configuration.battery.minVoltage
-         << endl
-         << F("- Battery max voltage: ") << configuration.battery.maxVoltage
-#endif
          << endl
          << F("-------------------------------------");
 
@@ -83,7 +77,7 @@ void ESPADC::begin(ESPDataAccess *_Data, TwoWire *_WirePort0,
 #endif
 
 boolean ESPADC::listener() {
-  ready = false;
+  if (ready) ready = false;
   if (_initialized) {
     unsigned long time = millis();
 
@@ -122,23 +116,6 @@ boolean ESPADC::listener() {
           data.voltageCalculated = data.voltage;
         }
 
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-        if (data.voltageCalculated >= configuration.battery.maxVoltage) {
-          data.batteryPercent = 100;
-        } else if (data.voltageCalculated <= configuration.battery.minVoltage) {
-          data.batteryPercent = 0;
-        } else if (configuration.battery.maxVoltage -
-                       configuration.battery.minVoltage >
-                   0) {
-          data.batteryPercent =
-              (data.voltageCalculated - configuration.battery.minVoltage) *
-              100 / (configuration.battery.maxVoltage -
-                     configuration.battery.minVoltage);
-        } else {
-          data.batteryPercent = 0;
-        }
-#endif
-
 #ifdef DEBUG
         Serial << endl
                << F("INFO: Reading data from ADC: ") << endl
@@ -153,9 +130,6 @@ boolean ESPADC::listener() {
                << F(" - Percent = ") << data.percent << endl
                << F(" - Voltage = ") << data.voltage << endl
                << F(" - VoltageCalculated = ") << data.voltageCalculated << endl
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-               << F(" - Battery level = ") << data.batteryPercent << endl
-#endif
                << F(" - Sampling time = ")
                << millis() - startTime - configuration.interval << F("msec.");
 #endif

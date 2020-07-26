@@ -9,6 +9,7 @@ void eventsListnerADC(void);
 
 void initializeADC(void) {
   for (uint8_t i = 0; i < Device.configuration.noOfADCs; i++) {
+
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
     ADCInput[i].begin(&Data, &WirePort0, &WirePort1, i);
 #else
@@ -30,8 +31,7 @@ void eventsListnerADC(void) {
 
 
       } else if (i == 1) {
-        sprintf(_number, "%-.4f", ADCInput[i].data.voltageCalculated);
-        p0_t1.setText(_number);
+
       }
 #ifdef DEBUG
       Serial << endl

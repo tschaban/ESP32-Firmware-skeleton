@@ -98,6 +98,10 @@ private:
   void get(NTC_SENSOR &data);
 #endif
 
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+  void get(BATTERYMETER &data);
+#endif
+
 #if defined(ESP_CONFIG_HARDWARE_LED) || defined(ESP_CONFIG_HARDWARE_I2C)
   void begin(ESPDataAccess *, ESPDevice *);
 #endif

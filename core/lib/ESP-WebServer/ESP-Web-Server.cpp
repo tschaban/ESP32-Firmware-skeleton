@@ -145,6 +145,12 @@ String ESPWebServer::generateSite(SITE_PARAMETERS *siteConfig, String &page) {
     break;
   }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_NTC
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+  case ESP_CONFIG_SITE_BATTERYMETER: {
+    Site.siteBatterymeter(page, siteConfig->deviceID);
+    break;
+  }
+#endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
   }
 
   if (siteConfig->form) {
@@ -292,6 +298,14 @@ void ESPWebServer::generate(boolean upload) {
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
       case ESP_CONFIG_SITE_NTC_SENSOR: {
         NTC_SENSOR configuration;
+        get(configuration);
+        Data->save(siteConfig.deviceID, &configuration);
+        break;
+      }
+#endif
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+      case ESP_CONFIG_SITE_BATTERYMETER: {
+        BATTERYMETER configuration;
         get(configuration);
         Data->save(siteConfig.deviceID, &configuration);
         break;
@@ -564,10 +578,17 @@ void ESPWebServer::get(DEVICE &data) {
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
-  data.noOfDS18B20s = Server.arg("NTCSensor").length() > 0
+  data.noOfNTCs = Server.arg("NTCSensor").length() > 0
                           ? Server.arg("NTCSensor").toInt()
                           : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_NUMBER;
 #endif
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+  data.noOfBatterymeters = Server.arg("batterymeter").length() > 0
+                          ? Server.arg("batterymeter").toInt()
+                          : ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_NUMBER;
+#endif
+
 }
 
 void ESPWebServer::get(NETWORK &data) {
@@ -747,18 +768,6 @@ void ESPWebServer::get(ADC &data) {
                                   : ESP_CONFIG_HARDWARE_ADS1115_DEFAULT_SAMPLES;
 
 #endif // ESP_CONFIG_HARDWARE_I2C
-
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-  data.battery.minVoltage =
-      Server.arg("batteryMin").length() > 0
-          ? Server.arg("batteryMin").toFloat()
-          : ESP_CONFIG_HARDWARE_ADC_DEFAULT_BATTERY_MAX_VOLTAGE;
-
-  data.battery.maxVoltage =
-      Server.arg("batteryMax").length() > 0
-          ? Server.arg("batteryMax").toFloat()
-          : ESP_CONFIG_HARDWARE_ADC_DEFAULT_BATTERY_MIN_VOLTAGE;
-#endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
 }
 #endif
 
@@ -811,9 +820,9 @@ void ESPWebServer::get(NTC_SENSOR &data) {
                       ? Server.arg("resistor").toFloat()
                       : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_RESISTOR;
 
-  data.resistor = Server.arg("vcc").length() > 0
-                      ? Server.arg("vcc").toFloat()
-                      : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_VCC;
+  data.vcc = Server.arg("vcc").length() > 0
+                 ? Server.arg("vcc").toFloat()
+                 : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_VCC;
 
   data.coefficients.A = Server.arg("A").length() > 0
                             ? Server.arg("A").toFloat()
@@ -838,5 +847,27 @@ void ESPWebServer::get(NTC_SENSOR &data) {
   data.correction = Server.arg("correction").length() > 0
                         ? Server.arg("correction").toFloat()
                         : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_CORRECTION;
+
+  data.adcInput = Server.arg("adc").length() > 0 ? Server.arg("adc").toInt()
+                                                 : ESP_HARDWARE_ITEM_NOT_EXIST;
 }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_NTC
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+void ESPWebServer::get(BATTERYMETER &data) {
+  data.voltage.min = Server.arg("vMin").length() > 0
+                         ? Server.arg("vMin").toFloat()
+                         : ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_MIN_VOLTAGE;
+
+  data.voltage.max = Server.arg("vMax").length() > 0
+                         ? Server.arg("vMax").toFloat()
+                         : ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_MAX_VOLTAGE;
+
+  data.interval = Server.arg("interval").length() > 0
+                      ? Server.arg("interval").toInt()
+                      : ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_INTERVAL;
+
+  data.adcInput = Server.arg("adc").length() > 0 ? Server.arg("adc").toInt()
+                                                 : ESP_HARDWARE_ITEM_NOT_EXIST;
+}
+#endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
