@@ -36,7 +36,23 @@ void ESPNTCSensor::begin(ESPDataAccess *_Data, uint8_t id) {
   }
 #ifdef DEBUG
   if (_initialized) {
-    Serial << endl << "INFO: NTC[" << id << "] initialized";
+    Serial << endl
+           << "INFO: NTC[" << id << "] initialized" << endl
+           << "INFO: NTC Configuration: ";
+    Serial << endl
+           << " - Balancing resistor: " << configuration.resistor / 1000
+           << "kOm";
+    Serial << endl << " - VCC: " << configuration.vcc;
+    Serial << endl
+           << " - Coefficient A: " << configuration.coefficients.A.value
+           << ", Precision: " << configuration.coefficients.A.precision;
+    Serial << endl
+           << " - Coefficient B: " << configuration.coefficients.B.value
+           << ", Precision: " << configuration.coefficients.B.precision;
+    Serial << endl
+           << " - Coefficient C: " << configuration.coefficients.C.value
+           << ", Precision: " << configuration.coefficients.C.precision;
+
   } else {
     Serial << endl << "WARN: NTC[" << id << "] NOT initialized";
   }
@@ -60,24 +76,55 @@ boolean ESPNTCSensor::listener() {
 #ifdef DEBUG
       Serial << endl
              << " - Voltage measured: " << ADCInput.data.voltageCalculated;
-      Serial << endl
-             << " - Balancing resistor: " << configuration.resistor / 1000
-             << "kOm";
-      Serial << endl << " - VCC: " << configuration.vcc;
       Serial << endl << " - Resistancy on NTC: " << rNTC;
-      Serial << endl << " - Coefficient A: " << configuration.coefficients.A;
-      Serial << endl << " - Coefficient B: " << configuration.coefficients.B;
-      Serial << endl << " - Coefficient C: " << configuration.coefficients.C;
 #endif
 
       rNTC = log(rNTC);
-      temperature = (1 / (ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_A +
-                          (ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_B +
-                           (ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_C * rNTC * rNTC)) *
-                              rNTC));
+
+      temperature =
+          (1 / ((configuration.coefficients.A.value /
+                 (configuration.coefficients.A.precision ==
+                          ESP_CONFIG_HARDWARE_FLOAT_PRECISION_0
+                      ? 1
+                      : configuration.coefficients.A.precision ==
+                                ESP_CONFIG_HARDWARE_FLOAT_PRECISION_3
+                            ? 1000
+                            : configuration.coefficients.A.precision ==
+                                      ESP_CONFIG_HARDWARE_FLOAT_PRECISION_6
+                                  ? 1000000
+                                  : 1000000000)) +
+                ((ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_B /
+                  (configuration.coefficients.B.precision ==
+                           ESP_CONFIG_HARDWARE_FLOAT_PRECISION_0
+                       ? 1
+                       : configuration.coefficients.B.precision ==
+                                 ESP_CONFIG_HARDWARE_FLOAT_PRECISION_3
+                             ? 1000
+                             : configuration.coefficients.B.precision ==
+                                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_6
+                                   ? 1000000
+                                   : 1000000000)) +
+                 ((ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_C /
+                   (configuration.coefficients.C.precision ==
+                            ESP_CONFIG_HARDWARE_FLOAT_PRECISION_0
+                        ? 1
+                        : configuration.coefficients.C.precision ==
+                                  ESP_CONFIG_HARDWARE_FLOAT_PRECISION_3
+                              ? 1000
+                              : configuration.coefficients.C.precision ==
+                                        ESP_CONFIG_HARDWARE_FLOAT_PRECISION_6
+                                    ? 1000000
+                                    : 1000000000)) *
+                  rNTC * rNTC)) *
+                    rNTC));
 
 #ifdef DEBUG
       Serial << endl << " - Temperature: " << temperature << "Kalvins";
+/*
+             << " do porowniania "
+             << (1 / (0.001129148 +
+                      (0.000234125 + (0.0000000876741 * rNTC * rNTC)) * rNTC));
+*/
 #endif
 
       temperature = temperature - 273.15 + configuration.correction;

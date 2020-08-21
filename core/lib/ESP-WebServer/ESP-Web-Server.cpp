@@ -824,17 +824,29 @@ void ESPWebServer::get(NTC_SENSOR &data) {
                  ? Server.arg("vcc").toFloat()
                  : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_VCC;
 
-  data.coefficients.A = Server.arg("A").length() > 0
+  data.coefficients.A.value = Server.arg("A").length() > 0
                             ? Server.arg("A").toFloat()
                             : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_A;
 
-  data.coefficients.B = Server.arg("B").length() > 0
+  data.coefficients.B.value = Server.arg("B").length() > 0
                             ? Server.arg("B").toFloat()
                             : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_B;
 
-  data.coefficients.C = Server.arg("C").length() > 0
+  data.coefficients.C.value = Server.arg("C").length() > 0
                             ? Server.arg("C").toFloat()
                             : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_C;
+
+  data.coefficients.A.precision = Server.arg("AP").length() > 0
+                            ? Server.arg("AP").toInt()
+                            : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_A_PRECISION;
+
+  data.coefficients.B.precision = Server.arg("BP").length() > 0
+                            ? Server.arg("BP").toInt()
+                            : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_B_PRECISION;
+
+  data.coefficients.C.precision = Server.arg("CP").length() > 0
+                            ? Server.arg("CP").toInt()
+                            : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_C_PRECISION;
 
   data.interval = Server.arg("interval").length() > 0
                       ? Server.arg("interval").toInt()

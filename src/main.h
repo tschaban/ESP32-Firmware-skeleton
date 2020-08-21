@@ -38,9 +38,9 @@ ESPWiFi Network;
 #include <ESP-Main-I2C.cpp>
 #endif
 
-#ifdef ESP_CONFIG_HARDWARE_ADC
+/* #ifdef ESP_CONFIG_HARDWARE_ADC
 #include <ESP-Main-ADC.cpp>
-#endif
+#endif */
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
 #include <ESP-Main-Binary-Sensor.cpp>

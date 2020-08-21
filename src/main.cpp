@@ -79,10 +79,10 @@ void setup() {
   /* Initialization components required for Normal mode */
   if (Device.getMode() == ESP_MODE_NORMAL) {
 
-/* Initializing ADC */
+/* Initializing ADC
 #ifdef ESP_CONFIG_HARDWARE_ADC
- //   initializeADC();
-#endif
+   initializeADC();
+#endif  */
 
 /* Nextion */
 #ifdef ESP_CONFIG_HARDWARE_NEXTION
@@ -141,9 +141,9 @@ void loop() {
 
 /* Code only for: Normal mode, and connected to WiFi */
 
-#ifdef ESP_CONFIG_HARDWARE_ADC
-  //      eventsListnerADC();
-#endif
+/* #ifdef ESP_CONFIG_HARDWARE_ADC
+      eventsListnerADC();
+#endif */
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
         eventsListnerBinarySensor();
@@ -157,7 +157,7 @@ void loop() {
         eventsListnerNTCSensor();
 #endif
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-    eventsListnerBatterymeter();
+        eventsListnerBatterymeter();
 #endif
       }
       /* Code only for: Normal and Configuration mode, and connected to WiFi */

@@ -4,9 +4,9 @@
 
 NexText p0_t0 = NexText(0, 1, "t0"); // Bateria V
 NexText p0_t1 = NexText(0, 2, "t1"); // Bateria %
-NexText p0_t2 = NexText(0, 3, "t2"); // Binary[0]
+NexText p0_t2 = NexText(0, 3, "t2"); // NTC
 NexText p0_t3 = NexText(0, 4, "t3"); // DS18B20[0]
-NexText p0_t4 = NexText(0, 5, "t4"); // DS18B20[1]
+NexText p0_t4 = NexText(0, 5, "t4"); 
 NexText p0_t5 = NexText(0, 6, "t5");
 NexText p0_t6 = NexText(0, 7, "t5");
 

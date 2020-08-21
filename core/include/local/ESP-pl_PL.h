@@ -256,10 +256,14 @@
 #define L_DS18B20_SENSOR "Czujnik DS18B20"
 
 #define L_NTC_SENSOR "Termistor NTC"
-#define L_NTC_COEFFICIENTS "Współczynniki Steinhart–Hart'a"
+#define L_NTC_COEFFICIENT_A "Współczynnik A"
+#define L_NTC_COEFFICIENT_B "Współczynnik B"
+#define L_NTC_COEFFICIENT_C "Współczynnik C"
+#define L_NTC_COEFFICIENT_DESC "Współczynnik Steinhart–Hart'a"
 #define L_NTC_VCC "Napięcie zasilania"
 #define L_NTC_RESISTOR "Rezystor"
 #define L_NTC_TERMISTOR "Termistor"
+#define L_FLOAT_PRECISION "Precyzja"
 
 /* Form: upgrade and post upgrade */
 #define L_SELECT_FIRMWARE "Wybierz Firmware"

@@ -4,11 +4,16 @@
 #include <Configuration.h>
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
 
+struct NTC_SENSOR_COEFFICIENTS_UNIT {
+ float value;
+ uint8_t precision;
+};
+
 struct NTC_SENSOR_COEFFICIENTS
 {
-  double A;
-  double B;
-  double C;
+  NTC_SENSOR_COEFFICIENTS_UNIT A;
+  NTC_SENSOR_COEFFICIENTS_UNIT B;
+  NTC_SENSOR_COEFFICIENTS_UNIT C;
 };
 
 

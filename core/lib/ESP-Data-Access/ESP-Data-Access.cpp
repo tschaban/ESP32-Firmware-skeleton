@@ -1548,9 +1548,16 @@ void ESPDataAccess::get(uint8_t id, NTC_SENSOR &data) {
       root.printTo(Serial);
 #endif
 
-      data.coefficients.A = root["coefficients"]["A"];
-      data.coefficients.B = root["coefficients"]["B"];
-      data.coefficients.C = root["coefficients"]["C"];
+      data.coefficients.A.value = root["coefficients"]["A"]["value"];
+
+      Serial << endl
+             << "data.coefficients.A.value = " << data.coefficients.A.value;
+
+      data.coefficients.B.value = root["coefficients"]["B"]["value"];
+      data.coefficients.C.value = root["coefficients"]["C"]["value"];
+      data.coefficients.A.precision = root["coefficients"]["A"]["precision"];
+      data.coefficients.B.precision = root["coefficients"]["B"]["precision"];
+      data.coefficients.C.precision = root["coefficients"]["C"]["precision"];
       data.interval = root["interval"];
       data.correction = root["correction"];
       data.unit = root["unit"];
@@ -1601,16 +1608,22 @@ void ESPDataAccess::save(uint8_t id, NTC_SENSOR *data) {
 
     StaticJsonBuffer<ESP_CONFIG_HARDWARE_SENSOR_NTC_FILE_BUFFER> jsonBuffer;
     JsonObject &root = jsonBuffer.createObject();
-    JsonObject &coefficient = root.createNestedObject("coefficient");
+    JsonObject &coefficient = root.createNestedObject("coefficients");
+    JsonObject &coefficientA = coefficient.createNestedObject("A");
+    JsonObject &coefficientB = coefficient.createNestedObject("B");
+    JsonObject &coefficientC = coefficient.createNestedObject("C");
     root["resistor"] = data->resistor;
     root["interval"] = data->interval;
     root["correction"] = data->correction;
     root["unit"] = data->unit;
     root["vcc"] = data->vcc;
     root["adcInput"] = data->adcInput;
-    coefficient["A"] = data->coefficients.A;
-    coefficient["B"] = data->coefficients.B;
-    coefficient["C"] = data->coefficients.C;
+    coefficientA["value"] = data->coefficients.A.value;
+    coefficientA["precision"] = data->coefficients.A.precision;
+    coefficientB["value"] = data->coefficients.B.value;
+    coefficientB["precision"] = data->coefficients.B.precision;
+    coefficientC["value"] = data->coefficients.C.value;
+    coefficientC["precision"] = data->coefficients.C.precision;
     root.printTo(configFile);
 #ifdef DEBUG
     root.printTo(Serial);
@@ -1646,9 +1659,12 @@ void ESPDataAccess::createNTCSensorConfigurationFile() {
   data.correction = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_CORRECTION;
   data.unit = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_UNIT;
   data.vcc = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_VCC;
-  data.coefficients.A = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_A;
-  data.coefficients.B = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_B;
-  data.coefficients.C = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_C;
+  data.coefficients.A.value = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_A;
+  data.coefficients.A.precision = 0;
+  data.coefficients.B.value = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_B;
+  data.coefficients.B.precision = 0;
+  data.coefficients.C.value = ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_C;
+  data.coefficients.C.precision = 0;
   for (uint8_t i = 0; i < ESP_CONFIG_HARDWARE_SENSOR_NTC_MAX_NUMBER; i++) {
     save(i, &data);
   }

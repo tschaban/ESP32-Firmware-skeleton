@@ -1104,7 +1104,7 @@ void ESPSitesGenerator::siteDS18B20Sensor(String &page, uint8_t id) {
 void ESPSitesGenerator::siteNTCSensor(String &page, uint8_t id) {
   NTC_SENSOR configuration;
   Data->get(id, configuration);
-  char _number[17];
+  char _number[11];
 
   openSection(page, L_NTC_SENSOR, "");
 
@@ -1176,22 +1176,144 @@ void ESPSitesGenerator::siteNTCSensor(String &page, uint8_t id) {
                    ESP_FORM_ITEM_SKIP_PROPERTY, "-99.999", "99.999", "0.001");
   closeSection(page);
 
-  openSection(page, L_NTC_COEFFICIENTS, "");
+  openSection(page, L_NTC_COEFFICIENT_A, L_NTC_COEFFICIENT_DESC);
 
   /* Item: A */
-  sprintf(_number, "%-.14f", configuration.coefficients.A);
-  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "A", "A", _number,
-                   ESP_FORM_ITEM_SKIP_PROPERTY, "0", "1", "0.00000000000001");
+  sprintf(_number, "%-.6lf", configuration.coefficients.A.value);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "A", "Wartość", _number,
+                   ESP_FORM_ITEM_SKIP_PROPERTY, "0", "999.999999", "0.000001");
+
+  /* Item: Precision */
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
+  page.replace("{{item.label}}", L_FLOAT_PRECISION);
+  page.replace("{{item.name}}", "AP");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "A / 1");
+  page.replace("{{item.value}}", String(ESP_CONFIG_HARDWARE_FLOAT_PRECISION_0));
+  page.replace("{{item.selected}}",
+               configuration.coefficients.A.precision ==
+                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_0
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "A / 1,000");
+  page.replace("{{item.value}}", String(ESP_CONFIG_HARDWARE_FLOAT_PRECISION_3));
+  page.replace("{{item.selected}}",
+               configuration.coefficients.A.precision ==
+                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_3
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "A / 1,000,000");
+  page.replace("{{item.value}}", String(ESP_CONFIG_HARDWARE_FLOAT_PRECISION_6));
+  page.replace("{{item.selected}}",
+               configuration.coefficients.A.precision ==
+                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_6
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "A / 1,000,000,000");
+  page.replace("{{item.value}}", String(ESP_CONFIG_HARDWARE_FLOAT_PRECISION_9));
+  page.replace("{{item.selected}}",
+               configuration.coefficients.A.precision ==
+                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_9
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
+
+  closeSection(page);
+
+  openSection(page, L_NTC_COEFFICIENT_B, L_NTC_COEFFICIENT_DESC);
 
   /* Item: B */
-  sprintf(_number, "%-.14f", configuration.coefficients.A);
-  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "B", "B", _number,
-                   ESP_FORM_ITEM_SKIP_PROPERTY, "0", "1", "0.00000000000001");
+  sprintf(_number, "%-.6lf", configuration.coefficients.B.value);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "B", "Wartość", _number,
+                   ESP_FORM_ITEM_SKIP_PROPERTY, "0", "999.999999", "0.000001");
+
+  /* Item: Precision */
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
+  page.replace("{{item.label}}", L_FLOAT_PRECISION);
+  page.replace("{{item.name}}", "BP");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "B / 1");
+  page.replace("{{item.value}}", String(ESP_CONFIG_HARDWARE_FLOAT_PRECISION_0));
+  page.replace("{{item.selected}}",
+               configuration.coefficients.B.precision ==
+                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_0
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "B / 1,000");
+  page.replace("{{item.value}}", String(ESP_CONFIG_HARDWARE_FLOAT_PRECISION_3));
+  page.replace("{{item.selected}}",
+               configuration.coefficients.B.precision ==
+                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_3
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "B / 1,000,000");
+  page.replace("{{item.value}}", String(ESP_CONFIG_HARDWARE_FLOAT_PRECISION_6));
+  page.replace("{{item.selected}}",
+               configuration.coefficients.B.precision ==
+                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_6
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "B / 1,000,000,000");
+  page.replace("{{item.value}}", String(ESP_CONFIG_HARDWARE_FLOAT_PRECISION_9));
+  page.replace("{{item.selected}}",
+               configuration.coefficients.B.precision ==
+                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_9
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
+
+  closeSection(page);
+
+  openSection(page, L_NTC_COEFFICIENT_C, L_NTC_COEFFICIENT_DESC);
 
   /* Item: C */
-  sprintf(_number, "%-.14f", configuration.coefficients.A);
-  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "C", "C", _number,
-                   ESP_FORM_ITEM_SKIP_PROPERTY, "0", "1", "0.00000000000001");
+  sprintf(_number, "%-.6lf", configuration.coefficients.C.value);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "C", "Wartość", _number,
+                   ESP_FORM_ITEM_SKIP_PROPERTY, "0", "999.999999", "0.000001");
+
+  /* Item: Precision */
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
+  page.replace("{{item.label}}", L_FLOAT_PRECISION);
+  page.replace("{{item.name}}", "CP");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "C / 1");
+  page.replace("{{item.value}}", String(ESP_CONFIG_HARDWARE_FLOAT_PRECISION_0));
+  page.replace("{{item.selected}}",
+               configuration.coefficients.C.precision ==
+                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_0
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "C / 1,000");
+  page.replace("{{item.value}}", String(ESP_CONFIG_HARDWARE_FLOAT_PRECISION_3));
+  page.replace("{{item.selected}}",
+               configuration.coefficients.C.precision ==
+                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_3
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "C / 1,000,000");
+  page.replace("{{item.value}}", String(ESP_CONFIG_HARDWARE_FLOAT_PRECISION_6));
+  page.replace("{{item.selected}}",
+               configuration.coefficients.C.precision ==
+                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_6
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "C / 1,000,000,000");
+  page.replace("{{item.value}}", String(ESP_CONFIG_HARDWARE_FLOAT_PRECISION_9));
+  page.replace("{{item.selected}}",
+               configuration.coefficients.C.precision ==
+                       ESP_CONFIG_HARDWARE_FLOAT_PRECISION_9
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
 
   closeSection(page);
 }
@@ -1233,13 +1355,15 @@ void ESPSitesGenerator::siteBatterymeter(String &page, uint8_t id) {
 
   /* Item: Min V */
   sprintf(_number, "%-.4f", configuration.voltage.min);
-  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "vMin",L_BATTERY_MIN_LEVEL,
-                   _number, ESP_FORM_ITEM_SKIP_PROPERTY, "0", "200", "0.0001","V");
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "vMin", L_BATTERY_MIN_LEVEL,
+                   _number, ESP_FORM_ITEM_SKIP_PROPERTY, "0", "200", "0.0001",
+                   "V");
 
   /* Item: Max V */
   sprintf(_number, "%-.4f", configuration.voltage.max);
-  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "vMax",L_BATTERY_MAX_LEVEL,
-                   _number, ESP_FORM_ITEM_SKIP_PROPERTY, "0", "200", "0.0001","V");
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "vMax", L_BATTERY_MAX_LEVEL,
+                   _number, ESP_FORM_ITEM_SKIP_PROPERTY, "0", "200", "0.0001",
+                   "V");
 
   closeSection(page);
 }
