@@ -34,6 +34,9 @@ struct DEVICE {
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
   uint8_t noOfBatterymeters;
 #endif
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+  uint8_t noOfACS758s;
+#endif
 };
 
 #endif

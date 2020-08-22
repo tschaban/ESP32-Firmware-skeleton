@@ -100,5 +100,12 @@ public:
   void createBatterymeterConfigurationFile();
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+  void get(uint8_t, ACS758_SENSOR &data);
+  void save(uint8_t, ACS758_SENSOR *);
+  void createACS758SensorConfigurationFile();
+#endif 
+
+
 };
 #endif

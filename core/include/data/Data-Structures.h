@@ -46,4 +46,8 @@
 #include <BATTERYMETER-Structure.h>
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+#include <ACS758-Sensor-Structure.h>
+#endif 
+
 #endif

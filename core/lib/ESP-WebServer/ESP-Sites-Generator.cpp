@@ -130,7 +130,15 @@ void ESPSitesGenerator::generateTwoColumnsLayout(String &page,
     addMenuSubItem(page, L_NTC_TERMISTOR, Device->configuration.noOfNTCs,
                    ESP_CONFIG_SITE_NTC_SENSOR);
   }
-#endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
+#endif // ESP_CONFIG_HARDWARE_SENSOR_NTC
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+  if (Device->configuration.noOfACS758s > 0) {
+    addMenuHeaderItem(page, L_ACS758_SENSOR);
+    addMenuSubItem(page, L_SENSOR, Device->configuration.noOfACS758s,
+                   ESP_CONFIG_SITE_ACS758);
+  }
+#endif // ESP_CONFIG_HARDWARE_SENSOR_NTC
 
   addMenuItem(page, L_FIRMWARE_UPGRADE, ESP_CONFIG_SITE_UPGRADE);
   addMenuItem(page, L_RESET_DEVICE, ESP_CONFIG_SITE_RESET);
@@ -473,6 +481,12 @@ void ESPSitesGenerator::siteDevice(String &page) {
                         configuration.noOfNTCs, "NTCSensor",
                         L_NUMBER_OF_NTC_SENSORS);
 
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+  addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_SENSOR_ACS758_MAX_NUMBER,
+                        configuration.noOfACS758s, "acs758Sensor",
+                        L_NUMBER_OF_ACS758);
 #endif
 
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
@@ -1368,3 +1382,119 @@ void ESPSitesGenerator::siteBatterymeter(String &page, uint8_t id) {
   closeSection(page);
 }
 #endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+void ESPSitesGenerator::siteACS758(String &page, uint8_t id) {
+  ACS758_SENSOR configuration;
+  Data->get(id, configuration);
+  char _number[17];
+
+  openSection(page, L_ACS758_SENSOR, "");
+
+  /* Item: ADC */
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
+  page.replace("{{item.label}}", L_ANALOG_INPUT);
+  page.replace("{{item.name}}", "adc");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", L_NONE);
+  page.replace("{{item.value}}", String(ESP_HARDWARE_ITEM_NOT_EXIST));
+  page.replace("{{item.selected}}",
+               configuration.adcInput == ESP_HARDWARE_ITEM_NOT_EXIST
+                   ? " selected=\"selected\""
+                   : "");
+  for (uint8_t i = 0; i < Device->configuration.noOfADCs; i++) {
+    page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+    page.replace("{{item.label}}", String(i + 1));
+    page.replace("{{item.value}}", String(i));
+    page.replace("{{item.selected}}",
+                 configuration.adcInput == i ? " selected=\"selected\"" : "");
+  }
+  page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
+
+  /* Item: Interval */
+  sprintf(_number, "%d", configuration.interval);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "interval",
+                   L_MEASURMENTS_INTERVAL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
+                   "20", "3600000", "1", L_MILISECONDS);
+
+  /* Item: type */
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
+  page.replace("{{item.label}}", L_TYPE);
+  page.replace("{{item.name}}", "type");
+    page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", L_SELECT);
+  page.replace("{{item.value}}",
+               String(ESP_HARDWARE_ITEM_NOT_EXIST));
+  page.replace("{{item.selected}}",
+               configuration.type == ESP_HARDWARE_ITEM_NOT_EXIST
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "ACS758LCB 50A B");
+  page.replace("{{item.value}}",
+               String(ESP_CONFIG_HARDWARE_SENSOR_ACS758LCB_050B));
+  page.replace("{{item.selected}}",
+               configuration.type == ESP_CONFIG_HARDWARE_SENSOR_ACS758LCB_050B
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "ACS758LCB 50A U");
+  page.replace("{{item.value}}",
+               String(ESP_CONFIG_HARDWARE_SENSOR_ACS758LCB_050U));
+  page.replace("{{item.selected}}",
+               configuration.type == ESP_CONFIG_HARDWARE_SENSOR_ACS758LCB_050U
+                   ? " selected=\"selected\""
+                   : "");
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "ACS758LCB 100A B");
+  page.replace("{{item.value}}",
+               String(ESP_CONFIG_HARDWARE_SENSOR_ACS758LCB_100B));
+  page.replace("{{item.selected}}",
+               configuration.type == ESP_CONFIG_HARDWARE_SENSOR_ACS758LCB_100B
+                   ? " selected=\"selected\""
+                   : "");         
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "ACS758LCB 100A U");
+  page.replace("{{item.value}}",
+               String(ESP_CONFIG_HARDWARE_SENSOR_ACS758LCB_100U));
+  page.replace("{{item.selected}}",
+               configuration.type == ESP_CONFIG_HARDWARE_SENSOR_ACS758LCB_100U
+                   ? " selected=\"selected\""
+                   : "");    
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "ACS758KCB 150A B");
+  page.replace("{{item.value}}",
+               String(ESP_CONFIG_HARDWARE_SENSOR_ACS758KCB_150B));
+  page.replace("{{item.selected}}",
+               configuration.type == ESP_CONFIG_HARDWARE_SENSOR_ACS758KCB_150B
+                   ? " selected=\"selected\""
+                   : "");   
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "ACS758KCB 150A U");
+  page.replace("{{item.value}}",
+               String(ESP_CONFIG_HARDWARE_SENSOR_ACS758KCB_150U));
+  page.replace("{{item.selected}}",
+               configuration.type == ESP_CONFIG_HARDWARE_SENSOR_ACS758KCB_150U
+                   ? " selected=\"selected\""
+                   : "");      
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "ACS758ECB 200A B");
+  page.replace("{{item.value}}",
+               String(ESP_CONFIG_HARDWARE_SENSOR_ACS758ECB_200B));
+  page.replace("{{item.selected}}",
+               configuration.type == ESP_CONFIG_HARDWARE_SENSOR_ACS758ECB_200B
+                   ? " selected=\"selected\""
+                   : "");     
+  page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
+  page.replace("{{item.label}}", "ACS758ECB 200A U");
+  page.replace("{{item.value}}",
+               String(ESP_CONFIG_HARDWARE_SENSOR_ACS758ECB_200U));
+  page.replace("{{item.selected}}",
+               configuration.type == ESP_CONFIG_HARDWARE_SENSOR_ACS758ECB_200U
+                   ? " selected=\"selected\""
+                   : "");                                                                                                                    
+  page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
+
+  closeSection(page);
+}
+#endif // ESP_CONFIG_HARDWARE_SENSOR_ACS758

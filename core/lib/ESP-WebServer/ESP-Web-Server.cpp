@@ -151,6 +151,12 @@ String ESPWebServer::generateSite(SITE_PARAMETERS *siteConfig, String &page) {
     break;
   }
 #endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+  case ESP_CONFIG_SITE_ACS758: {
+    Site.siteACS758(page, siteConfig->deviceID);
+    break;
+  }
+#endif // ESP_CONFIG_HARDWARE_SENSOR_ACS758
   }
 
   if (siteConfig->form) {
@@ -306,6 +312,14 @@ void ESPWebServer::generate(boolean upload) {
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
       case ESP_CONFIG_SITE_BATTERYMETER: {
         BATTERYMETER configuration;
+        get(configuration);
+        Data->save(siteConfig.deviceID, &configuration);
+        break;
+      }
+#endif
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+      case ESP_CONFIG_SITE_ACS758: {
+        ACS758_SENSOR configuration;
         get(configuration);
         Data->save(siteConfig.deviceID, &configuration);
         break;
@@ -579,16 +593,22 @@ void ESPWebServer::get(DEVICE &data) {
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
   data.noOfNTCs = Server.arg("NTCSensor").length() > 0
-                          ? Server.arg("NTCSensor").toInt()
-                          : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_NUMBER;
+                      ? Server.arg("NTCSensor").toInt()
+                      : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_NUMBER;
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+  data.noOfACS758s = Server.arg("acs758Sensor").length() > 0
+                         ? Server.arg("acs758Sensor").toInt()
+                         : ESP_CONFIG_HARDWARE_SENSOR_ACS758_DEFAULT_NUMBER;
 #endif
 
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-  data.noOfBatterymeters = Server.arg("batterymeter").length() > 0
-                          ? Server.arg("batterymeter").toInt()
-                          : ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_NUMBER;
+  data.noOfBatterymeters =
+      Server.arg("batterymeter").length() > 0
+          ? Server.arg("batterymeter").toInt()
+          : ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_NUMBER;
 #endif
-
 }
 
 void ESPWebServer::get(NETWORK &data) {
@@ -825,28 +845,31 @@ void ESPWebServer::get(NTC_SENSOR &data) {
                  : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_VCC;
 
   data.coefficients.A.value = Server.arg("A").length() > 0
-                            ? Server.arg("A").toFloat()
-                            : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_A;
+                                  ? Server.arg("A").toFloat()
+                                  : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_A;
 
   data.coefficients.B.value = Server.arg("B").length() > 0
-                            ? Server.arg("B").toFloat()
-                            : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_B;
+                                  ? Server.arg("B").toFloat()
+                                  : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_B;
 
   data.coefficients.C.value = Server.arg("C").length() > 0
-                            ? Server.arg("C").toFloat()
-                            : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_C;
+                                  ? Server.arg("C").toFloat()
+                                  : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_C;
 
-  data.coefficients.A.precision = Server.arg("AP").length() > 0
-                            ? Server.arg("AP").toInt()
-                            : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_A_PRECISION;
+  data.coefficients.A.precision =
+      Server.arg("AP").length() > 0
+          ? Server.arg("AP").toInt()
+          : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_A_PRECISION;
 
-  data.coefficients.B.precision = Server.arg("BP").length() > 0
-                            ? Server.arg("BP").toInt()
-                            : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_B_PRECISION;
+  data.coefficients.B.precision =
+      Server.arg("BP").length() > 0
+          ? Server.arg("BP").toInt()
+          : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_B_PRECISION;
 
-  data.coefficients.C.precision = Server.arg("CP").length() > 0
-                            ? Server.arg("CP").toInt()
-                            : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_C_PRECISION;
+  data.coefficients.C.precision =
+      Server.arg("CP").length() > 0
+          ? Server.arg("CP").toInt()
+          : ESP_CONFIG_HARDWARE_SENSOR_NTC_DEFAULT_C_PRECISION;
 
   data.interval = Server.arg("interval").length() > 0
                       ? Server.arg("interval").toInt()
@@ -883,3 +906,17 @@ void ESPWebServer::get(BATTERYMETER &data) {
                                                  : ESP_HARDWARE_ITEM_NOT_EXIST;
 }
 #endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+void ESPWebServer::get(ACS758_SENSOR &data) {
+  data.interval = Server.arg("interval").length() > 0
+                      ? Server.arg("interval").toInt()
+                      : ESP_CONFIG_HARDWARE_SENSOR_ACS758_DEFAULT_INTERVAL;
+
+  data.adcInput = Server.arg("adc").length() > 0 ? Server.arg("adc").toInt()
+                                                 : ESP_HARDWARE_ITEM_NOT_EXIST;
+
+  data.type = Server.arg("type").length() > 0 ? Server.arg("type").toInt()
+                                              : ESP_HARDWARE_ITEM_NOT_EXIST;
+}
+#endif // ESP_CONFIG_HARDWARE_SENSOR_ACS758

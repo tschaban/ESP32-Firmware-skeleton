@@ -18,7 +18,22 @@ void ESPNTCSensor::begin(ESPDataAccess *_Data, TwoWire *_WirePort0,
 
 #ifdef DEBUG
   if (_initialized) {
-    Serial << endl << "INFO: NTC[" << id << "] initialized";
+    Serial << endl
+           << "INFO: NTC[" << id << "] initialized" << endl
+           << "INFO: NTC Configuration: ";
+    Serial << endl
+           << " - Balancing resistor: " << configuration.resistor / 1000
+           << "kOm";
+    Serial << endl << " - VCC: " << configuration.vcc;
+    Serial << endl
+           << " - Coefficient A: " << configuration.coefficients.A.value
+           << ", Precision: " << configuration.coefficients.A.precision;
+    Serial << endl
+           << " - Coefficient B: " << configuration.coefficients.B.value
+           << ", Precision: " << configuration.coefficients.B.precision;
+    Serial << endl
+           << " - Coefficient C: " << configuration.coefficients.C.value
+           << ", Precision: " << configuration.coefficients.C.precision;
   } else {
     Serial << endl << "WARN: NTC[" << id << "] NOT initialized";
   }

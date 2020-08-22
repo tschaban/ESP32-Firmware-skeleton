@@ -102,6 +102,10 @@ private:
   void get(BATTERYMETER &data);
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+  void get(ACS758_SENSOR &data);
+#endif
+
 #if defined(ESP_CONFIG_HARDWARE_LED) || defined(ESP_CONFIG_HARDWARE_I2C)
   void begin(ESPDataAccess *, ESPDevice *);
 #endif

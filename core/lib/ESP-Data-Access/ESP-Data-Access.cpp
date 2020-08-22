@@ -175,6 +175,11 @@ void ESPDataAccess::get(DEVICE &data) {
                                ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_NUMBER;
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+      data.noOfACS758s = root["noOfACS758s"] |
+                         ESP_CONFIG_HARDWARE_SENSOR_ACS758_DEFAULT_NUMBER;
+#endif
+
 #ifdef DEBUG
       Serial << endl
              << "INFO: JSON: Buffer size: " << ESP_CONFIG_FILE_BUFFER_DEVICE
@@ -249,6 +254,10 @@ void ESPDataAccess::save(DEVICE *data) {
     root["noOfBatterymeters"] = data->noOfBatterymeters;
 #endif
 
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+    root["noOfACS758s"] = data->noOfACS758s;
+#endif
+
     root.printTo(configFile);
 
 #ifdef DEBUG
@@ -308,6 +317,10 @@ void ESPDataAccess::createDeviceConfigurationFile() {
 
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
   data.noOfBatterymeters = ESP_CONFIG_HARDWARE_BATTERYMETER_DEFAULT_NUMBER;
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+  data.noOfACS758s = ESP_CONFIG_HARDWARE_SENSOR_ACS758_DEFAULT_NUMBER;
 #endif
 
   save(&data);
@@ -1789,3 +1802,119 @@ void ESPDataAccess::createBatterymeterConfigurationFile() {
   }
 }
 #endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+void ESPDataAccess::get(uint8_t id, ACS758_SENSOR &data) {
+  char fileName[26];
+  sprintf(fileName, ESP_CONFIG_HARDWARE_SENSOR_ACS758_FILE_NAME, id);
+
+#ifdef DEBUG
+  Serial << endl << endl << "INFO: Opening file: " << fileName << " ... ";
+#endif
+
+  File configFile = LITTLEFS.open(fileName, "r");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: JSON: ";
+#endif
+
+    size_t size = configFile.size();
+    std::unique_ptr<char[]> buf(new char[size]);
+    configFile.readBytes(buf.get(), size);
+    StaticJsonBuffer<ESP_CONFIG_HARDWARE_SENSOR_ACS758_FILE_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.parseObject(buf.get());
+    if (root.success()) {
+#ifdef DEBUG
+      root.printTo(Serial);
+#endif
+
+      data.interval = root["interval"];
+      data.adcInput = root["adcInput"];
+      data.type = root["type"];
+
+#ifdef DEBUG
+      Serial << endl
+             << "INFO: JSON: Buffer size: "
+             << ESP_CONFIG_HARDWARE_SENSOR_ACS758_FILE_BUFFER
+             << ", actual JSON size: " << jsonBuffer.size();
+      if (ESP_CONFIG_HARDWARE_SENSOR_ACS758_FILE_BUFFER <
+          jsonBuffer.size() + 10) {
+        Serial << endl << "WARN: Too small buffer size";
+      }
+#endif
+    }
+#ifdef DEBUG
+    else {
+      Serial << "ERROR: JSON not pharsed";
+    }
+#endif
+    configFile.close();
+  }
+
+#ifdef DEBUG
+  else {
+    Serial << endl
+           << "ERROR: Configuration file: " << fileName << " not opened";
+  }
+#endif
+}
+
+void ESPDataAccess::save(uint8_t id, ACS758_SENSOR *data) {
+  char fileName[26];
+  sprintf(fileName, ESP_CONFIG_HARDWARE_SENSOR_ACS758_FILE_NAME, id);
+
+#ifdef DEBUG
+  Serial << endl << endl << "INFO: Opening file: " << fileName << " ... ";
+#endif
+
+  File configFile = LITTLEFS.open(fileName, "w");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: Writing JSON: ";
+#endif
+
+    StaticJsonBuffer<ESP_CONFIG_HARDWARE_SENSOR_ACS758_FILE_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.createObject();
+    root["interval"] = data->interval;
+    root["adcInput"] = data->adcInput;
+    root["type"] = data->type;
+    root.printTo(configFile);
+#ifdef DEBUG
+    root.printTo(Serial);
+#endif
+    configFile.close();
+
+#ifdef DEBUG
+    Serial << endl
+           << "INFO: Data saved" << endl
+           << "INFO: JSON: Buffer size: "
+           << ESP_CONFIG_HARDWARE_SENSOR_ACS758_FILE_BUFFER
+           << ", actual JSON size: " << jsonBuffer.size();
+    if (ESP_CONFIG_HARDWARE_SENSOR_ACS758_FILE_BUFFER <
+        jsonBuffer.size() + 10) {
+      Serial << endl << "WARN: Too small buffer size";
+    }
+#endif
+  }
+#ifdef DEBUG
+  else {
+    Serial << endl << F("ERROR: failed to open file: ") << fileName;
+  }
+#endif
+}
+
+void ESPDataAccess::createACS758SensorConfigurationFile() {
+#ifdef DEBUG
+  Serial << endl << F("INFO: Creating ACS758 sensor configuration files");
+#endif
+  ACS758_SENSOR data;
+  data.adcInput = ESP_HARDWARE_ITEM_NOT_EXIST;
+  data.interval = ESP_CONFIG_HARDWARE_SENSOR_ACS758_DEFAULT_INTERVAL;
+  data.type = ESP_CONFIG_HARDWARE_SENSOR_ACS758_DEFAULT_TYPE;
+  for (uint8_t i = 0; i < ESP_CONFIG_HARDWARE_SENSOR_ACS758_MAX_NUMBER; i++) {
+    save(i, &data);
+  }
+}
+#endif // ESP_CONFIG_HARDWARE_SENSOR_ACS758

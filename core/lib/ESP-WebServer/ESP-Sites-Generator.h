@@ -164,6 +164,11 @@ public:
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
   void siteBatterymeter(String &page, uint8_t id);
 #endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+  void siteACS758(String &page, uint8_t id);
+#endif
+
 };
 
 #endif

@@ -108,6 +108,11 @@ void setup() {
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
     initializeBatterymeter();
 #endif
+
+/* Sensor: _ACS758 */
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+    initializeACS758Sensor();
+#endif
   }
 
 #ifdef DEBUG
@@ -158,6 +163,9 @@ void loop() {
 #endif
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
         eventsListnerBatterymeter();
+#endif
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+        eventsListnerACS758Sensor();
 #endif
       }
       /* Code only for: Normal and Configuration mode, and connected to WiFi */

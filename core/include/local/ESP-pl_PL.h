@@ -70,6 +70,7 @@
 #define L_M "Metry"
 #define L_KM "Kilometry"
 #define L_MILES "Mile"
+#define L_SELECT "-- Wybierz --"
 
 /* Form: index */
 #define L_WRONG_PASSWORD "Hasło nie jest poprawne"
@@ -96,6 +97,7 @@
 #define L_NUMBER_OF_DS18B20_SENSORS "Ilość czujników DS18B20"
 #define L_NUMBER_OF_NTC_SENSORS "Ilość termistorów NTC"
 #define L_NUMBER_OF_BATTERYMETERS "Ilość miernków baterii"
+#define L_NUMBER_OF_ACS758 "Ilość czujników ACS758"
 #define L_DO_MEASURE_ADC "Pomiary z wejścia analogowego"
 #define L_DEVICE_CONTROLLING "Sterowanie urządzeniem"
 #define L_DEVICE_CONTROLLING_INFO                                              \
@@ -264,6 +266,9 @@
 #define L_NTC_RESISTOR "Rezystor"
 #define L_NTC_TERMISTOR "Termistor"
 #define L_FLOAT_PRECISION "Precyzja"
+
+#define L_ACS758_SENSOR "Czujnik ACS758"
+
 
 /* Form: upgrade and post upgrade */
 #define L_SELECT_FIRMWARE "Wybierz Firmware"
