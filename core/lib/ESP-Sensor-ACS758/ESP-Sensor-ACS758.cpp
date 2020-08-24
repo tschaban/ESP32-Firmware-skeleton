@@ -13,11 +13,15 @@ void ESPACS758Sensor::begin(ESPDataAccess *_Data, TwoWire *_WirePort0,
   if (configuration.adcInput != ESP_HARDWARE_ITEM_NOT_EXIST) {
     ADCInput.begin(_Data, _WirePort0, _WirePort1, configuration.adcInput);
     ADCInput.setInterval(configuration.interval);
-    /* set quiescent Output voltage for selected model */
-    QOV = voltageOffset[configuration.type] * VCC;
-    /* convert current cut off to mV */
-    cutOff = sensitivity[temperatureOffset][configuration.type] / cutOffLimit;
-
+    setQuiescentOutputVoltage(calculateQuiescentOutputVoltage());
+    /* convert current cut off to voltage cut off */
+    if (configuration.currentCutOff > 0) {
+      cutOffVoltage =
+          settingsSensitivity[temperatureOffset][configuration.type] /
+          configuration.currentCutOff;
+    } else {
+      cutOffVoltage = 0;
+    }
     _initialized = true;
   }
 
@@ -65,20 +69,22 @@ boolean ESPACS758Sensor::listener() {
 #endif
 
       /* 0.007 is a value to make voltage zero when there is no current */
-      Serial << " INFO: ACS758: QOV: " << QOV
-             << ", sensitivity: " << sensitivity[temperatureOffset][configuration.type]
-             << "mA/V, cutOff: " << cutOff;
-      voltage = ADCInput.data.voltageCalculated - QOV;
+      Serial << " INFO: ACS758: quiescentOutputVoltage: "
+             << quiescentOutputVoltage << ", settingsSensitivity: "
+             << settingsSensitivity[temperatureOffset][configuration.type]
+             << "mA/V, cutOffVoltage: " << cutOffVoltage;
+      outputVoltage = ADCInput.data.voltageCalculated - quiescentOutputVoltage;
 
-      if (abs(voltage) > cutOff) {
-        current = voltage / sensitivity[temperatureOffset][configuration.type];
+      if (abs(outputVoltage) > cutOffVoltage) {
+        current = outputVoltage /
+                  settingsSensitivity[temperatureOffset][configuration.type];
       } else {
         current = 0;
       }
 
 #ifdef DEBUG
       Serial << endl
-             << "INFO: ACS758 Data: Voltage: " << voltage
+             << "INFO: ACS758 Data: Voltage: " << outputVoltage
              << "V, Current: " << current << "A";
 #endif
 
@@ -92,6 +98,24 @@ void ESPACS758Sensor::setTemperatureOffset(uint8_t offset) {
   if (offset >= 0 && offset <= 4) {
     temperatureOffset = offset;
   }
+}
+
+/* Setting manually VCC */
+void ESPACS758Sensor::setVcc(float voltage) {
+  configuration.vcc = voltage;
+  setQuiescentOutputVoltage(calculateQuiescentOutputVoltage());
+}
+
+/* Setting the Quiescent output voltage, it can be set manually using this
+ * method */
+void ESPACS758Sensor::setQuiescentOutputVoltage(float voltage) {
+  quiescentOutputVoltage = voltage;
+}
+
+/* Calculates Quiescent output voltage based on the particular device settings
+ * and vcc */
+float ESPACS758Sensor::calculateQuiescentOutputVoltage() {
+  return settingsVoltageOffset[configuration.type] * configuration.vcc;
 }
 
 #endif // ESP_CONFIG_HARDWARE_SENSOR_ACS758

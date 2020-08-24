@@ -32,32 +32,32 @@ public:
   boolean fileExist(const char *);
 
   void get(DEVICE &data);
-  void save(DEVICE *);
+  void save(DEVICE *data);
   void createDeviceConfigurationFile();
 
   uint8_t getDeviceMode(void);
   void saveDeviceMode(uint8_t mode);
 
   void get(NETWORK &data);
-  void save(NETWORK *);
+  void save(NETWORK *data);
   void createNetworkConfigurationFile();
 
 #ifdef ESP_CONFIG_HARDWARE_I2C
   void get(uint8_t, I2CBUS &data);
-  void save(uint8_t, I2CBUS *);
+  void save(uint8_t, I2CBUS *data);
   void createI2CConfigurationFile();
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_UART
   void get(uint8_t, UARTBUS &data);
-  void save(uint8_t, UARTBUS *);
+  void save(uint8_t, UARTBUS *data);
   void createUARTConfigurationFile();
 #endif
 
 
 #ifdef ESP_CONFIG_HARDWARE_LED
   void get(uint8_t, LED &data);
-  void save(uint8_t, LED *);
+  void save(uint8_t, LED *data);
   void createLEDConfigurationFile();
   uint8_t getSystemLEDId(void);
   void saveSystemLEDId(uint8_t);
@@ -65,47 +65,52 @@ public:
 
 #ifdef ESP_CONFIG_HARDWARE_SWITCH
   void get(uint8_t, SWITCH &data);
-  void save(uint8_t, SWITCH *);
+  void save(uint8_t, SWITCH *data);
   void createSwitchConfigurationFile();
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_ADC
   void get(uint8_t, ADC &data);
-  void save(uint8_t, ADC *);
+  void save(uint8_t, ADC *data);
   void createADCConfigurationFile();
 #endif
 
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
   void get(uint8_t, BINARY_SENSOR &data);
-  void save(uint8_t, BINARY_SENSOR *);
+  void save(uint8_t, BINARY_SENSOR *data);
   void createBinarySensorConfigurationFile();
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
   void get(uint8_t, DS18B20_SENSOR &data);
-  void save(uint8_t, DS18B20_SENSOR *);
+  void save(uint8_t, DS18B20_SENSOR *data);
   void createDS18B20SensorConfigurationFile();
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
   void get(uint8_t, NTC_SENSOR &data);
-  void save(uint8_t, NTC_SENSOR *);
+  void save(uint8_t, NTC_SENSOR *data);
   void createNTCSensorConfigurationFile();
 #endif 
 
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
   void get(uint8_t, BATTERYMETER &data);
-  void save(uint8_t, BATTERYMETER *);
+  void save(uint8_t, BATTERYMETER *data);
   void createBatterymeterConfigurationFile();
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
   void get(uint8_t, ACS758_SENSOR &data);
-  void save(uint8_t, ACS758_SENSOR *);
+  void save(uint8_t, ACS758_SENSOR *data);
   void createACS758SensorConfigurationFile();
 #endif 
 
+#ifdef ESP_CONFIG_API_MQTT
+  void get(uint8_t, MQTT_BROKER &data);
+  void save(uint8_t, MQTT_BROKER *data);
+  void createMQTTBrokerConfigurationFile();
+#endif 
 
 };
 #endif

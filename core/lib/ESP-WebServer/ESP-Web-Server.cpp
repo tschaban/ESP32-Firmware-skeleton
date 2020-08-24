@@ -918,5 +918,14 @@ void ESPWebServer::get(ACS758_SENSOR &data) {
 
   data.type = Server.arg("type").length() > 0 ? Server.arg("type").toInt()
                                               : ESP_HARDWARE_ITEM_NOT_EXIST;
+
+  data.vcc = Server.arg("vcc").length() > 0
+                 ? Server.arg("vcc").toFloat()
+                 : ESP_CONFIG_HARDWARE_SENSOR_ACS758_DEFAULT_VCC;
+
+  data.currentCutOff =
+      Server.arg("currentCutOff").length() > 0
+          ? Server.arg("currentCutOff").toFloat()
+          : ESP_CONFIG_HARDWARE_SENSOR_ACS758_DEFAULT_CURRENT_CUT_OFF;
 }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_ACS758

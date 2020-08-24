@@ -71,6 +71,7 @@
 #define L_KM "Kilometry"
 #define L_MILES "Mile"
 #define L_SELECT "-- Wybierz --"
+#define L_VCC "Napięcie zasilania"
 
 /* Form: index */
 #define L_WRONG_PASSWORD "Hasło nie jest poprawne"
@@ -268,6 +269,8 @@
 #define L_FLOAT_PRECISION "Precyzja"
 
 #define L_ACS758_SENSOR "Czujnik ACS758"
+#define L_ACS758_CURRENT_CUTOFF "Odcięcie pomiarów prądu"
+
 
 
 /* Form: upgrade and post upgrade */

@@ -33,8 +33,7 @@ void ESPADC::begin(ESPDataAccess *_Data, uint8_t id) {
          << F("- ADC Input max V: ") << configuration.maxVCC << endl
          << F("- ADC Input Resolution: ") << configuration.resolution << endl
          << F("- R[A]: ") << configuration.divider.Ra << endl
-         << F("- R[B]: ") << configuration.divider.Rb
-         << endl
+         << F("- R[B]: ") << configuration.divider.Rb << endl
          << F("-------------------------------------");
 
 #endif
@@ -77,7 +76,8 @@ void ESPADC::begin(ESPDataAccess *_Data, TwoWire *_WirePort0,
 #endif
 
 boolean ESPADC::listener() {
-  if (ready) ready = false;
+  if (ready)
+    ready = false;
   if (_initialized) {
     unsigned long time = millis();
 
@@ -128,9 +128,11 @@ boolean ESPADC::listener() {
                << F(" - Number of samples: ") << counterOfSamplings << endl
                << F(" - Raw = ") << data.raw << endl
                << F(" - Percent = ") << data.percent << endl
-               << F(" - Voltage = ") << data.voltage << endl
-               << F(" - VoltageCalculated = ") << data.voltageCalculated << endl
-               << F(" - Sampling time = ")
+               << F(" - Voltage = ");
+        printf("%-.6lf", data.voltage);
+        Serial << F(" - VoltageCalculated = ");
+        printf("%-.6lf", data.voltageCalculated);
+        Serial << F(" - Sampling time = ")
                << millis() - startTime - configuration.interval << F("msec.");
 #endif
 

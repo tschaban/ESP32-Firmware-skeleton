@@ -7,6 +7,9 @@
 
 struct DEVICE {
   char name[33];
+#ifdef ESP_CONFIG_API_MQTT
+  uint8_t noOfMQTTAPIs;
+#endif
 #ifdef ESP_CONFIG_HARDWARE_I2C
   uint8_t noOfI2Cs;
 #endif

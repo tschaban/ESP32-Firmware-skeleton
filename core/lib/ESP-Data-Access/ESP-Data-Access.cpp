@@ -101,6 +101,21 @@ void ESPDataAccess::createDefaultConfiguration(void) {
 #endif
   createBatterymeterConfigurationFile();
 #endif
+
+#ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
+#ifdef DEBUG
+  Serial << endl << "INFO: Creating ACS758 configuration";
+#endif
+  createACS758SensorConfigurationFile();
+#endif
+
+#ifdef ESP_CONFIG_API_MQTT
+#ifdef DEBUG
+  Serial << endl << "INFO: Creating MQTT Broker configuration";
+#endif
+  createMQTTBrokerConfigurationFile();
+#endif
+
 }
 
 boolean ESPDataAccess::fileExist(const char *path) {
@@ -1832,6 +1847,8 @@ void ESPDataAccess::get(uint8_t id, ACS758_SENSOR &data) {
       data.interval = root["interval"];
       data.adcInput = root["adcInput"];
       data.type = root["type"];
+      data.vcc = root["vcc"];
+      data.currentCutOff = root["currentCutOff"];
 
 #ifdef DEBUG
       Serial << endl
@@ -1880,6 +1897,8 @@ void ESPDataAccess::save(uint8_t id, ACS758_SENSOR *data) {
     root["interval"] = data->interval;
     root["adcInput"] = data->adcInput;
     root["type"] = data->type;
+    root["currentCutOff"] = data->currentCutOff;
+    root["vcc"] = data->vcc;
     root.printTo(configFile);
 #ifdef DEBUG
     root.printTo(Serial);
@@ -1913,8 +1932,140 @@ void ESPDataAccess::createACS758SensorConfigurationFile() {
   data.adcInput = ESP_HARDWARE_ITEM_NOT_EXIST;
   data.interval = ESP_CONFIG_HARDWARE_SENSOR_ACS758_DEFAULT_INTERVAL;
   data.type = ESP_CONFIG_HARDWARE_SENSOR_ACS758_DEFAULT_TYPE;
+  data.currentCutOff =
+      ESP_CONFIG_HARDWARE_SENSOR_ACS758_DEFAULT_CURRENT_CUT_OFF;
+  data.vcc = ESP_CONFIG_HARDWARE_SENSOR_ACS758_DEFAULT_VCC;
   for (uint8_t i = 0; i < ESP_CONFIG_HARDWARE_SENSOR_ACS758_MAX_NUMBER; i++) {
     save(i, &data);
   }
 }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_ACS758
+
+#ifdef ESP_CONFIG_API_MQTT
+void ESPDataAccess::get(uint8_t id, MQTT_BROKER &data) {
+  char fileName[24];
+  sprintf(fileName, ESP_CONFIG_API_MQTT_FILE_NAME, id);
+
+#ifdef DEBUG
+  Serial << endl << endl << "INFO: Opening file: " << fileName << " ... ";
+#endif
+
+  File configFile = LITTLEFS.open(fileName, "r");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: JSON: ";
+#endif
+
+    size_t size = configFile.size();
+    std::unique_ptr<char[]> buf(new char[size]);
+    configFile.readBytes(buf.get(), size);
+    StaticJsonBuffer<ESP_CONFIG_API_MQTT_FILE_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.parseObject(buf.get());
+    if (root.success()) {
+#ifdef DEBUG
+      root.printTo(Serial);
+#endif
+      sprintf(data.host, root["host"] | "");
+      sprintf(data.ip, root["ip"] | "");
+      data.port = root["port"] | ESP_CONFIG_API_MQTT_DEFAULT_PORT;
+      sprintf(data.user, root["user"] | "");
+      sprintf(data.password, root["password"] | "");
+      sprintf(data.lwt.topic, root["lwt"] | "");
+      data.timeout = root["timeout"] | ESP_CONFIG_API_MQTT_DEFAULT_TIMEOUT;
+      data.qos = root["qos"] | ESP_CONFIG_API_MQTT_DEFAULT_QOS;
+      data.retain = root["retain"] | ESP_CONFIG_API_MQTT_DEFAULT_RETAIN;
+
+#ifdef DEBUG
+      Serial << endl
+             << "INFO: JSON: Buffer size: " << ESP_CONFIG_API_MQTT_FILE_BUFFER
+             << ", actual JSON size: " << jsonBuffer.size();
+      if (ESP_CONFIG_API_MQTT_FILE_BUFFER < jsonBuffer.size() + 10) {
+        Serial << endl << "WARN: Too small buffer size";
+      }
+#endif
+    }
+#ifdef DEBUG
+    else {
+      Serial << "ERROR: JSON not pharsed";
+    }
+#endif
+    configFile.close();
+  }
+
+#ifdef DEBUG
+  else {
+    Serial << endl
+           << "ERROR: Configuration file: " << fileName << " not opened";
+  }
+#endif
+}
+
+void ESPDataAccess::save(uint8_t id, MQTT_BROKER *data) {
+  char fileName[24];
+  sprintf(fileName, ESP_CONFIG_API_MQTT_FILE_NAME, id);
+
+#ifdef DEBUG
+  Serial << endl << endl << "INFO: Opening file: " << fileName << " ... ";
+#endif
+
+  File configFile = LITTLEFS.open(fileName, "w");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: Writing JSON: ";
+#endif
+    StaticJsonBuffer<ESP_CONFIG_API_MQTT_FILE_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.createObject();
+    root["ip"] = data->ip;
+    root["host"] = data->host;
+    root["port"] = data->port;
+    root["user"] = data->user;
+    root["password"] = data->password;
+    root["lwt"] = data->lwt.topic;
+    root["retain"] = data->retain;
+    root["qos"] = data->qos;
+    root["timeout"] = data->timeout;
+    root.printTo(configFile);
+#ifdef DEBUG
+    root.printTo(Serial);
+#endif
+    configFile.close();
+
+#ifdef DEBUG
+    Serial << endl
+           << "INFO: Data saved" << endl
+           << "INFO: JSON: Buffer size: " << ESP_CONFIG_API_MQTT_FILE_BUFFER
+           << ", actual JSON size: " << jsonBuffer.size();
+    if (ESP_CONFIG_API_MQTT_FILE_BUFFER < jsonBuffer.size() + 10) {
+      Serial << endl << "WARN: Too small buffer size";
+    }
+#endif
+  }
+#ifdef DEBUG
+  else {
+    Serial << endl << F("ERROR: failed to open file: ") << fileName;
+  }
+#endif
+}
+
+void ESPDataAccess::createMQTTBrokerConfigurationFile() {
+#ifdef DEBUG
+  Serial << endl << F("INFO: Creating MQTT Broker configuration files");
+#endif
+  MQTT_BROKER data;
+  data.host[0] = ESP_EMPTY_STRING;
+  data.ip[0] = ESP_EMPTY_STRING;
+  data.user[0] = ESP_EMPTY_STRING;
+  data.password[0] = ESP_EMPTY_STRING;
+  data.port = ESP_CONFIG_API_MQTT_DEFAULT_PORT;
+  data.lwt.topic[0] = ESP_EMPTY_STRING;
+  data.timeout = ESP_CONFIG_API_MQTT_DEFAULT_TIMEOUT;
+  data.qos = ESP_CONFIG_API_MQTT_DEFAULT_QOS;
+  data.retain = ESP_CONFIG_API_MQTT_DEFAULT_RETAIN;
+  for (uint8_t i = 0; i < ESP_CONFIG_API_MQTT_MAX_NUMBER; i++) {
+    save(i, &data);
+  }
+}
+
+#endif // ESP_CONFIG_API_MQTT

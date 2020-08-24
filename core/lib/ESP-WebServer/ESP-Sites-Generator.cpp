@@ -1387,7 +1387,7 @@ void ESPSitesGenerator::siteBatterymeter(String &page, uint8_t id) {
 void ESPSitesGenerator::siteACS758(String &page, uint8_t id) {
   ACS758_SENSOR configuration;
   Data->get(id, configuration);
-  char _number[17];
+  char _number[8];
 
   openSection(page, L_ACS758_SENSOR, "");
 
@@ -1411,12 +1411,7 @@ void ESPSitesGenerator::siteACS758(String &page, uint8_t id) {
   }
   page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
 
-  /* Item: Interval */
-  sprintf(_number, "%d", configuration.interval);
-  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "interval",
-                   L_MEASURMENTS_INTERVAL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
-                   "20", "3600000", "1", L_MILISECONDS);
-
+  
   /* Item: type */
   page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
   page.replace("{{item.label}}", L_TYPE);
@@ -1494,6 +1489,27 @@ void ESPSitesGenerator::siteACS758(String &page, uint8_t id) {
                    ? " selected=\"selected\""
                    : "");                                                                                                                    
   page.concat(FPSTR(HTTP_ITEM_SELECT_CLOSE));
+
+    /* Item: Interval */
+  sprintf(_number, "%d", configuration.interval);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "interval",
+                   L_MEASURMENTS_INTERVAL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
+                   "20", "3600000", "1", L_MILISECONDS);
+
+  
+  /* Item: VCC */
+  sprintf(_number, "%-.6f", configuration.vcc);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "vcc",
+                   L_VCC, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
+                   "2", "6", "0.000001", "V");
+
+
+  /* Item: Current CutOff */
+  sprintf(_number, "%-.2f", configuration.currentCutOff);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "currentCutOff",
+                   L_ACS758_CURRENT_CUTOFF, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
+                   "0", "200", "0.01", "A");
+                   
 
   closeSection(page);
 }

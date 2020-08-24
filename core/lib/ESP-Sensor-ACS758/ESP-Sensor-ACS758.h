@@ -27,27 +27,29 @@ private:
   void begin(ESPDataAccess *_Data, uint8_t id);
 #endif
 
-  const float VCC = 5;
-
   float cutOffLimit = 1; // reading cutt off current. 1.00 is 1 Amper
 
-  float sensitivity[3][8] = {
-      {0.041,  0.061, 0.0205,  0.041,  0.0135, 0.0274, 0.01013, 0.0203},
-      {0.04,   0.06,  0.02,    0.04,   0.0133, 0.0266, 0.01,    0.02},
+  /* Sensitivity based on the temperature: [0] below 25C, [1] 25C, [2] above 25C
+   */
+  float settingsSensitivity[3][8] = {
+      {0.041, 0.061, 0.0205, 0.041, 0.0135, 0.0274, 0.01013, 0.0203},
+      {0.04, 0.06, 0.02, 0.04, 0.0133, 0.0266, 0.01, 0.02},
       {0.0394, 0.059, 0.01975, 0.0395, 0.0131, 0.0266, 0.00988, 0.0197}};
-  
-  float voltageOffset[8] = {0.5, 0.12, 0.5, 0.12, 0.5, 0.12, 0.5, 0.12};
 
-  float QOV;
-  float voltage;
-  float cutOff;
+  float settingsVoltageOffset[8] = {0.5, 0.12, 0.5, 0.12, 0.5, 0.12, 0.5, 0.12};
+
+  float quiescentOutputVoltage;
+  float outputVoltage;
+  float cutOffVoltage;
+
+  float calculateQuiescentOutputVoltage();
 
 public:
   /* Constructor: entry parameter is GPIO number where Sensor is connected to */
   ESPACS758Sensor();
 
   ACS758_SENSOR configuration;
-  double current = 0;
+  float current = 0;
 
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
   void begin(ESPDataAccess *_Data, TwoWire *_WirePort0, TwoWire *_WirePort1,
@@ -58,6 +60,8 @@ public:
 
   boolean listener();
   void setTemperatureOffset(uint8_t);
+  void setVcc(float);
+  void setQuiescentOutputVoltage(float);
 };
 
 #endif // ESP_CONFIG_HARDWARE_SENSOR_ACS758

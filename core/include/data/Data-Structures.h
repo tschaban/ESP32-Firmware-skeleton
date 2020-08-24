@@ -5,6 +5,10 @@
 
 #include <Configuration.h>
 
+#ifdef ESP_CONFIG_API_MQTT
+#include <MQTT-Structure.h>
+#endif
+
 #include <DEVICE-Structure.h>
 #include <FIRMWARE-Structure.h>
 #include <HTTP-COMMAND-Structure.h>
