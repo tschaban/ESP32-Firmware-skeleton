@@ -35,9 +35,9 @@ void ESPWebServer::begin(ESPDataAccess *_Data, ESPDevice *_Device) {
 String ESPWebServer::generateSite(SITE_PARAMETERS *siteConfig, String &page) {
 
   if (siteConfig->twoColumns) {
-    Site.generateTwoColumnsLayout(page, siteConfig->rebootTime);
+    Site.generateMenu(page, siteConfig->rebootTime);
   } else {
-    Site.generateOneColumnLayout(page, siteConfig->rebootTime);
+    Site.generateEmptyMenu(page, siteConfig->rebootTime);
   }
 
   if (siteConfig->form) {
@@ -195,8 +195,6 @@ void ESPWebServer::generate(boolean upload) {
 #endif
 
   String page;
-
-  page.reserve(ESP_MAX_PAGE_SIZE);
 
   if (_refreshConfiguration) {
     _refreshConfiguration = false;
@@ -612,16 +610,30 @@ void ESPWebServer::get(DEVICE &data) {
 }
 
 void ESPWebServer::get(NETWORK &data) {
+
   if (Server.arg("ssid").length() > 0) {
     Server.arg("ssid").toCharArray(data.ssid, sizeof(data.ssid));
   } else {
-    data.ssid[0] = ESP_EMPTY_STRING;
+    sprintf(data.ssid, (char *)ESP_CONFIG_NETWORK_DEFAULT_NONE_SSID);
+  }
+
+  if (Server.arg("ssidBackup").length() > 0) {
+    Server.arg("ssidBackup").toCharArray(data.ssidBackup, sizeof(data.ssidBackup));
+  } else {
+    sprintf(data.ssid, (char *)ESP_CONFIG_NETWORK_DEFAULT_NONE_SSID);
   }
 
   if (Server.arg("password").length() > 0) {
     Server.arg("password").toCharArray(data.password, sizeof(data.password));
   } else {
     data.password[0] = ESP_EMPTY_STRING;
+  }
+
+  if (Server.arg("passwordBackup").length() > 0) {
+    Server.arg("passwordBackup")
+        .toCharArray(data.passwordBackup, sizeof(data.passwordBackup));
+  } else {
+    data.passwordBackup[0] = ESP_EMPTY_STRING;
   }
 
   if (Server.arg("ip").length() > 0) {
@@ -652,9 +664,14 @@ void ESPWebServer::get(NETWORK &data) {
           : ESP_CONFIG_NETWORK_TIME_BETWEEN_CONNECTION_ATTEMPTS;
 
   data.waitTimeSeries =
+      Server.arg("fs").length() > 0
+          ? Server.arg("fs").toInt()
+          : ESP_CONFIG_NETWORK_SLEEP_TIME_BETWEEN_FAILED_CONNECTION_ATTEMPTS;
+
+  data.noFailuresToSwitchNetwork =
       Server.arg("ws").length() > 0
           ? Server.arg("ws").toInt()
-          : ESP_CONFIG_NETWORK_SLEEP_TIME_BETWEEN_FAILED_CONNECTION_ATTEMPTS;
+          : ESP_CONFIG_NETWORK_DEFAULT_SWITCH_NETWORK_AFTER;
 
   data.isDHCP = Server.arg("dhcp").length() > 0 ? true : false;
 }
@@ -809,20 +826,6 @@ void ESPWebServer::get(BINARY_SENSOR &data) {
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
 void ESPWebServer::get(DS18B20_SENSOR &data) {
   ESPDS18B20Sensor _Sensor;
-  data.gpio = Server.arg("gpio").length() > 0 ? Server.arg("gpio").toInt()
-                                              : ESP_HARDWARE_ITEM_NOT_EXIST;
-
-  data.interval = Server.arg("interval").length() > 0
-                      ? Server.arg("interval").toInt()
-                      : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_INTERVAL;
-
-  data.unit = Server.arg("unit").length() > 0
-                  ? Server.arg("unit").toInt()
-                  : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_UNIT;
-
-  data.correction = Server.arg("correction").length() > 0
-                        ? Server.arg("correction").toFloat()
-                        : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_CORRECTION;
 
   if (Server.arg("address").length() > 0) {
     char address[17];
@@ -831,6 +834,23 @@ void ESPWebServer::get(DS18B20_SENSOR &data) {
   } else {
     _Sensor.addressNULL(data.address);
   }
+  data.gpio = Server.arg("gpio").length() > 0
+                  ? Server.arg("gpio").toInt()
+                  : ESP_HARDWARE_ITEM_NOT_EXIST;
+
+  data.correction =
+      Server.arg("correction").length() > 0
+          ? Server.arg("correction").toFloat()
+          : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_CORRECTION;
+
+  data.interval = Server.arg("interval").length() > 0
+                      ? Server.arg("interval").toInt()
+                      : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_INTERVAL;
+
+  data.resolution = Server.arg("resolution").length() > 0
+                        ? Server.arg("resolution").toInt()
+                        : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_RESOLUTION;
+
 }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
 

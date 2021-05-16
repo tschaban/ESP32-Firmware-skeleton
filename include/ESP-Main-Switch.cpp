@@ -52,7 +52,7 @@ void eventsListnerSwitch(void) {
           Device.getMode() == ESP_MODE_NORMAL
               ? Device.reboot(ESP_MODE_ACCESS_POINT)
               : Device.reboot(ESP_MODE_NORMAL);
-        } else if (pressDuration > 30000 && pressDuration <= 35000) {
+        } else if (pressDuration > 15000 && pressDuration <= 20000) {
 #ifdef DEBUG
           Serial << endl << "INFO: Processing switch 30-35sec";
 #endif

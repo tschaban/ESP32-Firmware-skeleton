@@ -33,20 +33,31 @@ private:
   unsigned long ledStartTime = 0;
 #endif
 
+  /* Used to count connection attemps before going to sleep mode */
   uint8_t connections = 0;
+  /* Used to switch between Primary and Backup configuration */
+  uint8_t noOfFailures = 0;
   unsigned long sleepStartTime = 0;
-  boolean sleepMode = false; // It's set to true after defined in configuration
-                             // X number of connection failures
+  /* It's set to true after defined in configuration X number of connection
+   * failures */
+  boolean sleepMode = false;
+  
 #ifdef ESP_CONFIG_HARDWARE_LED
   ESPLED *Led;
 #endif
 
   boolean eventConnectionEstablished = false;
   boolean disconnected = false;
+  boolean isBackupConfigurationSet = false;
+  void switchConfiguration();
 
   void initialize(ESPDevice *, ESPDataAccess *, uint8_t mode);
 
 public:
+
+  /* Indicates on to which router the device is connected */
+  boolean isPrimaryConfiguration = false;
+
   /* Constructor: no actions */
   ESPWiFi();
 

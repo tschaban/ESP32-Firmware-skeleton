@@ -115,7 +115,6 @@ void ESPDataAccess::createDefaultConfiguration(void) {
 #endif
   createMQTTBrokerConfigurationFile();
 #endif
-
 }
 
 boolean ESPDataAccess::fileExist(const char *path) {
@@ -468,7 +467,9 @@ void ESPDataAccess::get(NETWORK &data) {
 #endif
 
       sprintf(data.ssid, root["ssid"]);
+      sprintf(data.ssidBackup, root["ssidBackup"]);
       sprintf(data.password, root["password"]);
+      sprintf(data.passwordBackup, root["passwordBackup"]);
 
       data.isDHCP = root["isDHCP"];
 
@@ -479,6 +480,7 @@ void ESPDataAccess::get(NETWORK &data) {
       data.noConnectionAttempts = root["noConnectionAttempts"];
       data.waitTimeConnections = root["waitTimeConnections"];
       data.waitTimeSeries = root["waitTimeSeries"];
+      data.noFailuresToSwitchNetwork = root["noFailuresToSwitchNetwork"];
 
 #ifdef DEBUG
       Serial << endl
@@ -524,15 +526,17 @@ void ESPDataAccess::save(NETWORK *data) {
     StaticJsonBuffer<ESP_CONFIG_FILE_BUFFER_NETWORK> jsonBuffer;
     JsonObject &root = jsonBuffer.createObject();
     root["ssid"] = data->ssid;
+    root["ssidBackup"] = data->ssidBackup;
     root["password"] = data->password;
+    root["passwordBackup"] = data->passwordBackup;
     root["isDHCP"] = data->isDHCP;
     root["ip"] = data->ip;
     root["gateway"] = data->gateway;
     root["subnet"] = data->subnet;
-
     root["noConnectionAttempts"] = data->noConnectionAttempts;
     root["waitTimeConnections"] = data->waitTimeConnections;
     root["waitTimeSeries"] = data->waitTimeSeries;
+    root["noFailuresToSwitchNetwork"] = data->noFailuresToSwitchNetwork;
 
     root.printTo(configFile);
 #ifdef DEBUG
@@ -563,8 +567,10 @@ void ESPDataAccess::createNetworkConfigurationFile() {
 #endif
 
   NETWORK data;
-  data.ssid[0] = ESP_EMPTY_STRING;
+  sprintf(data.ssid, "%s", ESP_CONFIG_NETWORK_DEFAULT_NONE_SSID);
+  sprintf(data.ssidBackup, "%s", ESP_CONFIG_NETWORK_DEFAULT_NONE_SSID);
   data.password[0] = ESP_EMPTY_STRING;
+  data.passwordBackup[0] = ESP_EMPTY_STRING;
   data.isDHCP = ESP_CONFIG_NETWORK_DCHP;
   data.ip[0] = ESP_EMPTY_STRING;
   data.gateway[0] = ESP_EMPTY_STRING;
@@ -574,6 +580,8 @@ void ESPDataAccess::createNetworkConfigurationFile() {
       ESP_CONFIG_NETWORK_TIME_BETWEEN_CONNECTION_ATTEMPTS;
   data.waitTimeSeries =
       ESP_CONFIG_NETWORK_SLEEP_TIME_BETWEEN_FAILED_CONNECTION_ATTEMPTS;
+  data.noFailuresToSwitchNetwork =
+      ESP_CONFIG_NETWORK_DEFAULT_SWITCH_NETWORK_AFTER;
   save(&data);
 }
 

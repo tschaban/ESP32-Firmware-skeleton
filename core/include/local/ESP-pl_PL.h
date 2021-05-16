@@ -72,6 +72,10 @@
 #define L_MILES "Mile"
 #define L_SELECT "-- Wybierz --"
 #define L_VCC "Napięcie zasilania"
+#define L_HARDWARE "Sprzęt"
+#define L_CONNECTIONS "Połączenia"
+#define L_FUNCTIONS "Funkcje"
+#define L_FIRMWARE "Firmware"
 
 /* Form: index */
 #define L_WRONG_PASSWORD "Hasło nie jest poprawne"
@@ -106,46 +110,33 @@
 
 
 
-
-
-#ifdef ESP_CONFIG_HARDWARE_GATE
-#define L_CONTROLLED_GATES "Kontrolowane bramy/drzwi"
-#endif
-
-#ifdef ESP_CONFIG_API_DOMOTICZ_ENABLED
-#define L_DOMOTICZ_VERSION_410 "4.10x i wcześniejsze"
-#define L_DOMOTICZ_VERSION_2020 "2020.x i późniejsze"
-#endif
-
 #define L_AUTOLOGOUT_TITLE "Automatyczne zakończenie konfiguracji"
 #define L_AUTOLOGOUT_DESCRIPTION "Konfiguracja urządzenia zostanie automatycznie wyłączona po 10min. braku akcji w panelu konfiguracyjnym"
 
 /* Form: network configuration */
 #define L_NETWORK_CONFIGURATION "Konfiguracja sieci WiFi"
-#define L_NETWORK_CONFIGURATION_INFO                                               \
-  "Urządzenie bez dostępu do sieci będzie działać tylko w trybie sterowania " \
-  "ręcznego"
-#define L_SSID "Nazwa sieci WiFi"
-#define L_REFRESH "Odśwież"
-#define L_DHCP_ENABLED "Konfiguracja przez DHCP"
-#define L_GATEWAY "Bramka"
-#define L_SUBNET "Maska sieci"
-#define L_DEVICE_IP "IP urządzenia"
-#define L_DEVICE_IP_INFO                                                       \
-  "Możesz skonfigurować adres IP urządzenia ręcznie lub automatycznie za " \
-  "pośrednictwem DHCP"
-#define L_NUMBER_OF_CONNECTIONS "Ilość prób łączenia się"
-#define L_TIME_BETWEEN_CONNECTIONS "Czas między próbami łączenia się"
-#define L_SLEEP_TIME "Czas po jakim powtórzyć próby łączenia się"
-#define L_ADVANCED "Zaawansowane"
-#define L_DEVICE_CONNECTS "Urządzenie łaczy się z siecią"
-#define L_CONNECT_TO "Połącz się z siecią WiFi"
-#define L_CONNECT "Połącz"
-#define L_SEARCH_FOR_IP_ADDRESS                                                \
-  "Następnie w konfigurację routera WiFi, wyszukaj adres IP urządzenia o "  \
-  "adresie MAC"
-#define L_FINISH_NETWORK_CONFIGURATION                                         \
-  "Dokończ konfigurację wpisując adres IP urządzenia w przeglądarce"
+#define L_NETWORK_CONFIGURATION_INFO "Urządzenie bez dostępu do sieci będzie działać tylko w trybie sterowania ręcznego"
+#define L_NETWORK_SSID "Nazwa sieci WiFi"
+#define L_NETWORK_REFRESH "Odśwież"
+#define L_NETWORK_DHCP_ENABLED "Konfiguracja przez DHCP"
+#define L_NETWORK_GATEWAY "Bramka"
+#define L_NETWORK_SUBNET "Maska sieci"
+#define L_NETWORK_DEVICE_IP "IP urządzenia"
+#define L_NETWORK_DEVICE_IP_INFO "Możesz skonfigurować adres IP urządzenia ręcznie lub automatycznie za pośrednictwem DHCP"
+#define L_NETWORK_NUMBER_OF_CONNECTIONS "Ilość prób łączenia się"
+#define L_NETWORK_TIME_BETWEEN_CONNECTIONS "Czas między próbami łączenia się"
+#define L_NETWORK_SLEEP_TIME "Czas po jakim powtórzyć próby łączenia się"
+#define L_NETWORK_ADVANCED "Zaawansowane"
+#define L_NETWORK_ALMOST "Prawie jesteśmy na miejscu!"
+#define L_NETWORK_DEVICE_CONNECTS "Urządzenie łaczy się z siecią"
+#define L_NETWORK_CONNECT_TO "Połącz się z siecią WiFi"
+//#define L_NETWORK_CONNECT "Połącz"
+#define L_NETWORK_SEARCH_FOR_IP_ADDRESS "Następnie w konfigurację routera WiFi, wyszukaj adres IP urządzenia o adresie MAC"
+#define L_NETWORK_FINISH_NETWORK_CONFIGURATION  "Dokończ konfigurację wpisując adres IP urządzenia w przeglądarce"
+#define L_NETWOK_NONE_BACKUP_SSID "--- Brak ---"
+#define L_NETWORK_BACKUP_CONFIGURATION "Zapasowa konfiguracja WiFi"
+#define L_NETWORK_BACKUP_CONFIGURATION_HINT "Działa tylko z routerami z włączonym DHCPd"
+#define L_NETWORK_SWITCH_TO_BACKUP "Liczba błędów połączeń przed uruchomieniem konfiguracji zapasowej"
 
 /* Form: MQTT Broker */
 #define L_MQTT_TOPIC "Temat"
@@ -256,7 +247,20 @@
 
 #define L_BINARY_SENSOR "Czujnik binarny / impulsów"
 
-#define L_DS18B20_SENSOR "Czujnik DS18B20"
+/* DS18B20 */
+#define L_DS18B20_SENSOR "Czujnik temperatury DS18B20"
+#define L_DS18B20_SENSORS "Czujniki DS18B20"
+#define L_DS18B20_SENT_ONLY_CHANGES "Wysyłać dane tylko, gdy wartość temperatury zmieni się"
+#define L_DS18B20_TEMPERATURE_CORRECTION "Korekta wartości o"
+#define L_DS18B20_MQTT_TOPIC "MQTT Temat informacji z czujnika DS18B20"
+#define L_DS18B20_SEARCH "Skanuj GPIO"
+#define L_DS18B20_NO_SENSOR "Żaden czujnik nie został jeszcze znaleziony. Sprawdź, czy jest poprawnie podłączony, a następnie przeskanuj GPIO"
+#define L_DS18B20_RESOLUTION "Rozdzielczość"
+#define L_DS18B20_RESOLUTION_9B "Niska (9bit)"
+#define L_DS18B20_RESOLUTION_10B "Dostateczna (10bit)"
+#define L_DS18B20_RESOLUTION_11B "Dobra (11bit)"
+#define L_DS18B20_RESOLUTION_12B "Wysoka (12bit)"
+
 
 #define L_NTC_SENSOR "Termistor NTC"
 #define L_NTC_COEFFICIENT_A "Współczynnik A"
@@ -274,36 +278,43 @@
 
 
 /* Form: upgrade and post upgrade */
-#define L_SELECT_FIRMWARE "Wybierz Firmware"
-#define L_UPGRADE_INFO                                                             \
-  "Po zakończeniu aktualizacji urządzenie zostanie automatycznie "               \
-  "zresetowane<br><br><strong>Uwaga:</strong> po aktualizacji nie odłączaj "     \
-  "urządzenia przez co najmniej 1min.<br>Urządzenie formatuje pamięć i wgrywa " \
-  "domyślne ustawienia.<br><strong>Ten proces nie może zostać "                 \
-  "przerwany</strong>"
+#define L_UPGRADE_SELECT_FIRMWARE "Wybierz Firmware"
+#define L_UPGRADE_READ_BEFORE "Przeczytaj przed aktualizacją oprogramowania"
+
+#define L_UPGRADE_INTERUPTED "Nie odświeżaj przeglądarki podczas aktualizacji"
+#define L_UPGRADE_DONT_PLUG_OFF "Nie odłączaj urządzenia od źródła zasilania"
+#define L_UPGRADE_TIME "Proces aktualizacji potrwa do minuty"
+#define L_UPGRADE_AUTO_REBOOT "Urządzenie zostanie automatycznie uruchomione po ukończeniu aktualizacji"
+
+#define L_UPGRADE_VIA_WAN "Pobierz i uaktualnij"
+#define L_UPGRADE_VIA_WAN_HINT "Firmware zostanie automatycznie pobrane i wgrane do urządzenia"
+
+#define L_UPGRADE_FROM_FILE "Załaduj plik *.bin"
 #define L_UPGRADE "Aktualizuj"
-#define L_DONT_PLUG_OFF                                                        \
-  "<strong>UWAGA</strong>: nie odłączaj urządzenia od źródła zasilania " \
-  "podczas aktualizacji"
-#define L_UPGRADE_FAILED "Aktualizacja nie powiodła się"
+
+#define L_UPGRADE_FIRMWAR_YOUR_CURRENT_FIRMWARE "Twoje aktualne oprogramowanie"
+#define L_UPGRADE_FIRMWARE_VERSION "{{f.v}} ESP{{f.e}}.{{f.s}}"
+#define L_UPGRADE_FIRMWARE_API "API: {{f.a}}"
+#define L_UPGRADE_FIRMWARE_DEVICE_NAME "Urządzenie: {{f.d}}"
+#define L_UPGRADE_FIRMWARE_DEVICE_ID "ID urządzenia: {{f.n}}"
+
+#define L_UPGRADE_IN_PROGRESS "Aktualizacja w toku"
+
+#define L_UPGRADE_FAILED "<span style=\"color:red\">Aktualizacja nie powiodła się</span>"
 #define L_UPGRADE_SUCCESSFUL "Aktualizacja zakończona pomyślnie"
-#define L_DEVICE_WILL_BE_REBOOTED                                              \
-  "Po 15 sekundach oprogramowanie zostanie przeładowane. Proszę czekać"
-#define L_RESTORE_DEFAULT_SETTINGS "Przywróć ustawienia początkowe"
-#define L_WARNING "Uwaga"
-#define L_CONFIGURATION_WILL_BE_REMOVED                                            \
-  "przywrócenie ustawień początkowych usuwa wszystkie ustawienia urządzenia, " \
-  "włącznie z konfiguracją sieci WiFi"
-#define L_UPGRADE_IN_PROGRESS "Trwa przywracanie ustawień początkowych"
-#define L_CONNECT_TO_HOTSPOT_AFTER_UPGRADE                                     \
-  "Po 20 sekundach połącz się z siecią WiFi o nazwie: "                    \
-  "<strong>AFE-Device</strong>, a następnie połącz się z panelem "         \
-  "konfiguracyjnym pod adresem"
-#define L_RESTORING_DEFAULT_SETTING "Przywracanie ustawień początkowych"
-#define L_REBOOT_IN_PROGRESS "Trwa restart urządzenia"
-#define L_SITE_WILL_BE_RELOADED                                                \
-  "Strona zostanie przeładowana automatycznie... czekaj"
-#define L_REBOOT "Restart urządzenia"
+#define L_UPGRADE_DEVICE_WILL_BE_REBOOTED                                              \
+  "Po 15 sekundach urządzenie zostanie zrestartowane. Proszę czekać ..."
+#define L_UPGRADE_RESTORE_DEFAULT_SETTINGS "Przywróć ustawienia początkowe"
+#define L_RESTORE_CONFIGURATION_WILL_BE_REMOVED                                        \
+  "<strong> Ostrzeżenie:</strong> przywrócenie ustawień domyślnych spowoduje usunięcie aktualnej konfiguracji, w tym konfiguracja WiFi"
+#define L_RESTORE_IN_PROGRESS "Trwa przywracanie konfiguracji początkowej"
+#define L_RESTORE_NETWORK_CONNECT_TO_HOTSPOT_AFTER_UPGRADE "Po 20 sekundach połącz się z siecią Wi-Fi o nazwie twojego urządzenia" 
+#define L_RESTORE_NETWORK_CONNECT_TO_HOTSPOT_AFTER_UPGRADE_AFE "Po 20 sekundach połącz się z siecią WiFi o nazwie <strong>AFE Device</strong>" 
+#define L_RESTORE_NETWORK_OPEN_PANEL  "Następnie otwórz panel konfiguracyjny : <a href=\"http://192.168.5.1\">http://192.168.5.1</a>"
+#define L_UPGRADE_RESTORING_DEFAULT_SETTING "Przywracanie ustawień domyślnych"
+#define L_UPGRADE_REBOOT_IN_PROGRESS "Trwa ponowne uruchamianie"
+#define L_UPGRADE_SITE_WILL_BE_RELOADED "Strona zostanie automatycznie przeładowana ... czekaj"
+#define L_UPGRADE_REBOOT "Ponowne uruchamianie"
 
 /* Form: password */
 #define L_SET_PASSWORD "Ustaw hasło"

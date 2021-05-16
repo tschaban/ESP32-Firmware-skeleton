@@ -42,24 +42,23 @@ private:
 
   void generateHeader(String &page, uint16_t redirect);
 
-  /* Method generates GPIO selecton list */
-  void addListOfGPIOs(String &item, const char *field, uint8_t selected,
-                      const char *title = "GPIO");
-
   /* Method addes configuration block to the site */
-  void openSection(String &page, const char *, const char *);
+  void openSection(String &page, const char *title,
+                   const __FlashStringHelper *description);
+  void openSection(String &page, const __FlashStringHelper *title,
+                   const __FlashStringHelper *description);
+
   void closeSection(String &page);
 
-  /* It uses addListOfHardwareItem() */
-  void _addListOfHardware(String &item, uint8_t noOfItems,
-                          uint8_t noOffConnected, const char *field,
-                          const char *label, uint8_t index, uint8_t noneValue,
-                          boolean disabled = false);
+  void openMessageSection(String &page, const char *title,
+                          const __FlashStringHelper *description);
 
-  void addListOfHardwareItem(String &item, uint8_t noOfItems,
-                             uint8_t noOffConnected, const char *field,
-                             const char *label, boolean disabled = false);
+  void openMessageSection(String &page, const __FlashStringHelper *title,
+                          const __FlashStringHelper *description);
 
+  void closeMessageSection(String &page);
+
+  /* Item: HTML <input type=""> */
   void addInputFormItem(String &item, const char *type, const char *name,
                         const char *label, const char *value,
                         const char *size = ESP_FORM_ITEM_SKIP_PROPERTY,
@@ -69,13 +68,60 @@ private:
                         const char *hint = ESP_FORM_ITEM_SKIP_PROPERTY,
                         boolean readonly = false);
 
-  void addCheckboxFormItem(String &item, const char *name, const char *label,
-                           const char *value, boolean checked);
+  /* Item: HTML input checkbox or radio */
+  void _addSelectionFormItem(String &item, boolean type, const char *name,
+                             const char *label, const char *value,
+                             boolean checked,
+                             const char *hint = ESP_FORM_ITEM_SKIP_PROPERTY,
+                             boolean disabled = false);
 
-  void addMenuItem(String &item, const char *title, uint8_t siteId);
-  void addMenuHeaderItem(String &item, const char *title);
+  /* Item: HTML <input type="checkbox" /> */
+  void addCheckboxFormItem(String &item, const char *name, const char *label,
+                           const char *value, boolean checked,
+                           const char *hint = ESP_FORM_ITEM_SKIP_PROPERTY,
+                           boolean disabled = false);
+
+  /* Item: HTML <input type="radio" /> */
+  void addRadioButtonFormItem(String &item, const char *name, const char *label,
+                              const char *value, boolean checked,
+                              const char *hint = ESP_FORM_ITEM_SKIP_PROPERTY,
+                              boolean disabled = false);
+
+  /* Item: HTML <select><option></option></select> */
+  void addSelectFormItemOpen(String &item, const __FlashStringHelper *name,
+                             const __FlashStringHelper *label);
+  void addSelectOptionFormItem(String &item, const char *label,
+                               const char *value, boolean selected);
+  void addSelectFormItemClose(String &item);
+
+  /* Item: Menu */
+  void addMenuItem(String &item, const __FlashStringHelper *title,
+                   uint8_t siteId);
+
+  void addMenuItemExternal(String &item, const __FlashStringHelper *title,
+                           const __FlashStringHelper *url);
+  void addMenuHeaderItem(String &item, const __FlashStringHelper *title);
   void addMenuSubItem(String &item, const char *title, uint8_t numberOfItems,
                       uint8_t siteId);
+
+  /* Item: HTML <select> populated with GPIOs */
+  void addListOfGPIOs(String &item, const __FlashStringHelper *field,
+                      uint8_t selected, const char *title = "GPIO");
+
+  /* Item: HTML <select> populated with <option> for number of items selection
+   */
+  void addListOfHardwareItem(String &item, uint8_t noOfItems,
+                             uint8_t noOffConnected,
+                             const __FlashStringHelper *field,
+                             const __FlashStringHelper *label,
+                             boolean disabled = false);
+
+/* Item: list of LEDs */
+#ifdef ESP_CONFIG_HARDWARE_LED
+  void addLEDSelectionItem(String &page, uint8_t id);
+#endif
+
+/* Method generates GPIO selecton list */
 
 #ifdef ESP_CONFIG_HARDWARE_I2C
   TwoWire *WirePort0;
@@ -99,11 +145,15 @@ public:
   void begin(ESPDevice *, ESPDataAccess *);
 #endif
 
+
+
+
+
   /* Method generates site header with menu. When redirect param is diff than 0
     then it will redirect page to main page after redirect param time (in sec)
    */
-  void generateOneColumnLayout(String &page, uint16_t redirect = 0);
-  void generateTwoColumnsLayout(String &page, uint16_t redirect = 0);
+  void generateEmptyMenu(String &page, uint16_t redirect = 0);
+  void generateMenu(String &page, uint16_t redirect = 0);
 
   /* Method generates site footer */
   void generateFooter(String &page, boolean extended = false);
@@ -168,7 +218,6 @@ public:
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
   void siteACS758(String &page, uint8_t id);
 #endif
-
 };
 
 #endif

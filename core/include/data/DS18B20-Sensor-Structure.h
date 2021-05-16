@@ -14,6 +14,7 @@ struct DS18B20_SENSOR {
   float correction;
   uint32_t interval;
   uint8_t unit;
+  uint8_t resolution;
 
 };
 

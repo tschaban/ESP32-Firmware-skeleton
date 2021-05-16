@@ -18,14 +18,9 @@ void ESPMQTT::begin(uint8_t id, ESPDataAccess *Data, char *deviceName) {
   _Data->get(id, configuration);
   _Data->get(networkConfiguration);
 
-  const esp_mqtt_client_config_t mqtt_cfg = {
-      .uri = "mqtt://mqtt.eclipse.org"
-  };
-
-  esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+  //const esp_mqtt_client_config_t mqtt_cfg = {.uri = "mqtt://mqtt.eclipse.org"  };
+  //esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
   //esp_mqtt_client_start(client);
-
-
 
 
   if (strlen(configuration.ip) > 0) {

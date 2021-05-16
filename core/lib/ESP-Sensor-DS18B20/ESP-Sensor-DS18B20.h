@@ -21,7 +21,6 @@ private:
   ESPDataAccess *Data;
   OneWire WireBUS;
   DallasTemperature Sensor;
-  boolean ready = false;
   boolean _initialized = false;
   unsigned long startTime = 0;
   unsigned long readTimeOut = 0;

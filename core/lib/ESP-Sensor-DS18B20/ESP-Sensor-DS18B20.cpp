@@ -69,12 +69,11 @@ float ESPDS18B20Sensor::getCurrentTemperature() {
 }
 
 float ESPDS18B20Sensor::getTemperature() {
-  ready = false;
   return currentTemperature;
 }
 
 boolean ESPDS18B20Sensor::listener() {
-  ready = false;
+  boolean ready = false;
   if (_initialized) {
     unsigned long time = millis();
     if (startTime == 0) { // starting timer. used for switch sensitiveness

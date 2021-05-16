@@ -368,7 +368,7 @@
 #endif
 
 /* Anemometer Sensor */
-#ifdef AFE_CONFIG_HARDWARE_ANEMOMETER_SENSOR
+#ifdef AFE_CONFIG_HARDWARE_ANEMOMETER
 #define L_ANEMOMETER_SENSOR "Anemometer speed sensor"
 #define L_ANEMOMETER_SENSITIVENESS_HINT "Sensitiveness should be adjusted experimentally until sensor behaves as "   \
   "expected. Lower value more sensitive sensor"
