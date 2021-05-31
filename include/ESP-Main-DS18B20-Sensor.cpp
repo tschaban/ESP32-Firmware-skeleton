@@ -13,7 +13,9 @@ void scanGPIOForDS18B20Sensors(void);
 
 void initializeDS18B20Sensor(void) {
 #ifdef DEBUG
-  scanGPIOForDS18B20Sensors();
+  if (Device.configuration.noOfDS18B20s > 0) {
+    scanGPIOForDS18B20Sensors();
+  }
 #endif
 
   for (uint8_t i = 0; i < Device.configuration.noOfDS18B20s; i++) {

@@ -4,7 +4,7 @@
 
 ESPADC::ESPADC(){};
 
-void ESPADC::begin(ESPDataAccess *_Data, uint8_t id) {
+void ESPADC::begin(ESPDataAccess *_Data, uint8_t id, boolean forBatteryMeter) {
 
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
   readFromGPIO = true;
@@ -12,6 +12,27 @@ void ESPADC::begin(ESPDataAccess *_Data, uint8_t id) {
 
   Data = _Data;
   Data->get(id, configuration);
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+  /* Checking if ADC input is used by Battery Meter if so, it's not initalized,
+   * unless forBatteryMeter = true */
+  if (!forBatteryMeter) {
+    ESPDevice _Device;
+    _Device.begin(_Data);
+    BATTERYMETER _Battery;
+    for (uint8_t i = 0; i < _Device.configuration.noOfBatterymeters; i++) {
+      _Data->get(i, _Battery);
+      if (_Battery.adcInput == id) {
+#ifdef DEBUG
+        Serial << endl
+               << "INFO: ADC: Input used by battery meter. Not initalizing as "
+                  "standalone ADC input";
+#endif
+        return;
+      }
+    }
+  }
+#endif
 
 #ifdef DEBUG
   Serial << endl << endl << F("------------ AC VCC Input ------------");
@@ -68,10 +89,10 @@ void ESPADC::setInterval(uint32_t interval) {
 
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
 void ESPADC::begin(ESPDataAccess *_Data, TwoWire *_WirePort0,
-                   TwoWire *_WirePort1, uint8_t id) {
+                   TwoWire *_WirePort1, uint8_t id, boolean forBatteryMeter) {
   WirePort0 = _WirePort0;
   WirePort1 = _WirePort1;
-  begin(_Data, id);
+  begin(_Data, id, forBatteryMeter);
 }
 #endif
 
@@ -91,7 +112,7 @@ boolean ESPADC::listener() {
 
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
         if (readFromGPIO) {
-#endif
+#endif    
           temporaryAnalogData += analogRead(configuration.gpio);
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
         } else {
@@ -117,6 +138,7 @@ boolean ESPADC::listener() {
         }
 
 #ifdef DEBUG
+        char _numberToText[10];
         Serial << endl
                << F("INFO: Reading data from ADC: ") << endl
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
@@ -127,11 +149,12 @@ boolean ESPADC::listener() {
 #endif
                << F(" - Number of samples: ") << counterOfSamplings << endl
                << F(" - Raw = ") << data.raw << endl
-               << F(" - Percent = ") << data.percent << endl
-               << F(" - Voltage = ");
-        printf("%-.6lf", data.voltage);
-        Serial << F(" - VoltageCalculated = ");
-        printf("%-.6lf", data.voltageCalculated);
+               << F(" - Percent = ") << data.percent << endl;
+        sprintf(_numberToText, "%.6f", data.voltage);
+        Serial << F(" - Voltage = ") << _numberToText << endl;
+        sprintf(_numberToText, "%.6f", data.voltageCalculated) << endl;
+
+        Serial << F(" - VoltageCalculated = ") << _numberToText << endl;
         Serial << F(" - Sampling time = ")
                << millis() - startTime - configuration.interval << F("msec.");
 #endif

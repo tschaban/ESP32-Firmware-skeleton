@@ -5,7 +5,7 @@
 #include <Configuration.h>
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
 
-#include "arduino.h"
+#include <arduino.h>
 
 #include <ESP-Data-Access.h>
 

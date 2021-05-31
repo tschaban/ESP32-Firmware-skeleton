@@ -28,6 +28,9 @@ void eventsListnerBinarySensor(void) {
       sprintf(_number, "%d", impulses);
       p0_t2.setText(_number);
 
+      sprintf(_number, "%d", duration);
+      p0_t3.setText(_number);
+
       // HERE CODE FOR BINARY SESNOR
     }
   }

@@ -87,24 +87,24 @@
 #define L_MILES "Miles"
 
 /* Form: index */
-#define L_WRONG_PASSWORD "Incorrect password"
-#define L_NORMAL_MODE "Normal mode"
-#define L_HOTSPOT_MODE "HotSpot Mode"
-#define L_LAUNCH_CONFIGURATION_PANEL "Launch: Configuration Panel"
-#define L_OPENING_CONFIG_PANEL "Opening AFE Firmware configuration panel"
+#define L_INDEX_WRONG_PASSWORD "Incorrect password"
+#define L_INDEX_NORMAL_MODE "Normal mode"
+#define L_INDEX_HOTSPOT_MODE "HotSpot Mode"
+#define L_INDEX_LAUNCH_CONFIGURATION_PANEL "Launch: Configuration Panel"
+#define L_INDEX_OPENING_CONFIG_PANEL "Opening AFE Firmware configuration panel"
 
 /* Form: device coniguration */
 #define L_DEVICE_NAME "Device name"
 #define L_DEVICE_SECTION_INFO                                                  \
   "Name is used for device identification within your LAN and a device's "     \
   "hotspot name used for configuration mode"
-#define L_HARDWARE_CONFIGURATION "Hardware configuration"
-#define L_HARDWARE_CONFIGURATION_INFO "Select connected items to your device"
+#define L_DEVICE_HARDWARE_CONFIGURATION "Hardware configuration"
+#define L_DEVICE_HARDWARE_CONFIGURATION_INFO "Select connected items to your device"
 #ifdef AFE_CONFIG_HARDWARE_LED
-#define L_NUMBER_OF_LEDS "Number of LEDs"
+#define L_DEVICE_NUMBER_OF_LEDS "Number of LEDs"
 #endif
-#define L_NUMBER_OF_RELAYS "Number of relays"
-#define L_NUMBER_OF_SWITCHES "Number of switches"
+#define L_DEVICE_NUMBER_OF_RELAYS "Number of relays"
+#define L_DEVICE_NUMBER_OF_SWITCHES "Number of switches"
 #define L_DO_MEASURE_ADC "Measurements from Analog Input"
 #define L_DEVICE_CONTROLLING "Device controlling mechanism"
 #define L_DEVICE_CONTROLLING_INFO "Enable / Disable APIs"
@@ -147,14 +147,14 @@
 #define L_MQTT_TOPIC_LWT "LWT's Topic"
 #define L_MQTT_CONFIGURATION_INFO "Enter MQTT Broker hostname or its IP address"
 #define L_MQTT_TOPIC_EMPTY "If left empty, message won't be sent to MQTT Broker"
-#define L_TIMEOUT "Timeout"
+#define L_MQTT_TIMEOUT "Timeout"
 
 /* Form: Domoticz server configuration */
-#define L_PROTOCOL "Protocol"
+#define L_DOMOTICZ_PROTOCOL "Protocol"
 #define L_DOMOTICZ_CONFIGURATION "Domoticz Server"
 #define L_DOMOTICZ_CONFIGURATION_INFO                                          \
   "Enter Domoticz hostname or its IP address"
-#define L_NO_IF_IDX_0                                                          \
+#define L_DOMOTICZ_NO_IF_IDX_0                                                          \
   "If IDX is set to 0 then a value won't be sent to Domoticz"
 
 #ifdef AFE_CONFIG_API_DOMOTICZ_ENABLED
@@ -194,20 +194,20 @@
 #define L_RELAY_MQTT_TOPIC "MQTT Topic to control the relay"
 
 /* Form: Switch */
-#define L_FUNCTIONALITY "Functionality"
-#define L_SYSTEM_BUTTON "System button"
+#define L_SWITCH_FUNCTIONALITY "Functionality"
+#define L_SWITCH_SYSTEM_BUTTON "System button"
 #ifdef AFE_CONFIG_FUNCTIONALITY_RELAY
-#define L_CONTROL_RELAY "Controlling only the relay"
+#define L_SWITCH_CONTROL_RELAY "Controlling only the relay"
 #endif
 #ifdef AFE_CONFIG_FUNCTIONALITY_GATE
-#define L_CONTROL_GATE "Controlling only the gate"
+#define L_SWITCH_CONTROL_GATE "Controlling only the gate"
 #endif
-#define L_RELAY_CONTROLLED_BY_SWITCH "Controlling"
-#define L_TYPE "Type"
-#define L_MONOSTABLE "Monostable"
-#define L_BISTABLE "Bistable"
+#define L_SWITCH_RELAY_CONTROLLED "Controlling"
+#define L_SWITCH_TYPE "Type"
+#define L_SWITCH_MONOSTABLE "Monostable"
+#define L_SWITCH_BISTABLE "Bistable"
 #define L_SENSITIVENESS "Sensitiveness"
-#define L_SENSITIVENESS_HINT                                                  \
+#define L_SWITCH_SENSITIVENESS_HINT                                                  \
   "Sensitiveness should be adjusted if switch didn't behave as expected "      \
   "while pressing it"
 #define L_SWITCH_BUTTON "Switch / Button"

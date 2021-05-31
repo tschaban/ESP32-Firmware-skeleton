@@ -14,7 +14,8 @@ void setup() {
               "################################")
          << endl
          << F("INFO: All classes and global variables initialized") << endl
-         << F("INFO: Initializing device");
+         << F("INFO: Initializing device") << endl;
+
 #endif
 
 #ifdef DEBUG
@@ -79,10 +80,10 @@ void setup() {
   /* Initialization components required for Normal mode */
   if (Device.getMode() == ESP_MODE_NORMAL) {
 
-/* Initializing ADC
+/* Initializing ADC */
 #ifdef ESP_CONFIG_HARDWARE_ADC
-   initializeADC();
-#endif  */
+    initializeADC();
+#endif
 
 /* Nextion */
 #ifdef ESP_CONFIG_HARDWARE_NEXTION
@@ -115,6 +116,15 @@ void setup() {
 #endif
   }
 
+#ifdef ESP_CONFIG_HARDWARE_LED
+  Led.off();
+  /* If device in configuration mode then it starts LED blinking */
+  if (Device.getMode() == ESP_MODE_ACCESS_POINT ||
+      Device.getMode() == ESP_MODE_NETWORK_NOT_SET) {
+    Led.blinkingOn(100);
+  }
+#endif
+
 #ifdef DEBUG
   Serial << endl
          << F("################################################################"
@@ -144,11 +154,13 @@ void loop() {
     if (Network.connected()) {
       if (Device.getMode() == ESP_MODE_NORMAL) {
 
-/* Code only for: Normal mode, and connected to WiFi */
+        /* Code only for: Normal mode, and connected to WiFi */
 
-/* #ifdef ESP_CONFIG_HARDWARE_ADC
-      eventsListnerADC();
-#endif */
+        HTTPServer.listener();
+
+#ifdef ESP_CONFIG_HARDWARE_ADC
+        eventsListnerADC();
+#endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
         eventsListnerBinarySensor();
@@ -167,33 +179,40 @@ void loop() {
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
         eventsListnerACS758Sensor();
 #endif
+      } else { /* Device runs in configuration mode over WiFi */
+#ifdef ESP_CONFIG_HARDWARE_LED
+        if (!Led.isBlinking()) {
+          Led.blinkingOn(100);
+        }
+#endif
+        HTTPServer.listener();
       }
-      /* Code only for: Normal and Configuration mode, and connected to WiFi */
-
-      HTTPServer.listener();
     }
-    /* Code only for: Normal and Configuration mode, and connected/disconnected
-     * to WiFi */
+
+#ifdef ESP_CONFIG_HARDWARE_LED
+    else {
+      if (Device.getMode() == ESP_MODE_CONFIGURATION && !Led.isBlinking()) {
+        Led.blinkingOn(100);
+      }
+    }
+#endif
+    yield();
     Network.listener();
-  } else {
-    /* Code only for: Configuration mode in HotSpote mode */
+
+    /** Here: Code that will be run no matter if connected or disconnected
+     * from Network
+     * Works for device in Normal or Configuration mode: (excluding: HotSpot
+     * mode) */
+  } else { /* Deviced runs in Access Point mode */
     HTTPServer.listener();
   }
-
-/* Code run in each modes when device is connected or disconnected from WiFi */
-
-/* Led listener */
-#ifdef ESP_CONFIG_HARDWARE_LED
-  if (Device.getMode() == ESP_MODE_NORMAL && Led.isBlinking()) {
-    Led.blinkingOff();
-  } else if (Device.getMode() != ESP_MODE_NORMAL && !Led.isBlinking()) {
-    Led.blinkingOn(100);
-  }
-  Led.loop();
-#endif
 
 /* Switch listener */
 #ifdef ESP_CONFIG_HARDWARE_SWITCH
   eventsListnerSwitch();
+#endif
+
+#ifdef ESP_CONFIG_HARDWARE_LED
+  Led.loop();
 #endif
 }

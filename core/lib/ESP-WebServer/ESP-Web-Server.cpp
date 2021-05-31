@@ -78,7 +78,7 @@ String ESPWebServer::generateSite(SITE_PARAMETERS *siteConfig, String &page) {
     break;
   }
   case ESP_CONFIG_SITE_POST_UPGRADE: {
-    Site.sitePostUpgrade(page, upgradeFailed);
+    Site.sitePostUpgrade(page, upgradeSuccess);
     break;
   }
   case ESP_CONFIG_SITE_FIRST_TIME: {
@@ -114,6 +114,11 @@ String ESPWebServer::generateSite(SITE_PARAMETERS *siteConfig, String &page) {
     Site.siteLED(page, siteConfig->deviceID);
     break;
   }
+  case ESP_CONFIG_SITE_SYSTEM_LED: {
+    Site.siteSystemLED(page);
+    break;
+  }
+
 #endif // ESP_CONFIG_HARDWARE_LED
 #ifdef ESP_CONFIG_HARDWARE_SWITCH
   case ESP_CONFIG_SITE_SWITCH: {
@@ -177,8 +182,6 @@ String ESPWebServer::generateSite(SITE_PARAMETERS *siteConfig, String &page) {
   page.replace("{{s.lang}}", L_LANGUAGE_SHORT);
   page.replace("{{f.version}}", ESP_FIRMWARE_VERSION);
   page.replace("{{f.name}}", L_FIRMWARE_NAME);
-  /* Translations */
-  page.replace("{{L_DONATE}}", L_DONATE);
   page.replace("{{L_VERSION}}", L_VERSION);
 
   return page;
@@ -193,8 +196,6 @@ void ESPWebServer::generate(boolean upload) {
 #ifdef ESP_CONFIG_HARDWARE_LED
   SystemLED->on();
 #endif
-
-  String page;
 
   if (_refreshConfiguration) {
     _refreshConfiguration = false;
@@ -266,6 +267,10 @@ void ESPWebServer::generate(boolean upload) {
         Data->save(siteConfig.deviceID, &configuration);
         break;
       }
+      case ESP_CONFIG_SITE_SYSTEM_LED: {
+        Data->saveSystemLEDId(getSystemLEDData());
+        break;
+      }
 #endif
 #ifdef ESP_CONFIG_HARDWARE_SWITCH
       case ESP_CONFIG_SITE_SWITCH: {
@@ -334,7 +339,7 @@ void ESPWebServer::generate(boolean upload) {
           siteConfig.rebootMode = siteConfig.deviceID;
           siteConfig.ID = ESP_CONFIG_SITE_EXIT;
           siteConfig.reboot = true;
-          siteConfig.rebootTime = 10;
+          siteConfig.rebootTime = 5;
         }
         break;
       }
@@ -345,7 +350,7 @@ void ESPWebServer::generate(boolean upload) {
       case ESP_CONFIG_SITE_EXIT: {
         siteConfig.reboot = true;
         siteConfig.rebootMode = ESP_MODE_NORMAL;
-        siteConfig.rebootTime = 10;
+        siteConfig.rebootTime = 5;
         siteConfig.form = false;
         siteConfig.twoColumns = false;
         break;
@@ -366,7 +371,7 @@ void ESPWebServer::generate(boolean upload) {
         if (!upload) {
           siteConfig.form = false;
           siteConfig.twoColumns = false;
-          siteConfig.rebootTime = 15;
+          siteConfig.rebootTime = 5;
           siteConfig.reboot = true;
           siteConfig.rebootMode = Device->getMode();
         }
@@ -376,24 +381,18 @@ void ESPWebServer::generate(boolean upload) {
     }
   }
 
+
   if (upload) {
-    delay(0);
+    upgradeSuccess = upgradOTAFile();
   } else {
 
 #ifdef DEBUG
     Serial << endl
-           << F("INFO: Generating ")
-           << (siteConfig.twoColumns ? F("Two Columns") : F("One Column"))
-           << F(" site: ") << siteConfig.ID;
-    Serial << F(", device ID: ") << siteConfig.deviceID;
-    Serial << F(", Command: ") << command;
-    Serial << F(", Reboot: ") << (siteConfig.reboot ? F("Yes") : F("No"));
-    Serial << F(", Mode: ") << siteConfig.rebootMode;
-    Serial << F(", Time: ") << siteConfig.rebootTime;
+           << F("INFO: SITE: Generating site");
 #endif
 
+    String page;
     generateSite(&siteConfig, page);
-
     publishHTML(page);
   }
 
@@ -440,6 +439,79 @@ boolean ESPWebServer::getOptionName() {
   return receivedHTTPCommand;
 }
 
+boolean ESPWebServer::upgradOTAFile(void) {
+  HTTPUpload &upload = Server.upload();
+  String _updaterError;
+  boolean _success = false;
+  if (upload.status == UPLOAD_FILE_START) {
+
+#ifdef DEBUG
+    Serial << endl
+           << F("INFO: UPGRADE: Firmware file name: ")
+           << upload.filename.c_str();
+#endif
+
+    uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+
+#ifdef DEBUG
+    Serial << endl
+           << F("INFO: UPGRADE: Firmware size: ")
+           << (ESP.getSketchSize() / 1024) << "Kb" << endl
+           << F("INFO: UPGRADE: Free space size: ")
+           << (ESP.getFreeSketchSpace() / 1024) << "Kb" << endl
+           << F("INFO: UPGRADE: Max free space size for this hardware: ")
+           << (maxSketchSpace / 1024) << "Kb" << endl
+           << F("INFO: UPGRADE: Max size: ")
+           << (UPDATE_SIZE_UNKNOWN / 1024 / 1024) << "KB" << endl
+           << F("INFO: UPGRADE: ");
+#endif
+
+    if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { // start with max available
+#ifdef DEBUG
+      Update.printError(Serial);
+#endif
+    }
+  } else if (upload.status == UPLOAD_FILE_WRITE && !_updaterError.length()) {
+#ifdef ESP_CONFIG_HARDWARE_LED
+    SystemLED->toggle();
+#endif
+#ifdef DEBUG
+    Serial << F(".");
+#endif
+
+    if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+#ifdef DEBUG
+      Serial << endl;
+      Update.printError(Serial);
+#endif
+    }
+  } else if (upload.status == UPLOAD_FILE_END) {
+    if (Update.end(true)) { // true to set the size to the current
+      // progress
+      _success = true;
+#ifdef DEBUG
+      Serial << endl
+             << F("INFO: UPGRADE: Success. Firmware size: ") << upload.totalSize
+             << endl
+             << F("INFO: UPGRADE:  Rebooting...");
+#endif
+    }
+#ifdef DEBUG
+    else {
+      Update.printError(Serial);
+    }
+#endif
+  } else if (upload.status == UPLOAD_FILE_ABORTED) {
+    Update.end();
+#ifdef DEBUG
+    Serial << endl << F("ERROR: UPGRADE: Update was aborted");
+#endif
+  }
+  return _success;
+}
+
+/* ##### GET DATA FROM FORMS ##### */
+
 uint8_t ESPWebServer::getSiteID() {
 
   if (Device->getMode() == ESP_MODE_NETWORK_NOT_SET) {
@@ -485,7 +557,7 @@ boolean ESPWebServer::httpAPIlistener() { return receivedHTTPCommand; }
 
 void ESPWebServer::publishHTML(String &page) {
   uint16_t pageSize = page.length();
-
+/*
 #ifdef DEBUG
   Serial << endl << F("INFO: Site streaming started. Size : ") << pageSize;
 
@@ -496,7 +568,7 @@ void ESPWebServer::publishHTML(String &page) {
            << F("B too small : ") << pageSize << F(" ... ");
   }
 #endif
-
+*/
   Server.sendHeader("Content-Length", String(page.length()));
   Server.setContentLength(pageSize);
   if (pageSize > ESP_PAGE_CHUNK_SIZE) {
@@ -618,7 +690,8 @@ void ESPWebServer::get(NETWORK &data) {
   }
 
   if (Server.arg("ssidBackup").length() > 0) {
-    Server.arg("ssidBackup").toCharArray(data.ssidBackup, sizeof(data.ssidBackup));
+    Server.arg("ssidBackup")
+        .toCharArray(data.ssidBackup, sizeof(data.ssidBackup));
   } else {
     sprintf(data.ssid, (char *)ESP_CONFIG_NETWORK_DEFAULT_NONE_SSID);
   }
@@ -705,6 +778,11 @@ void ESPWebServer::get(LED &data) {
   data.gpio = Server.arg("gpio").length() > 0 ? Server.arg("gpio").toInt()
                                               : ESP_HARDWARE_ITEM_NOT_EXIST;
   data.reverseState = Server.arg("reverse").length() > 0 ? true : false;
+}
+
+uint8_t ESPWebServer::getSystemLEDData() {
+  return Server.arg("id").length() > 0 ? Server.arg("id").toInt()
+                                       : ESP_HARDWARE_ITEM_NOT_EXIST;
 }
 #endif
 
@@ -834,14 +912,12 @@ void ESPWebServer::get(DS18B20_SENSOR &data) {
   } else {
     _Sensor.addressNULL(data.address);
   }
-  data.gpio = Server.arg("gpio").length() > 0
-                  ? Server.arg("gpio").toInt()
-                  : ESP_HARDWARE_ITEM_NOT_EXIST;
+  data.gpio = Server.arg("gpio").length() > 0 ? Server.arg("gpio").toInt()
+                                              : ESP_HARDWARE_ITEM_NOT_EXIST;
 
-  data.correction =
-      Server.arg("correction").length() > 0
-          ? Server.arg("correction").toFloat()
-          : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_CORRECTION;
+  data.correction = Server.arg("correction").length() > 0
+                        ? Server.arg("correction").toFloat()
+                        : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_CORRECTION;
 
   data.interval = Server.arg("interval").length() > 0
                       ? Server.arg("interval").toInt()
@@ -851,6 +927,8 @@ void ESPWebServer::get(DS18B20_SENSOR &data) {
                         ? Server.arg("resolution").toInt()
                         : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_RESOLUTION;
 
+  data.unit = Server.arg("unit").length() > 0 ? Server.arg("unit").toInt()
+                                           : ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS;                        
 }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
 

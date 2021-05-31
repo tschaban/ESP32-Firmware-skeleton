@@ -7,17 +7,45 @@ volatile static unsigned long interuptionsCounter0 = 0;
 volatile static unsigned long previousInteruption0 = 0;
 volatile static unsigned long bouncing0 = 0;
 
-void handleImpuls0() {
+void IRAM_ATTR handleImpuls0() {
   if (millis() - previousInteruption0 > bouncing0) {
     interuptionsCounter0++;
-  }
+///* Crashes if many interuptions 
 #ifdef DEBUG
+    Serial << endl
+           << F("INFO:  Binary sensor: New interuption: counter: ")
+           << interuptionsCounter0;
+#endif
+//*/
+  }
+///*
+#ifdef DEBUGA
   else {
-    Serial << endl << F("INFO: No interupition, sensor is bouncing");
+    Serial << F(".");
   }
 #endif
+//*/
   previousInteruption0 = millis();
 };
+
+
+void IRAM_ATTR handleImpulsR() {
+ Serial << endl << "RISING";
+};
+
+
+void IRAM_ATTR handleImpulsF() {
+ Serial << endl << "FALLING ";
+};
+
+void IRAM_ATTR handleImpulsC() {
+ Serial << endl << "CHANGE ";
+};
+
+void IRAM_ATTR handleImpulsL() {
+ Serial << endl << "LOW ";
+};
+
 
 ESPSensorBinary::ESPSensorBinary(){};
 
@@ -28,11 +56,13 @@ void ESPSensorBinary::begin(ESPDataAccess *_Data, uint8_t id) {
 
   if (configuration.gpio != ESP_HARDWARE_ITEM_NOT_EXIST) {
 
-    pinMode(configuration.gpio, INPUT);
+    pinMode(configuration.gpio, INPUT_PULLUP);
     switch (_id) {
     case 0: {
-      attachInterrupt(digitalPinToInterrupt(configuration.gpio), handleImpuls0,
-                      RISING);
+      attachInterrupt(digitalPinToInterrupt(configuration.gpio), handleImpulsC,CHANGE );
+      attachInterrupt(digitalPinToInterrupt(configuration.gpio), handleImpulsR,RISING );
+      attachInterrupt(digitalPinToInterrupt(configuration.gpio), handleImpulsL,LOW );
+      attachInterrupt(digitalPinToInterrupt(configuration.gpio), handleImpuls0,FALLING );
       bouncing0 = configuration.bouncing;
       break;
     }
@@ -77,7 +107,8 @@ void ESPSensorBinary::get(uint32_t &noOfImpulses, uint32_t &duration) {
   }
 
   _previousDuration = duration;
-  counterStarted = 0; // It's set to 0 to allow other code to execude, just after reading the data
+  counterStarted = 0; // It's set to 0 to allow other code to execude, just
+                      // after reading the data
 #ifdef DEBUG
   Serial << endl
          << F("INFO: Binary sensor: Impulses: ") << noOfImpulses

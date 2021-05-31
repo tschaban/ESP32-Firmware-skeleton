@@ -189,6 +189,7 @@ public:
 
 #ifdef ESP_CONFIG_HARDWARE_LED
   void siteLED(String &page, uint8_t id);
+  void siteSystemLED(String &page);
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SWITCH

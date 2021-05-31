@@ -59,6 +59,10 @@ void ESPWiFi::initialize(ESPDevice *_Device, ESPDataAccess *_Data,
     Serial << F("completed");
 #endif
   } else {
+    /* Add additional configuration parameters */
+    switchConfiguration();
+/*
+
 #ifdef DEBUG
     Serial << endl << F("INFO: WiFi: In WIFI_STA mode");
 #endif
@@ -95,7 +99,11 @@ void ESPWiFi::initialize(ESPDevice *_Device, ESPDataAccess *_Data,
     }
 
     WiFi.mode(WIFI_STA);
+*/
+
   }
+
+
 }
 
 void ESPWiFi::switchConfiguration() {
@@ -194,7 +202,7 @@ void ESPWiFi::listener() {
                                     configuration.passwordBackup);
             }
 
-            WiFi.begin(configuration.ssid, configuration.password);
+        //    WiFi.begin(configuration.ssid, configuration.password);
 #ifdef DEBUG
             Serial << endl << F("INFO: WiFi: Starting establishing WiFi connection ");
             Serial << endl << "INFO: WiFi: SSID: " << configuration.ssid;
@@ -277,6 +285,13 @@ void ESPWiFi::listener() {
           Serial << F(" ... Error");
 #endif
         }
+      
+      #ifdef DEBUG
+      Serial << endl
+             << F("INFO: WiFi Connection established") << F(", MAC: ")
+             << WiFi.macAddress() << F(", IP: ") << WiFi.localIP();
+#endif
+      
       }
     }
   }
@@ -287,11 +302,6 @@ boolean ESPWiFi::connected() {
     if (disconnected) {
       eventConnectionEstablished = true;
       disconnected = false;
-#ifdef DEBUG
-      Serial << endl
-             << F("INFO: WiFi Connection established") << F(", MAC: ")
-             << WiFi.macAddress() << F(", IP: ") << WiFi.localIP();
-#endif
     }
   } else {
     disconnected = true;

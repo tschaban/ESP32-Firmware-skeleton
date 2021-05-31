@@ -26,18 +26,17 @@ void eventsListnerADC(void) {
   /* Listens for switch events */
   for (uint8_t i = 0; i < Device.configuration.noOfADCs; i++) {
     if (ADCInput[i].listener()) {
-      char _number[10];
+      ADC_DATA data;
       if (i == 0) {
-
-
+         data = ADCInput[i].data;
       } else if (i == 1) {
-
+data = ADCInput[i].data;
       }
 #ifdef DEBUG
       Serial << endl
              << "INFO: Data from ADC(" << i + 1
              << "): in buffer. Ready for processing." << endl
-             << "INFO: Publishing: " << _number << endl;
+             << "INFO: Publishing: " << data.voltageCalculated << endl;
 #endif
 
       // HERE CODE FOR ADC

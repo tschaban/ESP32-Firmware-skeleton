@@ -1459,6 +1459,7 @@ void ESPDataAccess::get(uint8_t id, DS18B20_SENSOR &data) {
       data.interval = root["interval"];
       data.correction = root["correction"];
       data.unit = root["unit"];
+      data.resolution = root["resolution"];
 
       for (uint8_t i = 0; i < ESP_CONFIG_HARDWARE_SENSOR_DS18B20_ADDRESS_LENGTH;
            i++) {
@@ -1514,6 +1515,7 @@ void ESPDataAccess::save(uint8_t id, DS18B20_SENSOR *data) {
     root["interval"] = data->interval;
     root["correction"] = data->correction;
     root["unit"] = data->unit;
+    root["resolution"] = data->resolution;
     address.copyFrom(data->address);
     root["address"] = address;
     root.printTo(configFile);
@@ -1552,6 +1554,7 @@ void ESPDataAccess::createDS18B20SensorConfigurationFile() {
   memcpy(&data.address[0], _address, sizeof(_address[0]) * 8);
   data.correction = ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_CORRECTION;
   data.unit = ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_UNIT;
+  data.resolution = ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS;
   for (uint8_t i = 0; i < ESP_CONFIG_HARDWARE_SENSOR_DS18B20_MAX_NUMBER; i++) {
     save(i, &data);
   }

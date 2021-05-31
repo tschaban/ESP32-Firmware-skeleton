@@ -81,9 +81,6 @@ void ESPSwitch::listener() {
 #ifdef ESP_CONFIG_HARDWARE_LED
           /* LED blinking while switch pressed and hold with intervals:
            * ESP_CONFIG_HARDWARE_SWITCH_PRESS_FUNCTIONS_INTERVAL */
-          if (configuration.functionality ==
-              ESP_CONFIG_HARDWARE_SWITCH_FUNCTIONALITY_MULTI) {
-
             if (ledTimer == 0) {
               ledTimer = millis();
             }
@@ -116,7 +113,6 @@ void ESPSwitch::listener() {
               }
               Led->off();
             }
-          }
 #endif           // ESP_CONFIG_HARDWARE_LED
         } else { // This is BI-stable code
           state = !state;
@@ -130,8 +126,6 @@ void ESPSwitch::listener() {
                configuration.type ==
                    ESP_CONFIG_HARDWARE_SWITCH_TYPE_MONO_STABLE) {
 
-      if (configuration.functionality ==
-          ESP_CONFIG_HARDWARE_SWITCH_FUNCTIONALITY_MULTI) {
         howLongPressed = millis() - startTime;
 #ifdef ESP_CONFIG_HARDWARE_LED
         ledTimerCounter = 0;
@@ -139,8 +133,6 @@ void ESPSwitch::listener() {
         ledOnstart = 0;
         ledOnCounter = 0;
 #endif // ESP_CONFIG_HARDWARE_LED
-      }
-
       startTime = 0;
       _pressed = false;
       phisicallyPressed = true;

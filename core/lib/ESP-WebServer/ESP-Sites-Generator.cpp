@@ -118,15 +118,6 @@ void ESPSitesGenerator::generateMenu(String &page, uint16_t redirect) {
   }
 #endif
 
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-  if (Device->configuration.noOfADCs > 0 &&
-      Device->configuration.noOfBatterymeters > 0) {
-    addMenuHeaderItem(page, F(L_BATTERY_METERS));
-    addMenuSubItem(page, L_BATTERY_METER,
-                   Device->configuration.noOfBatterymeters,
-                   ESP_CONFIG_SITE_BATTERYMETER);
-  }
-#endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
   if (Device->configuration.noOfNTCs > 0) {
@@ -150,9 +141,20 @@ void ESPSitesGenerator::generateMenu(String &page, uint16_t redirect) {
 /* System LED */
 #ifdef ESP_CONFIG_HARDWARE_LED
   if (Device->configuration.noOfLEDs > 0) {
-    addMenuItem(page, F(L_SYSTEM_LED), ESP_CONFIG_SITE_SYSTEM_LED);
+    addMenuItem(page, F(L_LED_SYSTEM), ESP_CONFIG_SITE_SYSTEM_LED);
   }
 #endif
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+  if (Device->configuration.noOfADCs > 0 &&
+      Device->configuration.noOfBatterymeters > 0) {
+    addMenuHeaderItem(page, F(L_BATTERY_METERS));
+    addMenuSubItem(page, L_BATTERY_METER,
+                   Device->configuration.noOfBatterymeters,
+                   ESP_CONFIG_SITE_BATTERYMETER);
+  }
+#endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+
 
   page.concat(FPSTR(HTTP_MENU_HEADER));
   page.replace("{{m.h}}", F(L_FIRMWARE));
@@ -179,9 +181,10 @@ void ESPSitesGenerator::siteUpgrade(String &page) {
 
   openSection(page, F(L_UPGRADE_FROM_FILE), F(""));
 
+  page.concat(F("<form method=\"post\" action=\"upgrade?o="));
+  page += ESP_CONFIG_SITE_POST_UPGRADE;
   page.concat(
-      F("<form method=\"post\" action=\"upgrade?o=21\" "
-        "enctype=\"multipart/form-data\"><div "
+      F("\" enctype=\"multipart/form-data\"><div "
         "class=\"cf\"><label>{{L1}}</label><input "
         "class=\"bs\" "
         "name=\"update\" type=\"file\" accept=\".bin\"></div><input "
@@ -191,7 +194,7 @@ void ESPSitesGenerator::siteUpgrade(String &page) {
   page.replace("{{L1}}", F(L_UPGRADE_SELECT_FIRMWARE));
   page.replace("{{L2}}", F(L_UPGRADE));
   closeSection(page);
-
+/*
   openMessageSection(page, F(L_UPGRADE_FIRMWAR_YOUR_CURRENT_FIRMWARE), F(""));
   page.concat(FPSTR(HTTP_MESSAGE_LINE_ITEM));
   page.replace("{{I}}", F(L_UPGRADE_FIRMWARE_VERSION));
@@ -202,6 +205,7 @@ void ESPSitesGenerator::siteUpgrade(String &page) {
   page.concat(FPSTR(HTTP_MESSAGE_LINE_ITEM));
   page.replace("{{I}}", F(L_UPGRADE_FIRMWARE_DEVICE_ID));
   closeMessageSection(page);
+*/  
 }
 
 void ESPSitesGenerator::sitePostUpgrade(String &page, boolean status) {
@@ -392,11 +396,13 @@ void ESPSitesGenerator::addListOfHardwareItem(String &page, uint8_t noOfItems,
     }
   }
   page.concat(F("</select>"));
+  /*
   if (disabled) {
     page.concat(F("<span class=\"hint\">("));
     page.concat(F(L_PRO_VERSION));
     page.concat(F(")</span>"));
   }
+  */
   page.concat(F("</div>"));
 }
 
@@ -561,20 +567,26 @@ void ESPSitesGenerator::addSelectFormItemClose(String &item) {
 /************** SITES ****************/
 
 void ESPSitesGenerator::siteIndex(String &page) {
-  DEVICE configuration;
+ DEVICE configuration;
   configuration = Device->configuration;
-  openSection(page, F(L_LAUNCH_CONFIGURATION_PANEL), F(""));
-  page += "<form method=\"post\"><div class=\"cf\"><input type=\"submit\" "
-          "class=\"b bs\" "
-          "value=\"";
-  page += F(L_NORMAL_MODE);
-  page += "\" formaction=\"/?o=0&i=";
+
+  openSection(page, F(L_INDEX_LAUNCH_CONFIGURATION_PANEL),
+              F(L_INDEX_LAUNCH_CONFIGURATION_PANEL_HINT));
+
+  page.concat(F("<form method=\"post\"><div class=\"cf\"><input name=\"p\" "
+                "type=\"password\" "
+                "placeholder=\""));
+  page.concat(F(L_PASSWORD));
+  page.concat(F("\"> <input type=\"submit\" class=\"b bs\" "
+                "value=\""));
+  page.concat(F(L_INDEX_NORMAL_MODE));
+  page.concat(F("\" formaction=\"/?o=0&i="));
   page += ESP_MODE_CONFIGURATION;
-  page += "\" /> <input type=\"submit\" class=\"b be\" value=\"";
-  page += F(L_HOTSPOT_MODE);
-  page += "\" formaction=\"/?o=0&i=";
+  page.concat(F("\" /> <input type=\"submit\" class=\"b be\" value=\""));
+  page.concat(F(L_INDEX_HOTSPOT_MODE));
+  page.concat(F("\" formaction=\"/?o=0&i="));
   page += ESP_MODE_ACCESS_POINT;
-  page += "\" /></div></form>";
+  page.concat(F("\" /></div></form>"));
   closeSection(page);
 }
 
@@ -589,50 +601,50 @@ void ESPSitesGenerator::siteDevice(String &page) {
 
 #ifdef ESP_CONFIG_HARDWARE_LED
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_LED_MAX_NUMBER,
-                        configuration.noOfLEDs, F("led"), F(L_NUMBER_OF_LEDS));
+                        configuration.noOfLEDs, F("led"), F(L_DEVICE_NUMBER_OF_LEDS));
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SWITCH
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_SWITCH_MAX_NUMBER,
                         configuration.noOfSwitches, F("switch"),
-                        F(L_NUMBER_OF_SWITCHES));
+                        F(L_DEVICE_NUMBER_OF_SWITCHES));
 #endif
 #ifdef ESP_CONFIG_HARDWARE_ADC
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_ADC_MAX_NUMBER,
-                        configuration.noOfADCs, F("adc"), F(L_NUMBER_OF_ADCS));
+                        configuration.noOfADCs, F("adc"), F(L_DEVICE_NUMBER_OF_ADCS));
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_SENSOR_BINARY_MAX_NUMBER,
                         configuration.noOfBinarySensors, F("binarySensor"),
-                        F(L_NUMBER_OF_BINARY_SENSORS));
+                        F(L_DEVICE_NUMBER_OF_BINARY_SENSORS));
 
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_DS18B20
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_SENSOR_DS18B20_MAX_NUMBER,
                         configuration.noOfDS18B20s, F("ds18b20Sensor"),
-                        F(L_NUMBER_OF_DS18B20_SENSORS));
+                        F(L_DEVICE_NUMBER_OF_DS18B20_SENSORS));
 
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_SENSOR_NTC_MAX_NUMBER,
                         configuration.noOfNTCs, F("NTCSensor"),
-                        F(L_NUMBER_OF_NTC_SENSORS));
+                        F(L_DEVICE_NUMBER_OF_NTC_SENSORS));
 
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_ACS758
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_SENSOR_ACS758_MAX_NUMBER,
                         configuration.noOfACS758s, F("acs758Sensor"),
-                        F(L_NUMBER_OF_ACS758));
+                        F(L_DEVICE_NUMBER_OF_ACS758));
 #endif
 
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_BATTERYMETER_MAX_NUMBER,
                         configuration.noOfBatterymeters, F("batterymeter"),
-                        F(L_NUMBER_OF_BATTERYMETERS));
+                        F(L_DEVICE_NUMBER_OF_BATTERYMETERS));
 
 #endif
 
@@ -641,12 +653,12 @@ void ESPSitesGenerator::siteDevice(String &page) {
   openSection(page, F(L_BUSES), F(""));
 #ifdef ESP_CONFIG_HARDWARE_I2C
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_I2C_MAX_NUMBER,
-                        configuration.noOfI2Cs, F("i2c"), F(L_NUMBER_OF_I2C));
+                        configuration.noOfI2Cs, F("i2c"), F(L_DEVICE_NUMBER_OF_I2C));
 #endif
 #ifdef ESP_CONFIG_HARDWARE_UART
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_UART_MAX_NUMBER,
                         configuration.noOfUARTs, F("uart"),
-                        F(L_NUMBER_OF_UART));
+                        F(L_DEVICE_NUMBER_OF_UART));
 #endif
   closeSection(page);
 }
@@ -828,10 +840,32 @@ void ESPSitesGenerator::siteLED(String &page, uint8_t id) {
   sprintf(title, "LED #%d", id + 1);
   openSection(page, title, F(""));
   addListOfGPIOs(page, F("gpio"), configuration.gpio);
-  addCheckboxFormItem(page, "reverse", L_CHANGE_LED_INDICATION, "1",
+  addCheckboxFormItem(page, "reverse", L_LED_CHANGE_INDICATION, "1",
                       configuration.reverseState);
   closeSection(page);
 }
+
+void ESPSitesGenerator::siteSystemLED(String &page) {
+  uint8_t configuration = Data->getSystemLEDId();
+  openSection(page, F(L_LED_SYSTEM), F(L_LED_SYSTEM_INFO));
+  addLEDSelectionItem(page, configuration);
+  closeSection(page);
+}
+
+void ESPSitesGenerator::addLEDSelectionItem(String &item, uint8_t id) {
+  char _id[4];
+  char _label[4];
+  addSelectFormItemOpen(item, F("id"), F("LED"));
+  sprintf(_id, "%d", ESP_HARDWARE_ITEM_NOT_EXIST);
+  addSelectOptionFormItem(item, L_NONE, _id, id == ESP_HARDWARE_ITEM_NOT_EXIST);
+  for (uint8_t i = 0; i < Device->configuration.noOfLEDs; i++) {
+    sprintf(_label, "%d", i + 1);
+    sprintf(_id, "%d", i);
+    addSelectOptionFormItem(item, _label, _id, id == i);
+  }
+  addSelectFormItemClose(item);
+}
+
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SWITCH
@@ -846,26 +880,28 @@ void ESPSitesGenerator::siteSwitch(String &page, uint8_t id) {
   /* Item: PinMode */
   addSelectFormItemOpen(page, F("pin"), F("PinMode"));
   addSelectOptionFormItem(page, "INPUT", "1", configuration.pinMode == INPUT);
-  addSelectOptionFormItem(page, "INPUT_PULLUP", "5",
+  addSelectOptionFormItem(page, "INPUT PULLUP", "5",
                           configuration.pinMode == INPUT_PULLUP);
+  addSelectOptionFormItem(page, "INPUT PULLDOWN", "9",
+                          configuration.pinMode == INPUT_PULLDOWN);                          
   addSelectFormItemClose(page);
 
   /* Item: Functionality */
-  addSelectFormItemOpen(page, F("functionality"), F(L_FUNCTIONALITY));
+  addSelectFormItemOpen(page, F("functionality"), F(L_SWITCH_FUNCTIONALITY));
   addSelectOptionFormItem(page, L_NONE, "0",
                           configuration.functionality ==
                               ESP_CONFIG_HARDWARE_SWITCH_FUNCTIONALITY_NONE);
-  addSelectOptionFormItem(page, L_SYSTEM_BUTTON, "1",
+  addSelectOptionFormItem(page, L_SWITCH_SYSTEM_BUTTON, "1",
                           configuration.functionality ==
                               ESP_CONFIG_HARDWARE_SWITCH_FUNCTIONALITY_MULTI);
   addSelectFormItemClose(page);
 
   /* Item: Switch type */
-  addSelectFormItemOpen(page, F("type"), F(L_TYPE));
-  addSelectOptionFormItem(page, L_MONOSTABLE, "0",
+  addSelectFormItemOpen(page, F("type"), F(L_SWITCH_TYPE));
+  addSelectOptionFormItem(page, L_SWITCH_MONOSTABLE, "0",
                           configuration.type ==
                               ESP_CONFIG_HARDWARE_SWITCH_TYPE_MONO_STABLE);
-  addSelectOptionFormItem(page, L_BISTABLE, "1",
+  addSelectOptionFormItem(page, L_SWITCH_BISTABLE, "1",
                           configuration.type ==
                               ESP_CONFIG_HARDWARE_SWITCH_TYPE_BI_STABLE);
   addSelectFormItemClose(page);
@@ -1137,33 +1173,47 @@ void ESPSitesGenerator::siteDS18B20Sensor(String &page, uint8_t id) {
 
   /* Item: Interval */
   sprintf(_number, "%d", configuration.interval);
-  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "interval", L_MEASURMENTS_INTERVAL,
-                   _number, ESP_FORM_ITEM_SKIP_PROPERTY, "1000", "3600000", "1",
-                   L_SECONDS);
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "interval",
+                   L_MEASURMENTS_INTERVAL, _number, ESP_FORM_ITEM_SKIP_PROPERTY,
+                   "1000", "3600000", "1", L_SECONDS);
+
+  /* Item: Unit */
+  addSelectFormItemOpen(page, F("unit"), F(L_UNITS));
+  addSelectOptionFormItem(page, "C", "0",
+                          configuration.unit == ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS);
+  addSelectOptionFormItem(page, "F", "1", configuration.unit ==
+                                              ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_FARENHIAT);
+  addSelectFormItemClose(page);
+
 
   /* Item: Correction */
   sprintf(_number, "%-.3f", configuration.correction);
-  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "k",
+  addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "correction",
                    L_DS18B20_TEMPERATURE_CORRECTION, _number,
                    ESP_FORM_ITEM_SKIP_PROPERTY, "-99.999", "99.999", "0.001");
 
-
   /* Item: Resolution */
-  addSelectFormItemOpen(page, F("r"), F(L_DS18B20_RESOLUTION));
-  addSelectOptionFormItem(page, L_DS18B20_RESOLUTION_9B, "9",
-                          configuration.resolution == ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_RESOLUTION_9B);
-  addSelectOptionFormItem(page, L_DS18B20_RESOLUTION_10B, "10",
-                          configuration.resolution == ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_RESOLUTION_10B);
-  addSelectOptionFormItem(page, L_DS18B20_RESOLUTION_11B, "11",
-                          configuration.resolution == ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_RESOLUTION_11B);
-  addSelectOptionFormItem(page, L_DS18B20_RESOLUTION_12B, "12",
-                          configuration.resolution == ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_RESOLUTION_12B);
+  addSelectFormItemOpen(page, F("resolution"), F(L_DS18B20_RESOLUTION));
+  addSelectOptionFormItem(
+      page, L_DS18B20_RESOLUTION_9B, "9",
+      configuration.resolution ==
+          ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_RESOLUTION_9B);
+  addSelectOptionFormItem(
+      page, L_DS18B20_RESOLUTION_10B, "10",
+      configuration.resolution ==
+          ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_RESOLUTION_10B);
+  addSelectOptionFormItem(
+      page, L_DS18B20_RESOLUTION_11B, "11",
+      configuration.resolution ==
+          ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_RESOLUTION_11B);
+  addSelectOptionFormItem(
+      page, L_DS18B20_RESOLUTION_12B, "12",
+      configuration.resolution ==
+          ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_RESOLUTION_12B);
 
   addSelectFormItemClose(page);
 
   closeSection(page);
-
-
 }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
 
@@ -1462,7 +1512,7 @@ void ESPSitesGenerator::siteACS758(String &page, uint8_t id) {
 
   /* Item: type */
   page.concat(FPSTR(HTTP_ITEM_SELECT_OPEN));
-  page.replace("{{item.label}}", L_TYPE);
+  page.replace("{{item.label}}", L_SWITCH_TYPE);
   page.replace("{{item.name}}", "type");
   page.concat(FPSTR(HTTP_ITEM_SELECT_OPTION));
   page.replace("{{item.label}}", L_SELECT);

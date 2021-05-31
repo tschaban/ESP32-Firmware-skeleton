@@ -25,7 +25,7 @@ void ESPBatterymeter::begin(ESPDataAccess *_Data, TwoWire *_WirePort0,
            << "INFO: Batterymeter[" << id << "]"
            << " initializing ADC";
 #endif
-    ADCInput.begin(_Data, _WirePort0, _WirePort1, configuration.adcInput);
+    ADCInput.begin(_Data, _WirePort0, _WirePort1, configuration.adcInput, true);
 #ifdef DEBUG
     Serial << endl
            << "INFO: Batterymeter[" << id << "]"
@@ -49,7 +49,7 @@ void ESPBatterymeter::begin(ESPDataAccess *_Data, uint8_t id) {
   Data = _Data;
   Data->get(id, configuration);
   if (configuration.adcInput == ESP_HARDWARE_ITEM_NOT_EXIST) {
-    ADCInput.begin(_Data, configuration.adcInput);
+    ADCInput.begin(_Data, configuration.adcInput, true);
     ADCInput.setInterval(configuration.interval);
     _initialized = true;
   }

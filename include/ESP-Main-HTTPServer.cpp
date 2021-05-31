@@ -13,7 +13,7 @@ void handleFavicon(void){};
 void handleOnNotFound(void) {
   String page = "<head><meta http-equiv=\"refresh\" content=\"0; "
                 "url=http://192.168.5.1/\" /></head><body><p>";
-  page += L_OPENING_CONFIG_PANEL;
+  page += L_INDEX_OPENING_CONFIG_PANEL;
   page += "</p></body>";
   HTTPServer.publishHTML(page);
 };

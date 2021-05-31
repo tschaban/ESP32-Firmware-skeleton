@@ -8,6 +8,7 @@
 #include <ESP-Sites-Generator.h>
 #include <WebServer.h>
 #include <WiFiClient.h>
+#include <Update.h>
 
 #ifdef ESP_CONFIG_HARDWARE_LED
 #include <ESP-LED.h>
@@ -56,13 +57,15 @@ private:
 
   ESPSitesGenerator Site;
 
-  boolean upgradeFailed = false;
-
   /* Method gets url Option parameter value */
   boolean getOptionName();
   uint8_t getCommand();
   uint8_t getSiteID();
   uint8_t getID();
+
+  /* Methods for upgrade */
+  boolean upgradeSuccess = false;
+  boolean upgradOTAFile(void);
 
   /* Generates HTML response (site) */
   String generateSite(SITE_PARAMETERS *siteConfig, String &page);
@@ -79,6 +82,7 @@ private:
 #endif
 #ifdef ESP_CONFIG_HARDWARE_LED
   void get(LED &data);
+  uint8_t getSystemLEDData();
 #endif
 #ifdef ESP_CONFIG_HARDWARE_SWITCH
   void get(SWITCH &data);

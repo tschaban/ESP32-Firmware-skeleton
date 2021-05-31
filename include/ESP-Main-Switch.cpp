@@ -25,37 +25,43 @@ void eventsListnerSwitch(void) {
 
     if (Switch[i].isPressed(true)) {
 
-      if (Switch[i].configuration.functionality ==
-          ESP_CONFIG_HARDWARE_SWITCH_FUNCTIONALITY_MULTI) {
-
-        unsigned long pressDuration = Switch[i].pressEvent();
+      unsigned long pressDuration = Switch[i].pressEvent();
 #ifdef DEBUG
-        Serial << endl << "INFO: Switched pressed for: " << pressDuration;
+      Serial << endl << "INFO: Switched pressed for: " << pressDuration;
 #endif
 
-        if (pressDuration > 0 && pressDuration <= 5000) {
+      if (pressDuration > 0 && pressDuration <= 5000) {
 #ifdef DEBUG
-          Serial << endl << "INFO: Processing switch 0-5sec";
+        Serial << endl << "INFO: Processing switch 0-5sec";
 #endif
 
-        } else if (pressDuration > 5000 && pressDuration <= 10000) {
+      } else if (pressDuration > 5000 && pressDuration <= 10000) {
 #ifdef DEBUG
-          Serial << endl << "INFO: Processing switch 5-10sec";
+        Serial << endl << "INFO: Processing switch 5-10sec";
 #endif
+
+        if (Switch[i].configuration.functionality ==
+            ESP_CONFIG_HARDWARE_SWITCH_FUNCTIONALITY_MULTI) {
           Device.getMode() == ESP_MODE_NORMAL
               ? Device.reboot(ESP_MODE_CONFIGURATION)
               : Device.reboot(ESP_MODE_NORMAL);
-        } else if (pressDuration > 10000 && pressDuration <= 15000) {
+        }
+      } else if (pressDuration > 10000 && pressDuration <= 15000) {
 #ifdef DEBUG
-          Serial << endl << "INFO: Processing switch 10-15sec";
+        Serial << endl << "INFO: Processing switch 10-15sec";
 #endif
+        if (Switch[i].configuration.functionality ==
+            ESP_CONFIG_HARDWARE_SWITCH_FUNCTIONALITY_MULTI) {
           Device.getMode() == ESP_MODE_NORMAL
               ? Device.reboot(ESP_MODE_ACCESS_POINT)
               : Device.reboot(ESP_MODE_NORMAL);
-        } else if (pressDuration > 15000 && pressDuration <= 20000) {
+        }
+      } else if (pressDuration > 15000 && pressDuration <= 20000) {
 #ifdef DEBUG
-          Serial << endl << "INFO: Processing switch 30-35sec";
+        Serial << endl << "INFO: Processing switch 30-35sec";
 #endif
+        if (Switch[i].configuration.functionality ==
+            ESP_CONFIG_HARDWARE_SWITCH_FUNCTIONALITY_MULTI) {
           Data.createDefaultConfiguration();
           Device.reboot(ESP_MODE_ACCESS_POINT);
         }

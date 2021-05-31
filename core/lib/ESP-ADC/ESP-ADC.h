@@ -5,8 +5,12 @@
 
 #ifdef ESP_CONFIG_HARDWARE_ADC
 
-#include "arduino.h"
+#include <arduino.h>
 #include <ESP-Data-Access.h>
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+#include <ESP-Device.h>
+#endif
 
 #ifdef DEBUG
 #include <Streaming.h>
@@ -34,7 +38,7 @@ private:
   TwoWire *WirePort;
   Adafruit_ADS1115 ADS1115Input;
   boolean readFromGPIO = true;
-  void begin(ESPDataAccess *_Data, uint8_t id);
+  void begin(ESPDataAccess *_Data, uint8_t id, boolean forBatteryMeter = false);
 #endif
 
 public:
@@ -48,12 +52,10 @@ public:
 
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
   void begin(ESPDataAccess *_Data, TwoWire *_WirePort0, TwoWire *_WirePort1,
-             uint8_t id);
+             uint8_t id, boolean forBatteryMeter = false);
 #else
-  void begin(ESPDataAccess *_Data, uint8_t id);
+  void begin(ESPDataAccess *_Data, uint8_t id, boolean forBatteryMeter = false);
 #endif
-  /* Returns values from Analog Input */
-  ADC_DATA get();
 
   /* Main method that takes care for analog reads based on config parameters.
    * Returns true if there is a new value available from analog input  */
