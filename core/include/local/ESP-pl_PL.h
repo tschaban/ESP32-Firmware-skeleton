@@ -150,6 +150,7 @@
 #define L_SWITCH_SENSITIVENESS_HINT "Czułość należy ustawić metodą prób, aż uzyska się pożądane działanie przycisku podczas jego wciskania"
 #define L_SWITCH_BUTTON "Przycisk / Włącznik"
 #define L_SWITCH_MQTT_TOPIC "Temat MQTT do monitorowania stanu przycisku"
+#define L_SWITCH_REVERSE "Odwróć"
 
 /* Form: Analog Input */
 #define L_GPIO_ANALOG_INPUT "Wejście analogowe z GPIO"

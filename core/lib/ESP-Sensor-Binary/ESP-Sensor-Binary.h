@@ -26,6 +26,9 @@ public:
 
   void get(uint32_t &noOfImpulses, uint32_t &duration);
   boolean listener(void);
+  void setInterval(uint16_t interval);
+  void attachInterrupts(uint8_t id);
+  void detachInterrupts(uint8_t id);
 
 
 private:

@@ -115,6 +115,12 @@ void ESPDataAccess::createDefaultConfiguration(void) {
 #endif
   createMQTTBrokerConfigurationFile();
 #endif
+
+#ifdef NXTBIKECOMPUTER /* NxtBike Computer */
+  NXBCreateScreenConfigurationFile();
+  NXBCreateSPEEDOMETERConfigurationFile();
+  NXBCreateSPEEDOMETERConfigurationFile(true);
+#endif /* End Generic verson */
 }
 
 boolean ESPDataAccess::fileExist(const char *path) {
@@ -692,12 +698,16 @@ void ESPDataAccess::createI2CConfigurationFile() {
 #endif
   I2CBUS data;
   data.frequency = ESP_CONFIG_HARDWARE_I2C_DEFAULT_FREQUENCY;
+
   data.SDA = ESP_CONFIG_HARDWARE_I2C_1_DEFAULT_SDA;
   data.SCL = ESP_CONFIG_HARDWARE_I2C_1_DEFAULT_SCL;
   save(0, &data);
+
+#ifndef NXTBIKECOMPUTER /* Generic verson only */
   data.SDA = ESP_CONFIG_HARDWARE_I2C_2_DEFAULT_SDA;
   data.SCL = ESP_CONFIG_HARDWARE_I2C_2_DEFAULT_SCL;
   save(1, &data);
+#endif /* End Generic verson */
 }
 #endif // ESP_CONFIG_HARDWARE_I2C
 
@@ -1067,6 +1077,7 @@ void ESPDataAccess::get(uint8_t id, SWITCH &data) {
       data.functionality = root["functionality"];
       data.type = root["type"];
       data.pinMode = root["pinMode"];
+      data.reverseState = root["reverseState"];
 
 #ifdef DEBUG
       Serial << endl
@@ -1117,6 +1128,7 @@ void ESPDataAccess::save(uint8_t id, SWITCH *data) {
     root["type"] = data->type;
     root["functionality"] = data->functionality;
     root["pinMode"] = data->pinMode;
+    root["reverseState"] = data->reverseState;
 
     root.printTo(configFile);
 #ifdef DEBUG
@@ -1153,6 +1165,7 @@ void ESPDataAccess::createSwitchConfigurationFile() {
   data.type = ESP_CONFIG_HARDWARE_SWITCH_DEFAULT_TYPE;
   data.functionality = ESP_CONFIG_HARDWARE_SWITCH_DEFAULT_FUNCTIONALITY;
   data.pinMode = ESP_CONFIG_HARDWARE_SWITCH_DEFAULT_PIN_MODE;
+    data.reverseState = ESP_CONFIG_HARDWARE_SWITCH_DEFAULT_REVERSE;
   save(0, &data);
   data.gpio = ESP_HARDWARE_ITEM_NOT_EXIST;
   for (uint8_t i = 1; i < ESP_CONFIG_HARDWARE_SWITCH_MAX_NUMBER; i++) {
@@ -2080,3 +2093,233 @@ void ESPDataAccess::createMQTTBrokerConfigurationFile() {
 }
 
 #endif // ESP_CONFIG_API_MQTT
+
+#ifdef NXTBIKECOMPUTER /* NxtBike Computer */
+
+void ESPDataAccess::NXBGet(SpeedometerDataType &data, boolean archive) {
+#ifdef DEBUG
+  Serial << endl
+         << endl
+         << "INFO: Opening file: "
+         << (archive ? FILE_SPEEDOMETER_BACKUP : FILE_SPEEDOMETER) << " ... ";
+#endif
+
+  File configFile =
+      LITTLEFS.open(archive ? FILE_SPEEDOMETER_BACKUP : FILE_SPEEDOMETER, "r");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: JSON: ";
+#endif
+
+    size_t size = configFile.size();
+    std::unique_ptr<char[]> buf(new char[size]);
+    configFile.readBytes(buf.get(), size);
+    StaticJsonBuffer<FILE_SPEEDOMETER_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.parseObject(buf.get());
+    if (root.success()) {
+#ifdef DEBUG
+      root.printTo(Serial);
+#endif
+      data.distance.total = root["DistanceTotal"].as<double>();
+      data.distance.current = root["DistanceCurrent"].as<double>();
+      data.speed.avarage = root["SpeedAvg"] | 0;
+      data.speed.max = root["SpeedMax"] | 0;
+      data.timeInMove = root["RideTime"] | 0;
+      data.timer = root["TotalTime"] | 0;
+
+#ifdef DEBUG
+      Serial << endl
+             << "INFO: JSON: Buffer size: " << FILE_SPEEDOMETER_BUFFER
+             << ", actual JSON size: " << jsonBuffer.size();
+      if (FILE_SPEEDOMETER_BUFFER < jsonBuffer.size() + 10) {
+        Serial << endl << "WARN: Too small buffer size";
+      }
+#endif
+    }
+#ifdef DEBUG
+    else {
+      Serial << "ERROR: JSON not pharsed";
+    }
+#endif
+    configFile.close();
+  }
+
+#ifdef DEBUG
+  else {
+    Serial << endl
+           << "ERROR: Configuration file: "
+           << (archive ? FILE_SPEEDOMETER_BACKUP : FILE_SPEEDOMETER)
+           << " not opened";
+  }
+#endif
+}
+
+void ESPDataAccess::NXBSave(SpeedometerDataType *data, boolean archive) {
+#ifdef DEBUG
+  Serial << endl
+         << endl
+         << "INFO: Opening file: "
+         << (archive ? FILE_SPEEDOMETER_BACKUP : FILE_SPEEDOMETER) << " ... ";
+#endif
+
+  File configFile =
+      LITTLEFS.open(archive ? FILE_SPEEDOMETER_BACKUP : FILE_SPEEDOMETER, "w");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: Writing JSON: ";
+#endif
+    StaticJsonBuffer<FILE_SPEEDOMETER_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.createObject();
+    root["SpeedAvg"] = data->speed.avarage;
+    root["SpeedMax"] = data->speed.max;
+    root["DistanceTotal"] = data->distance.total;
+    root["DistanceCurrent"] = data->distance.current;
+    root["RideTime"] = data->timeInMove;
+    root["TotalTime"] = data->timer;
+    root.printTo(configFile);
+#ifdef DEBUG
+    root.printTo(Serial);
+#endif
+    configFile.close();
+
+#ifdef DEBUG
+    Serial << endl
+           << "INFO: Data saved" << endl
+           << "INFO: JSON: Buffer size: " << FILE_SPEEDOMETER_BUFFER
+           << ", actual JSON size: " << jsonBuffer.size();
+    if (FILE_SPEEDOMETER_BUFFER < jsonBuffer.size() + 10) {
+      Serial << endl << "WARN: Too small buffer size";
+    }
+#endif
+  }
+#ifdef DEBUG
+  else {
+    Serial << endl
+           << F("ERROR: failed to open file: ")
+           << (archive ? FILE_SPEEDOMETER_BACKUP : FILE_SPEEDOMETER);
+  }
+#endif
+}
+
+void ESPDataAccess::NXBCreateSPEEDOMETERConfigurationFile(boolean archive) {
+#ifdef DEBUG
+  Serial << endl << F("INFO: Creating Speedometer configuration files");
+#endif
+  SpeedometerDataType data;
+  data.distance.total = SPEEDOMETER_DEFAULT_TOTAL_DISTANCE;
+  data.distance.current = 0;
+  data.speed.avarage = 0;
+  data.speed.max = 0;
+  data.timeInMove = 0;
+  data.timer = 0;
+  NXBSave(&data, archive);
+}
+
+void ESPDataAccess::NXBGetScreen(LCDScreenCurrentConfigurationType &data) {
+#ifdef DEBUG
+  Serial << endl
+         << endl
+         << "INFO: Opening file: " << FILE_CURRENTSCREEN << " ... ";
+#endif
+
+  File configFile = LITTLEFS.open(FILE_CURRENTSCREEN, "r");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: JSON: ";
+#endif
+
+    size_t size = configFile.size();
+    std::unique_ptr<char[]> buf(new char[size]);
+    configFile.readBytes(buf.get(), size);
+    StaticJsonBuffer<FILE_CURRENTSCREEN_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.parseObject(buf.get());
+    if (root.success()) {
+#ifdef DEBUG
+      root.printTo(Serial);
+#endif
+
+      data.screenID = root["ScreenId"] | SCREEN_SPLASH;
+      data.themeID = root["ThemeId"] | THEME_NORMAL;
+
+#ifdef DEBUG
+      Serial << endl
+             << "INFO: JSON: Buffer size: " << FILE_CURRENTSCREEN_BUFFER
+             << ", actual JSON size: " << jsonBuffer.size();
+      if (FILE_CURRENTSCREEN_BUFFER < jsonBuffer.size() + 10) {
+        Serial << endl << "WARN: Too small buffer size";
+      }
+#endif
+    }
+#ifdef DEBUG
+    else {
+      Serial << "ERROR: JSON not pharsed";
+    }
+#endif
+
+    configFile.close();
+  }
+
+#ifdef DEBUG
+  else {
+    Serial << endl
+           << "ERROR: Configuration file: " << FILE_CURRENTSCREEN
+           << " not opened";
+  }
+#endif
+}
+
+void ESPDataAccess::NXBSaveSceen(LCDScreenCurrentConfigurationType *data) {
+#ifdef DEBUG
+  Serial << endl
+         << endl
+         << "INFO: Opening file: " << FILE_CURRENTSCREEN << " ... ";
+#endif
+
+  File configFile = LITTLEFS.open(FILE_CURRENTSCREEN, "w");
+
+  if (configFile) {
+#ifdef DEBUG
+    Serial << "success" << endl << "INFO: Writing JSON: ";
+#endif
+
+    StaticJsonBuffer<FILE_CURRENTSCREEN_BUFFER> jsonBuffer;
+    JsonObject &root = jsonBuffer.createObject();
+    root["ScreenId"] = data->screenID;
+    root["ThemeId"] = data->themeID;
+    root.printTo(configFile);
+#ifdef DEBUG
+    root.printTo(Serial);
+#endif
+    configFile.close();
+
+#ifdef DEBUG
+    Serial << endl
+           << "INFO: Data saved" << endl
+           << "INFO: JSON: Buffer size: " << FILE_CURRENTSCREEN_BUFFER
+           << ", actual JSON size: " << jsonBuffer.size();
+    if (FILE_CURRENTSCREEN_BUFFER < jsonBuffer.size() + 10) {
+      Serial << endl << "WARN: Too small buffer size";
+    }
+#endif
+  }
+#ifdef DEBUG
+  else {
+    Serial << endl << F("ERROR: failed to open file: ") << FILE_CURRENTSCREEN;
+  }
+#endif
+}
+
+void ESPDataAccess::NXBCreateScreenConfigurationFile() {
+#ifdef DEBUG
+  Serial << endl << F("INFO: Creating NXB Screen Id file");
+#endif
+  LCDScreenCurrentConfigurationType data;
+  data.screenID = SCREEN_SPLASH;
+  data.themeID = THEME_NORMAL;
+  NXBSaveSceen(&data);
+}
+
+#endif /* End Generic verson */

@@ -112,12 +112,19 @@ boolean ESPADC::listener() {
 
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
         if (readFromGPIO) {
-#endif    
+#endif
           temporaryAnalogData += analogRead(configuration.gpio);
 #ifdef ESP_CONFIG_HARDWARE_ADS1115
         } else {
-          temporaryAnalogData +=
-              ADS1115Input.readADC_SingleEnded(configuration.i2c.inputId);
+
+          if (configuration.i2c.inputId < 4) {
+            temporaryAnalogData +=
+                ADS1115Input.readADC_SingleEnded(configuration.i2c.inputId);
+          } else if (configuration.i2c.inputId == 4) {
+            temporaryAnalogData += ADS1115Input.readADC_Differential_0_1();
+          } else if (configuration.i2c.inputId == 5) {
+            temporaryAnalogData += ADS1115Input.readADC_Differential_2_3();
+          }
         }
 #endif
 
@@ -126,9 +133,24 @@ boolean ESPADC::listener() {
         data.raw =
             (uint16_t)(temporaryAnalogData / configuration.numberOfSamples);
 
-        data.percent = (float)data.raw * 100 / configuration.resolution;
-        data.voltage = (double)(configuration.maxVCC * data.raw /
-                                configuration.resolution);
+        if (data.raw <= ESP_CONFIG_HARDWARE_ADS1115_DEFAULT_RESOLUTION) {
+          data.voltage =
+              (double)(configuration.maxVCC * data.raw /
+                       ESP_CONFIG_HARDWARE_ADS1115_DEFAULT_RESOLUTION);
+          data.percent = (float)data.raw * 100 /
+                         ESP_CONFIG_HARDWARE_ADS1115_DEFAULT_RESOLUTION;
+        } else {
+          data.voltage =
+              (double)(-1 * configuration.maxVCC *
+                       (ESP_CONFIG_HARDWARE_ADS1115_DEFAULT_16B_RESOLUTION -
+                        data.raw) /
+                       configuration.resolution);
+          data.percent =
+              (float)(ESP_CONFIG_HARDWARE_ADS1115_DEFAULT_16B_RESOLUTION -
+                      data.raw) *
+              -100 / ESP_CONFIG_HARDWARE_ADS1115_DEFAULT_RESOLUTION;
+        }
+
         if (configuration.divider.Rb > 0) {
           data.voltageCalculated = (data.voltage * (configuration.divider.Ra +
                                                     configuration.divider.Rb)) /

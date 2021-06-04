@@ -3,11 +3,14 @@
 
 #include "arduino.h"
 
+#include <ArduinoJson.h>
 #include <Configuration.h>
 #include <Data-Structures.h>
-#include <ArduinoJson.h>
 #include <LITTLEFS.h>
 
+#ifdef NXTBIKECOMPUTER /* NxtBike Computer */
+#include <NXB-Configuration.h>
+#endif /* End Generic verson */
 
 #ifdef DEBUG
 #include <Streaming.h>
@@ -54,7 +57,6 @@ public:
   void createUARTConfigurationFile();
 #endif
 
-
 #ifdef ESP_CONFIG_HARDWARE_LED
   void get(uint8_t, LED &data);
   void save(uint8_t, LED *data);
@@ -75,7 +77,6 @@ public:
   void createADCConfigurationFile();
 #endif
 
-
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
   void get(uint8_t, BINARY_SENSOR &data);
   void save(uint8_t, BINARY_SENSOR *data);
@@ -92,7 +93,7 @@ public:
   void get(uint8_t, NTC_SENSOR &data);
   void save(uint8_t, NTC_SENSOR *data);
   void createNTCSensorConfigurationFile();
-#endif 
+#endif
 
 #ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
   void get(uint8_t, BATTERYMETER &data);
@@ -104,13 +105,24 @@ public:
   void get(uint8_t, ACS758_SENSOR &data);
   void save(uint8_t, ACS758_SENSOR *data);
   void createACS758SensorConfigurationFile();
-#endif 
+#endif
 
 #ifdef ESP_CONFIG_API_MQTT
   void get(uint8_t, MQTT_BROKER &data);
   void save(uint8_t, MQTT_BROKER *data);
   void createMQTTBrokerConfigurationFile();
-#endif 
+#endif
 
+#ifdef NXTBIKECOMPUTER /* NxtBike Computer */
+
+  void NXBGet(SpeedometerDataType &data, boolean archive = false);
+  void NXBSave(SpeedometerDataType *data, boolean archive = false);
+  void NXBCreateSPEEDOMETERConfigurationFile(boolean archive = false);
+
+  void NXBGetScreen(LCDScreenCurrentConfigurationType &data);
+  void NXBSaveSceen(LCDScreenCurrentConfigurationType *data);
+  void NXBCreateScreenConfigurationFile();
+
+#endif /* End Generic verson */
 };
 #endif

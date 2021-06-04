@@ -28,7 +28,7 @@ private:
   unsigned long startTime = 0;
   boolean _initialized = false;
   uint8_t counterOfSamplings = 0;
-  uint16_t temporaryAnalogData = 0;
+  int16_t temporaryAnalogData = 0;
 
   ESPDataAccess *Data;
 

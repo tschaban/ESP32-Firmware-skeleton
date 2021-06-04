@@ -381,14 +381,12 @@ void ESPWebServer::generate(boolean upload) {
     }
   }
 
-
   if (upload) {
     upgradeSuccess = upgradOTAFile();
   } else {
 
 #ifdef DEBUG
-    Serial << endl
-           << F("INFO: SITE: Generating site");
+    Serial << endl << F("INFO: SITE: Generating site");
 #endif
 
     String page;
@@ -557,18 +555,18 @@ boolean ESPWebServer::httpAPIlistener() { return receivedHTTPCommand; }
 
 void ESPWebServer::publishHTML(String &page) {
   uint16_t pageSize = page.length();
-/*
-#ifdef DEBUG
-  Serial << endl << F("INFO: Site streaming started. Size : ") << pageSize;
+  /*
+  #ifdef DEBUG
+    Serial << endl << F("INFO: Site streaming started. Size : ") << pageSize;
 
-  if (pageSize + 100 > ESP_MAX_PAGE_SIZE) {
-    Serial << endl
-           << endl
-           << F("ERROR: Page size buffor ") << ESP_MAX_PAGE_SIZE
-           << F("B too small : ") << pageSize << F(" ... ");
-  }
-#endif
-*/
+    if (pageSize + 100 > ESP_MAX_PAGE_SIZE) {
+      Serial << endl
+             << endl
+             << F("ERROR: Page size buffor ") << ESP_MAX_PAGE_SIZE
+             << F("B too small : ") << pageSize << F(" ... ");
+    }
+  #endif
+  */
   Server.sendHeader("Content-Length", String(page.length()));
   Server.setContentLength(pageSize);
   if (pageSize > ESP_PAGE_CHUNK_SIZE) {
@@ -788,6 +786,7 @@ uint8_t ESPWebServer::getSystemLEDData() {
 
 #ifdef ESP_CONFIG_HARDWARE_SWITCH
 void ESPWebServer::get(SWITCH &data) {
+  data.reverseState = Server.arg("reverse").length() > 0 ? true : false;
   data.gpio = Server.arg("gpio").length() > 0 ? Server.arg("gpio").toInt()
                                               : ESP_HARDWARE_ITEM_NOT_EXIST;
 
@@ -927,8 +926,9 @@ void ESPWebServer::get(DS18B20_SENSOR &data) {
                         ? Server.arg("resolution").toInt()
                         : ESP_CONFIG_HARDWARE_SENSOR_DS18B20_DEFAULT_RESOLUTION;
 
-  data.unit = Server.arg("unit").length() > 0 ? Server.arg("unit").toInt()
-                                           : ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS;                        
+  data.unit = Server.arg("unit").length() > 0
+                  ? Server.arg("unit").toInt()
+                  : ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS;
 }
 #endif // ESP_CONFIG_HARDWARE_SENSOR_DS18B20
 

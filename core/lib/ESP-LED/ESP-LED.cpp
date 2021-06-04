@@ -77,4 +77,11 @@ void ESPLED::toggle() {
   digitalRead(LEDConfiguration.gpio) == HIGH ? set(LOW) : set(HIGH);
 }
 
+/* Method gets LED state */
+boolean ESPLED::get() {
+  return LEDConfiguration.reverseState
+             ? digitalRead(LEDConfiguration.gpio) == HIGH ? true : false
+             : digitalRead(LEDConfiguration.gpio) == HIGH ? false : true;
+}
+
 #endif // ESP_CONFIG_HARDWARE_LED

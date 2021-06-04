@@ -118,7 +118,6 @@ void ESPSitesGenerator::generateMenu(String &page, uint16_t redirect) {
   }
 #endif
 
-
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_NTC
   if (Device->configuration.noOfNTCs > 0) {
     addMenuHeaderItem(page, F(L_NTC_SENSOR));
@@ -154,7 +153,6 @@ void ESPSitesGenerator::generateMenu(String &page, uint16_t redirect) {
                    ESP_CONFIG_SITE_BATTERYMETER);
   }
 #endif // ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-
 
   page.concat(FPSTR(HTTP_MENU_HEADER));
   page.replace("{{m.h}}", F(L_FIRMWARE));
@@ -194,18 +192,18 @@ void ESPSitesGenerator::siteUpgrade(String &page) {
   page.replace("{{L1}}", F(L_UPGRADE_SELECT_FIRMWARE));
   page.replace("{{L2}}", F(L_UPGRADE));
   closeSection(page);
-/*
-  openMessageSection(page, F(L_UPGRADE_FIRMWAR_YOUR_CURRENT_FIRMWARE), F(""));
-  page.concat(FPSTR(HTTP_MESSAGE_LINE_ITEM));
-  page.replace("{{I}}", F(L_UPGRADE_FIRMWARE_VERSION));
-  page.concat(FPSTR(HTTP_MESSAGE_LINE_ITEM));
-  page.replace("{{I}}", F(L_UPGRADE_FIRMWARE_DEVICE_NAME));
-  page.concat(FPSTR(HTTP_MESSAGE_LINE_ITEM));
-  page.replace("{{I}}", F(L_UPGRADE_FIRMWARE_API));
-  page.concat(FPSTR(HTTP_MESSAGE_LINE_ITEM));
-  page.replace("{{I}}", F(L_UPGRADE_FIRMWARE_DEVICE_ID));
-  closeMessageSection(page);
-*/  
+  /*
+    openMessageSection(page, F(L_UPGRADE_FIRMWAR_YOUR_CURRENT_FIRMWARE), F(""));
+    page.concat(FPSTR(HTTP_MESSAGE_LINE_ITEM));
+    page.replace("{{I}}", F(L_UPGRADE_FIRMWARE_VERSION));
+    page.concat(FPSTR(HTTP_MESSAGE_LINE_ITEM));
+    page.replace("{{I}}", F(L_UPGRADE_FIRMWARE_DEVICE_NAME));
+    page.concat(FPSTR(HTTP_MESSAGE_LINE_ITEM));
+    page.replace("{{I}}", F(L_UPGRADE_FIRMWARE_API));
+    page.concat(FPSTR(HTTP_MESSAGE_LINE_ITEM));
+    page.replace("{{I}}", F(L_UPGRADE_FIRMWARE_DEVICE_ID));
+    closeMessageSection(page);
+  */
 }
 
 void ESPSitesGenerator::sitePostUpgrade(String &page, boolean status) {
@@ -567,7 +565,7 @@ void ESPSitesGenerator::addSelectFormItemClose(String &item) {
 /************** SITES ****************/
 
 void ESPSitesGenerator::siteIndex(String &page) {
- DEVICE configuration;
+  DEVICE configuration;
   configuration = Device->configuration;
 
   openSection(page, F(L_INDEX_LAUNCH_CONFIGURATION_PANEL),
@@ -601,7 +599,8 @@ void ESPSitesGenerator::siteDevice(String &page) {
 
 #ifdef ESP_CONFIG_HARDWARE_LED
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_LED_MAX_NUMBER,
-                        configuration.noOfLEDs, F("led"), F(L_DEVICE_NUMBER_OF_LEDS));
+                        configuration.noOfLEDs, F("led"),
+                        F(L_DEVICE_NUMBER_OF_LEDS));
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SWITCH
@@ -611,7 +610,8 @@ void ESPSitesGenerator::siteDevice(String &page) {
 #endif
 #ifdef ESP_CONFIG_HARDWARE_ADC
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_ADC_MAX_NUMBER,
-                        configuration.noOfADCs, F("adc"), F(L_DEVICE_NUMBER_OF_ADCS));
+                        configuration.noOfADCs, F("adc"),
+                        F(L_DEVICE_NUMBER_OF_ADCS));
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_SENSOR_BINARY
@@ -653,7 +653,8 @@ void ESPSitesGenerator::siteDevice(String &page) {
   openSection(page, F(L_BUSES), F(""));
 #ifdef ESP_CONFIG_HARDWARE_I2C
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_I2C_MAX_NUMBER,
-                        configuration.noOfI2Cs, F("i2c"), F(L_DEVICE_NUMBER_OF_I2C));
+                        configuration.noOfI2Cs, F("i2c"),
+                        F(L_DEVICE_NUMBER_OF_I2C));
 #endif
 #ifdef ESP_CONFIG_HARDWARE_UART
   addListOfHardwareItem(page, ESP_CONFIG_HARDWARE_UART_MAX_NUMBER,
@@ -883,7 +884,7 @@ void ESPSitesGenerator::siteSwitch(String &page, uint8_t id) {
   addSelectOptionFormItem(page, "INPUT PULLUP", "5",
                           configuration.pinMode == INPUT_PULLUP);
   addSelectOptionFormItem(page, "INPUT PULLDOWN", "9",
-                          configuration.pinMode == INPUT_PULLDOWN);                          
+                          configuration.pinMode == INPUT_PULLDOWN);
   addSelectFormItemClose(page);
 
   /* Item: Functionality */
@@ -912,6 +913,10 @@ void ESPSitesGenerator::siteSwitch(String &page, uint8_t id) {
   addInputFormItem(page, ESP_FORM_ITEM_TYPE_NUMBER, "bouncing", L_SENSITIVENESS,
                    _number, ESP_FORM_ITEM_SKIP_PROPERTY, "0", "999", "1",
                    L_MILISECONDS);
+
+  addCheckboxFormItem(page, "reverse", L_SWITCH_REVERSE, "1",
+                      configuration.reverseState);
+
   closeSection(page);
 }
 #endif
@@ -976,6 +981,11 @@ void ESPSitesGenerator::siteADC(String &page, uint8_t id) {
         addSelectOptionFormItem(page, _analogPinIdText, _numberText1,
                                 configuration.i2c.inputId == i);
       }
+      addSelectOptionFormItem(page, "AIN0-1", "4",
+                              configuration.i2c.inputId == 4);
+      addSelectOptionFormItem(page, "AIN2-3", "5",
+                              configuration.i2c.inputId == 5);
+
       addSelectFormItemClose(page);
 
       /* Item: Number of samples per m.second */
@@ -1179,12 +1189,13 @@ void ESPSitesGenerator::siteDS18B20Sensor(String &page, uint8_t id) {
 
   /* Item: Unit */
   addSelectFormItemOpen(page, F("unit"), F(L_UNITS));
-  addSelectOptionFormItem(page, "C", "0",
-                          configuration.unit == ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS);
-  addSelectOptionFormItem(page, "F", "1", configuration.unit ==
-                                              ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_FARENHIAT);
+  addSelectOptionFormItem(
+      page, "C", "0",
+      configuration.unit == ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_CELSIUS);
+  addSelectOptionFormItem(
+      page, "F", "1", configuration.unit ==
+                          ESP_CONFIG_FUNCTIONALITY_TEMPERATURE_UNIT_FARENHIAT);
   addSelectFormItemClose(page);
-
 
   /* Item: Correction */
   sprintf(_number, "%-.3f", configuration.correction);

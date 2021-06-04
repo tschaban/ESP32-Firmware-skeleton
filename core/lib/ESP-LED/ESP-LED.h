@@ -39,6 +39,9 @@ public:
   /* Method change the LED to opposite state */
   void toggle();
 
+  /* Method gets LED state */
+  boolean get();
+
   /* Blink LED. Duration how lon LED is ON can be set by input parameter (in
    * milli)*/
   void blink(unsigned int duration = 100);

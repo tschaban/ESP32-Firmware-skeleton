@@ -5,47 +5,27 @@
 // Interuption counter
 volatile static unsigned long interuptionsCounter0 = 0;
 volatile static unsigned long previousInteruption0 = 0;
+volatile static unsigned long firstInteruption0 = 0;
 volatile static unsigned long bouncing0 = 0;
 
 void IRAM_ATTR handleImpuls0() {
+  /* DEBUG CANT BE IN PROD VERSION, it crashes firmware when used in
+   * Intrruptations */
   if (millis() - previousInteruption0 > bouncing0) {
     interuptionsCounter0++;
-///* Crashes if many interuptions 
-#ifdef DEBUG
-    Serial << endl
-           << F("INFO:  Binary sensor: New interuption: counter: ")
-           << interuptionsCounter0;
-#endif
-//*/
+    if (firstInteruption0 == 0) {
+      firstInteruption0 = millis();
+    }
+    /*
+    #ifdef DEBUG
+        Serial << endl
+               << F("INFO:  Binary sensor: New interuption: counter: ")
+               << interuptionsCounter0;
+    #endif
+    */
   }
-///*
-#ifdef DEBUGA
-  else {
-    Serial << F(".");
-  }
-#endif
-//*/
   previousInteruption0 = millis();
 };
-
-
-void IRAM_ATTR handleImpulsR() {
- Serial << endl << "RISING";
-};
-
-
-void IRAM_ATTR handleImpulsF() {
- Serial << endl << "FALLING ";
-};
-
-void IRAM_ATTR handleImpulsC() {
- Serial << endl << "CHANGE ";
-};
-
-void IRAM_ATTR handleImpulsL() {
- Serial << endl << "LOW ";
-};
-
 
 ESPSensorBinary::ESPSensorBinary(){};
 
@@ -55,25 +35,8 @@ void ESPSensorBinary::begin(ESPDataAccess *_Data, uint8_t id) {
   _id = id;
 
   if (configuration.gpio != ESP_HARDWARE_ITEM_NOT_EXIST) {
-
     pinMode(configuration.gpio, INPUT_PULLUP);
-    switch (_id) {
-    case 0: {
-      attachInterrupt(digitalPinToInterrupt(configuration.gpio), handleImpulsC,CHANGE );
-      attachInterrupt(digitalPinToInterrupt(configuration.gpio), handleImpulsR,RISING );
-      attachInterrupt(digitalPinToInterrupt(configuration.gpio), handleImpulsL,LOW );
-      attachInterrupt(digitalPinToInterrupt(configuration.gpio), handleImpuls0,FALLING );
-      bouncing0 = configuration.bouncing;
-      break;
-    }
-    case 1: {
-    }
-    case 2: {
-    }
-    case 3: {
-    }
-    }
-
+    attachInterrupts(_id);
     _initialized = true;
   }
 
@@ -87,7 +50,8 @@ void ESPSensorBinary::begin(ESPDataAccess *_Data, uint8_t id) {
 }
 
 void ESPSensorBinary::get(uint32_t &noOfImpulses, uint32_t &duration) {
-  duration = millis() - counterStarted;
+
+  duration = firstInteruption0 > 0 ? millis() - firstInteruption0 : 0;
   if (duration < 0) { // used previous duration if timer rollouts
     duration = _previousDuration;
   }
@@ -96,6 +60,7 @@ void ESPSensorBinary::get(uint32_t &noOfImpulses, uint32_t &duration) {
   case 0: {
     noOfImpulses = interuptionsCounter0;
     interuptionsCounter0 = 0;
+    firstInteruption0 = 0;
     break;
   }
   case 1: {
@@ -109,6 +74,7 @@ void ESPSensorBinary::get(uint32_t &noOfImpulses, uint32_t &duration) {
   _previousDuration = duration;
   counterStarted = 0; // It's set to 0 to allow other code to execude, just
                       // after reading the data
+
 #ifdef DEBUG
   Serial << endl
          << F("INFO: Binary sensor: Impulses: ") << noOfImpulses
@@ -130,6 +96,49 @@ boolean ESPSensorBinary::listener(void) {
     _ret = false;
   }
   return _ret;
+}
+
+void ESPSensorBinary::setInterval(uint16_t interval) {
+  if (interval > 0) {
+    configuration.interval = interval;
+#ifdef DEBUG
+    Serial << endl
+           << F("INFO: Binary sensor: Changing interval to: ")
+           << configuration.interval << F("msec.");
+#endif
+  }
+}
+
+void ESPSensorBinary::attachInterrupts(uint8_t id) {
+  switch (_id) {
+  case 0: {
+    attachInterrupt(digitalPinToInterrupt(configuration.gpio), handleImpuls0,
+                    FALLING);
+    bouncing0 = configuration.bouncing;
+    break;
+  }
+  case 1: {
+  }
+  case 2: {
+  }
+  case 3: {
+  }
+  }
+}
+
+void ESPSensorBinary::detachInterrupts(uint8_t id) {
+  switch (_id) {
+  case 0: {
+    detachInterrupt(digitalPinToInterrupt(configuration.gpio));
+    break;
+  }
+  case 1: {
+  }
+  case 2: {
+  }
+  case 3: {
+  }
+  }
 }
 
 #endif // ESP_CONFIG_HARDWARE_SENSOR_BINARY

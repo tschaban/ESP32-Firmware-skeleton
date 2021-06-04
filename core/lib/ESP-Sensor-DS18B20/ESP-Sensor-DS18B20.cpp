@@ -68,9 +68,7 @@ float ESPDS18B20Sensor::getCurrentTemperature() {
   return temperature;
 }
 
-float ESPDS18B20Sensor::getTemperature() {
-  return currentTemperature;
-}
+float ESPDS18B20Sensor::getTemperature() { return currentTemperature; }
 
 boolean ESPDS18B20Sensor::listener() {
   boolean ready = false;
@@ -80,8 +78,8 @@ boolean ESPDS18B20Sensor::listener() {
       startTime = time;
     }
     if (time - startTime >= configuration.interval) {
-      getCurrentTemperature();
-      ready = true;
+      if (getCurrentTemperature() != DEVICE_DISCONNECTED_C)
+        ready = true;
       startTime = 0; // It's set to 0 to allow other code to execude, just after
                      // reading the data
     }

@@ -212,6 +212,7 @@
   "while pressing it"
 #define L_SWITCH_BUTTON "Switch / Button"
 #define L_SWITCH_MQTT_TOPIC "MQTT Topic to monitor the state of the switch"
+#define L_SWITCH_REVERSE "Reverse"
 
 /* Form: Analog Input */
 #define L_CANT_CHANGE "can't be set"

@@ -30,12 +30,13 @@ ESPWiFi Network;
 #include <ESP-Main-LED.cpp>
 #endif
 
-#ifdef ESP_CONFIG_HARDWARE_SWITCH
-#include <ESP-Main-Switch.cpp>
-#endif
 
 #ifdef ESP_CONFIG_HARDWARE_I2C
 #include <ESP-Main-I2C.cpp>
+#endif
+
+#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
+#include <ESP-Main-Batterymeter.cpp>
 #endif
 
 #ifdef ESP_CONFIG_HARDWARE_ADC
@@ -58,12 +59,18 @@ ESPWiFi Network;
 #include <ESP-Main-ACS758-Sensor.cpp>
 #endif
 
-
-#ifdef ESP_CONFIG_FUNCTIONALITY_BATTERYMETER
-#include <ESP-Main-Batterymeter.cpp>
-
+#ifdef ESP_CONFIG_HARDWARE_SWITCH
+#include <ESP-Main-Switch.cpp>
 #endif
 
 #include <ESP-Main-HTTPServer.cpp>
+
+
+#ifdef NXTBIKECOMPUTER /* NxtBike Computer */
+#include <NXB-Main.cpp>
+#else /* Generic verson */
+#include <ESP-Main.cpp>
+#endif /* End Generic verson */
+
 
 #endif // _ESP_main_h

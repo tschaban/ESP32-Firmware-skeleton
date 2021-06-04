@@ -36,6 +36,8 @@ public:
   boolean getState();
   boolean getPhisicalState();
 
+  boolean getGPIOState();
+   
   /* Method returns true if switch has been pressed. Sensitiveness it taken into
    * account. It does not mean switch is pressed physically. Once True capture
    * getState() method should be called to get the state of the Switch */
@@ -45,6 +47,8 @@ public:
 
   /* Method has to be added to the loop in order to listen for switch changes */
   void listener();
+  unsigned long whenButtonPressed(void);
+  void resetButtonPressedTimer(unsigned long time = 0);
 
 private:
   boolean _initialized = false;

@@ -14,6 +14,7 @@ struct SWITCH {
   uint16_t bouncing;
   uint8_t functionality;
   uint8_t pinMode;
+  boolean reverseState = false;
 };
 
 #endif // ESP_CONFIG_HARDWARE_SWITCH
